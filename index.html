@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attar House | Alta Perfumería y Decants</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --- VARIABLES DE MARCA --- */
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #121212;
+            --gold-primary: #D4AF37;
+            --gold-light: #F3E5AB;
+            --gold-dark: #997A15;
+            --text-main: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --whatsapp: #25D366;
+            --border-gold: rgba(212, 175, 55, 0.2);
+        }
+
+        /* --- RESET Y BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- NAVEGACIÓN --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(3, 3, 3, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-gold);
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Espacio para tu logo en el menú */
+        .logo-nav {
+            height: 40px; /* Tamaño del logo en el menú */
+            width: auto;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links button:hover, .nav-links button.active {
+            color: var(--gold-primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            color: var(--gold-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- SISTEMA DE PESTAÑAS (SPA) --- */
+        main {
+            flex: 1;
+            margin-top: 70px; /* Compensa la barra de navegación fija */
+        }
+
+        .page-section {
+            display: none; /* Oculta todas las secciones por defecto */
+            animation: fadeIn 0.4s ease-in-out;
+            padding: 40px 0 80px 0;
+            min-height: calc(100vh - 150px);
+        }
+
+        .page-section.active {
+            display: block; /* Solo muestra la sección activa */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PESTAÑA: INICIO (HERO) --- */
+        #inicio {
+            padding: 0;
+            display: none; /* Controlado por JS, sobrescribe para el flex */
+            height: calc(100vh - 70px);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, var(--bg-base) 70%);
+            position: relative;
+        }
+        
+        #inicio.active {
+            display: flex; /* Mantiene el flexbox cuando está activa */
+        }
+
+        #inicio::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1594035910387-fea477274976?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        /* Espacio para tu logo principal grande */
+        .logo-hero {
+            max-height: 180px;
+            width: auto;
+            margin: 0 auto 30px auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .hero h2 {
+            font-size: 2.2rem;
+            color: var(--gold-primary);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-primary);
+            color: var(--bg-base);
+        }
+
+        /* --- ESTILOS COMUNES DE SECCIONES --- */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--gold-primary);
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 60px;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- PESTAÑA: DECANTS --- */
+        .decant-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .step-card {
+            background: var(--bg-surface);
+            padding: 40px 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-gold);
+            transition: transform 0.3s;
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            color: var(--gold-primary);
+            margin-bottom: 20px;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .step-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* --- PESTAÑA: CATÁLOGO --- */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image-container {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .arch-frame {
+            width: 130px;
+            height: 170px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 65px 65px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%);
+        }
+
+        /* Botellas CSS (Puedes cambiarlas por img reales luego) */
+        .bottle { position: relative; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.6), 0 10px 20px rgba(0,0,0,0.5); }
+        .bottle-brun { width: 50px; height: 100px; background: linear-gradient(135deg, #8B5A2B 0%, #4A2E15 100%); border-radius: 4px 4px 2px 2px; }
+        .bottle-brun::before { content: ''; position: absolute; top: -15px; left: 12px; width: 26px; height: 15px; background: linear-gradient(90deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%); border-radius: 2px; }
+        .bottle-asad { width: 55px; height: 90px; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 10px; border: 1px solid #333; }
+        .bottle-asad::before { content: ''; position: absolute; top: -15px; left: 17px; width: 20px; height: 15px; background: linear-gradient(90deg, #D4AF37 0%, #886A1A 100%); border-radius: 2px; }
+
+        .product-brand { font-size: 0.7rem; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .product-title { font-size: 1.5rem; color: var(--text-main); margin-bottom: 15px; letter-spacing: 1px; }
+        
+        .notes-tags { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .note-tag { font-size: 0.7rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .pricing-box { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 20px; flex-grow: 1; border: 1px solid rgba(255,255,255,0.05); }
+        .price-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .price-row:last-child { border-bottom: none; }
+        .format-name { font-size: 0.9rem; color: var(--text-muted); }
+        .format-price { font-size: 1.05rem; font-weight: 600; color: var(--text-main); }
+        .format-price.sellado { color: var(--gold-primary); font-size: 1.15rem; }
+
+        .btn-whatsapp {
+            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px;
+            background-color: transparent; border: 1px solid var(--whatsapp); color: var(--whatsapp);
+            border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
+        }
+        .btn-whatsapp:hover { background-color: var(--whatsapp); color: #fff; }
+
+        /* --- PESTAÑA: CONTACTO --- */
+        .contact-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .social-links-big {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .social-link-big {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            transition: color 0.3s;
+        }
+
+        .social-link-big i {
+            font-size: 3rem;
+            color: var(--gold-primary);
+        }
+
+        .social-link-big:hover {
+            color: var(--gold-primary);
+        }
+
+        /* --- FOOTER GLOBAL --- */
+        footer {
+            padding: 20px 0;
+            background-color: var(--bg-surface);
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: auto; /* Lo empuja al fondo */
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--bg-surface);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--border-gold);
+            }
+            .nav-links.show { display: flex; }
+            .mobile-menu-btn { display: block; }
+            .hero h2 { font-size: 1.8rem; }
+            .decant-steps, .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVEGACIÓN -->
+    <nav>
+        <div class="container nav-content">
+            <!-- AQUÍ VA TU LOGO (Para el menú) -->
+            <img src="logo.png" alt="Attar House" class="logo-nav" onclick="navigateTo('inicio')" onerror="this.src='https://placehold.co/150x50/000000/D4AF37?text=Attar+House'">
+            
+            <i class="ph ph-list mobile-menu-btn" id="menuBtn"></i>
+            
+            <div class="nav-links" id="navLinks">
+                <button onclick="navigateTo('inicio')" class="nav-btn active" data-target="inicio">Inicio</button>
+                <button onclick="navigateTo('decants')" class="nav-btn" data-target="decants">¿Qué es un Decant?</button>
+                <button onclick="navigateTo('catalogo')" class="nav-btn" data-target="catalogo">Catálogo</button>
+                <button onclick="navigateTo('contacto')" class="nav-btn" data-target="contacto">Contacto</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL (PESTAÑAS) -->
+    <main>
+        
+        <!-- SECCIÓN 1: INICIO -->
+        <section id="inicio" class="page-section active">
+            <div class="hero-content">
+                <!-- AQUÍ VA TU LOGO GRANDE (Para la portada) -->
+                <img src="logo.png" alt="Attar House" class="logo-hero" onerror="this.src='https://placehold.co/300x300/000000/D4AF37?text=Tu+Logo+Aqui'">
+                
+                <h2 class="serif">"No son perfumes, es presencia."</h2>
+                <p>Descubre la alta perfumería y fragancias árabes en formatos accesibles. Perfumes sellados 100% originales y decants extraídos directamente del frasco de origen. Valdivia.</p>
+                <button onclick="navigateTo('catalogo')" class="btn-primary">Ver Catálogo</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: DECANTS -->
+        <section id="decants" class="page-section">
+            <div class="container">
+                <h2 class="section-title serif">¿Qué es un Decant?</h2>
+                <p class="section-subtitle">Es la forma más inteligente de probar alta perfumería. Consiste en transferir la fragancia original desde su frasco de fábrica a un atomizador más pequeño, ideal para conocer un aroma antes de comprar la botella completa.</p>
+                
+                <div class="decant-steps">
+                    <div class="step-card">
+                        <i class="ph ph-flask step-icon"></i>
+                        <h3 class="serif">1. Perfume Original</h3>
+                        <p>Trabajamos exclusivamente con botellas 100% originales y selladas. Garantizamos la autenticidad de cada gota.</p>
+                    </div>
+                    <div class="step-card">
+                        <i class="ph ph-needle step-icon"></i>
+                        <h3 class="serif">2. Extracción Precisa</h3>
+                        <p>Extraemos el líquido utilizando jeringas estériles, evitando que el perfume entre en contacto con el aire para no alterar sus notas.</p>
+                    </div>
+                    <div class="step-card">
+                        <i class="ph ph-spray-bottle step-icon"></i>
+                        <h3 class="serif">3. Envasado Premium</h3>
+                        <p>Traspasamos el perfume a atomizadores de vidrio de alta calidad de 3ml, 5ml o 10ml, perfectamente etiquetados.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: CATÁLOGO -->
+        <section id="catalogo" class="page-section catalog-bg">
+            <div class="container">
+                <h2 class="section-title serif">Nuestro Catálogo</h2>
+                
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterSelection('all')">Todos</button>
+                    <button class="filter-btn" onclick="filterSelection('arabe')">Perfumes Árabes</button>
+                    <button class="filter-btn" onclick="filterSelection('disenador')">Diseñador</button>
+                </div>
+
+                <div class="product-grid">
+                    <!-- Producto 1 -->
+                    <div class="product-card filter-item arabe">
+                        <div class="product-image-container">
+                            <div class="arch-frame"><div class="bottle bottle-brun"></div></div>
+                        </div>
+                        <div class="product-brand">Lattafa - Fragrance World</div>
+                        <h3 class="product-title serif">Liquid Brun</h3>
+                        <div class="notes-tags">
+                            <span class="note-tag">Vainilla</span>
+                            <span class="note-tag">Canela</span>
+                            <span class="note-tag">Praliné</span>
+                        </div>
+                        <div class="pricing-box">
+                            <div class="price-row"><span class="format-name">Sellado 100ml</span><span class="format-price sellado">$31.000</span></div>
+                            <div class="price-row"><span class="format-name">Decant 10ml</span><span class="format-price">$5.000</span></div>
+                            <div class="price-row"><span class="format-name">Decant 5ml</span><span class="format-price">$3.000</span></div>
+                            <div class="price-row"><span class="format-name">Decant 3ml</span><span class="format-price">$2.000</span></div>
+                        </div>
+                        <button class="btn-whatsapp" onclick="buy('Liquid Brun')"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Comprar</button>
+                    </div>
+
+                    <!-- Producto 2 -->
+                    <div class="product-card filter-item arabe">
+                        <div class="product-image-container">
+                            <div class="arch-frame"><div class="bottle bottle-asad"></div></div>
+                        </div>
+                        <div class="product-brand">Lattafa</div>
+                        <h3 class="product-title serif">Asad</h3>
+                        <div class="notes-tags">
+                            <span class="note-tag">Especiado</span>
+                            <span class="note-tag">Vainilla</span>
+                            <span class="note-tag">Maderas</span>
+                        </div>
+                        <div class="pricing-box">
+                            <div class="price-row"><span class="format-name">Sellado 100ml</span><span class="format-price sellado">$28.000</span></div>
+                            <div class="price-row"><span class="format-name">Decant 10ml</span><span class="format-price">$4.500</span></div>
+                            <div class="price-row"><span class="format-name">Decant 5ml</span><span class="format-price">$2.500</span></div>
+                            <div class="price-row"><span class="format-name">Decant 3ml</span><span class="format-price">$1.500</span></div>
+                        </div>
+                        <button class="btn-whatsapp" onclick="buy('Asad Lattafa')"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Comprar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: CONTACTO -->
+        <section id="contacto" class="page-section">
+            <div class="container">
+                <h2 class="section-title serif">Hablemos</h2>
+                <p class="section-subtitle">Realizamos entregas en Valdivia y envíos a todo Chile.</p>
+
+                <div class="contact-box">
+                    <img src="logo.png" alt="Attar House" style="max-height: 80px; margin-bottom: 20px; object-fit: contain;" onerror="this.src='https://placehold.co/100x100/111/D4AF37?text=Logo'">
+                    <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 10px;">Attar House</h3>
+                    <p style="color: var(--text-muted);">No son perfumes, es presencia.</p>
+
+                    <div class="social-links-big">
+                        <a href="https://instagram.com/attar_housecl" target="_blank" class="social-link-big">
+                            <i class="ph ph-instagram-logo"></i>
+                            <span>Instagram</span>
+                        </a>
+                        <a href="#" class="social-link-big" onclick="buy('información general')">
+                            <i class="ph ph-whatsapp-logo"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER GLOBAL -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Attar House. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Lógica del sistema de pestañas (Navegación sin recargar página)
+        function navigateTo(pageId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(pageId).classList.add('active');
+
+            // Actualizar botones del menú (color dorado al activo)
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('data-target') === pageId) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Cerrar menú móvil si está abierto
+            document.getElementById('navLinks').classList.remove('show');
+
+            // Volver arriba
+            window.scrollTo(0, 0);
+        }
+
+        // Menú móvil
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('show');
+        });
+
+        // Filtrado del catálogo
+        function filterSelection(category) {
+            const items = document.getElementsByClassName('filter-item');
+            const btns = document.getElementsByClassName('filter-btn');
+            
+            for (let i = 0; i < btns.length; i++) {
+                btns[i].classList.remove('active');
+                if (btns[i].innerText.toLowerCase().includes(category) || (category === 'all' && btns[i].innerText === 'Todos')) {
+                    btns[i].classList.add('active');
+                }
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                if (category === 'all' || items[i].classList.contains(category)) {
+                    items[i].style.display = 'flex';
+                } else {
+                    items[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Función de compra por WhatsApp
+        function buy(productName) {
+            const phoneNumber = "56930679481"; // Cambiado a tu número exacto
+            const message = encodeURIComponent(`Hola Attar House! Vengo de su página web y me interesa el perfume: ${productName}.`);
+            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+        }
+    </script>
+</body>
+</html>
