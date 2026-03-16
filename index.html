@@ -27,396 +27,143 @@
         }
 
         /* --- RESET Y BASE --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: 'Montserrat', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        h1, h2, h3, h4, .serif {
-            font-family: 'Playfair Display', serif;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button {
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Montserrat', sans-serif; line-height: 1.6; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        h1, h2, h3, h4, .serif { font-family: 'Playfair Display', serif; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: 'Montserrat', sans-serif; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
         /* --- NAVEGACIÓN --- */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(3, 3, 3, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-gold);
-            z-index: 1000;
-            padding: 15px 0;
-        }
-
-        .nav-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Espacio para tu logo en el menú */
-        .logo-nav {
-            height: 40px; /* Tamaño del logo en el menú */
-            width: auto;
-            object-fit: contain;
-            cursor: pointer;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links button {
-            background: none;
-            border: none;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            transition: color 0.3s;
-            font-weight: 500;
-        }
-
-        .nav-links button:hover, .nav-links button.active {
-            color: var(--gold-primary);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            color: var(--gold-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-gold); z-index: 1000; padding: 15px 0; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo-nav { height: 40px; width: auto; object-fit: contain; cursor: pointer; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links button { background: none; border: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: color 0.3s; font-weight: 500; }
+        .nav-links button:hover, .nav-links button.active { color: var(--gold-primary); }
+        .mobile-menu-btn { display: none; color: var(--gold-primary); font-size: 1.5rem; cursor: pointer; }
 
         /* --- SISTEMA DE PESTAÑAS (SPA) --- */
-        main {
-            flex: 1;
-            margin-top: 70px; /* Compensa la barra de navegación fija */
-        }
-
-        .page-section {
-            display: none; /* Oculta todas las secciones por defecto */
-            animation: fadeIn 0.4s ease-in-out;
-            padding: 40px 0 80px 0;
-            min-height: calc(100vh - 150px);
-        }
-
-        .page-section.active {
-            display: block; /* Solo muestra la sección activa */
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        main { flex: 1; margin-top: 70px; }
+        .page-section { display: none; animation: fadeIn 0.4s ease-in-out; padding: 40px 0 80px 0; min-height: calc(100vh - 150px); }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- PESTAÑA: INICIO (HERO) --- */
-        #inicio {
-            padding: 0;
-            display: none; /* Controlado por JS, sobrescribe para el flex */
-            height: calc(100vh - 70px);
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, var(--bg-base) 70%);
-            position: relative;
-        }
-        
-        #inicio.active {
-            display: flex; /* Mantiene el flexbox cuando está activa */
-        }
+        #inicio { padding: 0; display: none; height: calc(100vh - 70px); align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, var(--bg-base) 70%); position: relative; }
+        #inicio.active { display: flex; }
+        #inicio::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('https://images.unsplash.com/photo-1594035910387-fea477274976?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; opacity: 0.1; z-index: -1; }
+        .hero-content { max-width: 800px; padding: 0 20px; }
+        .logo-hero { max-height: 180px; width: auto; margin: 0 auto 30px auto; object-fit: contain; display: block; }
+        .hero h2 { font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 20px; letter-spacing: 2px; }
+        .hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 80px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn-primary { display: inline-block; padding: 15px 40px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.3s; }
+        .btn-primary:hover { background: var(--gold-primary); color: var(--bg-base); }
 
-        #inicio::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url('https://images.unsplash.com/photo-1594035910387-fea477274976?q=80&w=2000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.1;
-            z-index: -1;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            padding: 0 20px;
-        }
-
-        /* Espacio para tu logo principal grande */
-        .logo-hero {
-            max-height: 180px;
-            width: auto;
-            margin: 0 auto 30px auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        .hero h2 {
-            font-size: 2.2rem;
-            color: var(--gold-primary);
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .btn-primary {
-            display: inline-block;
-            padding: 15px 40px;
-            background: transparent;
-            border: 1px solid var(--gold-primary);
-            color: var(--gold-primary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            background: var(--gold-primary);
-            color: var(--bg-base);
-        }
-
-        /* --- ESTILOS COMUNES DE SECCIONES --- */
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: var(--gold-primary);
-            margin-bottom: 20px;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 60px;
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+        /* --- ESTILOS COMUNES --- */
+        .section-title { text-align: center; font-size: 2.5rem; color: var(--gold-primary); margin-bottom: 20px; }
+        .section-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 700px; margin-left: auto; margin-right: auto; }
 
         /* --- PESTAÑA: DECANTS --- */
-        .decant-steps {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            text-align: center;
-        }
-
-        .step-card {
-            background: var(--bg-surface);
-            padding: 40px 30px;
-            border-radius: 12px;
-            border: 1px solid var(--border-gold);
-            transition: transform 0.3s;
-        }
-
-        .step-icon {
-            font-size: 3rem;
-            color: var(--gold-primary);
-            margin-bottom: 20px;
-        }
-
-        .step-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: var(--text-main);
-        }
-
-        .step-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
+        .decant-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; text-align: center; }
+        .step-card { background: var(--bg-surface); padding: 40px 30px; border-radius: 12px; border: 1px solid var(--border-gold); transition: transform 0.3s; }
+        .step-icon { font-size: 3rem; color: var(--gold-primary); margin-bottom: 20px; }
+        .step-card h3 { font-size: 1.3rem; margin-bottom: 15px; color: var(--text-main); }
+        .step-card p { color: var(--text-muted); font-size: 0.95rem; }
 
         /* --- PESTAÑA: CATÁLOGO --- */
-        .filters {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 50px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            color: var(--text-muted);
-            padding: 8px 24px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            border-color: var(--gold-primary);
-            color: var(--gold-primary);
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
-        .product-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-gold);
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-image-container {
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .arch-frame {
-            width: 130px;
-            height: 170px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 65px 65px 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%);
-        }
-
-        /* Botellas CSS (Puedes cambiarlas por img reales luego) */
+        .filters { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap; }
+        .filter-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 24px; border-radius: 30px; font-size: 0.9rem; transition: all 0.3s; }
+        .filter-btn.active, .filter-btn:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .product-card { background-color: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 30px 20px; text-align: center; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--gold-primary); }
+        .product-image-container { height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; pointer-events: none;}
+        .arch-frame { width: 120px; height: 150px; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 65px 65px 0 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); }
+        
+        /* Botellas CSS */
         .bottle { position: relative; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.6), 0 10px 20px rgba(0,0,0,0.5); }
-        .bottle-brun { width: 50px; height: 100px; background: linear-gradient(135deg, #8B5A2B 0%, #4A2E15 100%); border-radius: 4px 4px 2px 2px; }
-        .bottle-brun::before { content: ''; position: absolute; top: -15px; left: 12px; width: 26px; height: 15px; background: linear-gradient(90deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%); border-radius: 2px; }
-        .bottle-asad { width: 55px; height: 90px; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 10px; border: 1px solid #333; }
-        .bottle-asad::before { content: ''; position: absolute; top: -15px; left: 17px; width: 20px; height: 15px; background: linear-gradient(90deg, #D4AF37 0%, #886A1A 100%); border-radius: 2px; }
+        .bottle-brun { width: 45px; height: 90px; background: linear-gradient(135deg, #8B5A2B 0%, #4A2E15 100%); border-radius: 4px 4px 2px 2px; }
+        .bottle-brun::before { content: ''; position: absolute; top: -12px; left: 10px; width: 25px; height: 12px; background: linear-gradient(90deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%); border-radius: 2px; }
+        .bottle-asad { width: 50px; height: 85px; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 10px; border: 1px solid #333; }
+        .bottle-asad::before { content: ''; position: absolute; top: -12px; left: 15px; width: 20px; height: 12px; background: linear-gradient(90deg, #D4AF37 0%, #886A1A 100%); border-radius: 2px; }
+        .bottle-club { width: 55px; height: 75px; background: linear-gradient(135deg, #222 0%, #050505 100%); border-radius: 2px; border-bottom: 3px solid #ccc; }
+        .bottle-club::before { content: ''; position: absolute; top: -12px; left: 17px; width: 20px; height: 12px; background: linear-gradient(90deg, #333 0%, #666 50%, #333 100%); }
 
         .product-brand { font-size: 0.7rem; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .product-title { font-size: 1.5rem; color: var(--text-main); margin-bottom: 15px; letter-spacing: 1px; }
+        .product-title { font-size: 1.4rem; color: var(--text-main); margin-bottom: 15px; letter-spacing: 1px; }
+        .notes-tags { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .note-tag { font-size: 0.65rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .btn-view-detail { margin-top: auto; padding: 10px; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); border-radius: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s; }
+        .product-card:hover .btn-view-detail { border-color: var(--gold-primary); color: var(--gold-primary); }
+
+        /* --- PESTAÑA: DETALLE DE PERFUME --- */
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: none; border: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; }
+        .btn-back:hover { color: var(--gold-primary); }
         
-        .notes-tags { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
-        .note-tag { font-size: 0.7rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; }
+        
+        .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; }
+        .detail-arch { width: 220px; height: 300px; border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 110px 110px 0 0; display: flex; align-items: center; justify-content: center; }
+        .detail-arch .bottle { transform: scale(1.8); }
 
-        .pricing-box { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 20px; flex-grow: 1; border: 1px solid rgba(255,255,255,0.05); }
-        .price-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .price-row:last-child { border-bottom: none; }
-        .format-name { font-size: 0.9rem; color: var(--text-muted); }
-        .format-price { font-size: 1.05rem; font-weight: 600; color: var(--text-main); }
-        .format-price.sellado { color: var(--gold-primary); font-size: 1.15rem; }
-
-        .btn-whatsapp {
-            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px;
-            background-color: transparent; border: 1px solid var(--whatsapp); color: var(--whatsapp);
-            border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
-        }
-        .btn-whatsapp:hover { background-color: var(--whatsapp); color: #fff; }
+        .detail-info-col { display: flex; flex-direction: column; justify-content: center; }
+        .detail-brand { color: var(--gold-primary); text-transform: uppercase; letter-spacing: 3px; font-size: 0.9rem; margin-bottom: 10px; }
+        .detail-title { font-size: 3rem; margin-bottom: 15px; line-height: 1.1; }
+        
+        .inspiration-badge { display: inline-block; background: rgba(255, 255, 255, 0.05); border-left: 3px solid var(--gold-primary); padding: 8px 15px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; border-radius: 0 6px 6px 0; }
+        .inspiration-badge strong { color: var(--text-main); font-weight: 500;}
+        
+        .detail-desc { color: #ccc; line-height: 1.8; margin-bottom: 30px; font-size: 1.05rem; }
+        .detail-notes { margin-bottom: 40px; }
+        .detail-notes h4 { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 15px; }
+        
+        .purchase-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 25px; }
+        .format-select { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-gold); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 1rem; outline: none; cursor: pointer; }
+        .format-select option { background: var(--bg-surface); color: var(--text-main); }
+        .btn-add-cart { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: var(--gold-primary); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; }
+        .btn-add-cart:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
 
         /* --- PESTAÑA: CONTACTO --- */
-        .contact-box {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-gold);
-            border-radius: 16px;
-            padding: 50px;
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .contact-box { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 16px; padding: 50px; text-align: center; max-width: 600px; margin: 0 auto; }
+        .social-links-big { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
+        .social-link-big { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-main); transition: color 0.3s; }
+        .social-link-big i { font-size: 3rem; color: var(--gold-primary); }
+        .social-link-big:hover { color: var(--gold-primary); }
 
-        .social-links-big {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .social-link-big {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-main);
-            transition: color 0.3s;
-        }
-
-        .social-link-big i {
-            font-size: 3rem;
-            color: var(--gold-primary);
-        }
-
-        .social-link-big:hover {
-            color: var(--gold-primary);
-        }
+        /* --- CARRITO DE COMPRAS --- */
+        .cart-toggle { position: fixed; bottom: 30px; right: 30px; background: var(--gold-primary); color: var(--bg-base); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 1001; transition: transform 0.3s; }
+        .cart-toggle:hover { transform: scale(1.1); }
+        .cart-badge { position: absolute; top: -2px; right: -2px; background: #ff4d4d; color: white; font-size: 0.8rem; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-base); }
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100vh; background: var(--bg-surface); border-left: 1px solid var(--border-gold); z-index: 1002; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.8); }
+        .cart-sidebar.open { right: 0; }
+        .cart-header { padding: 20px; border-bottom: 1px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center; }
+        .cart-header h3 { color: var(--gold-primary); font-size: 1.5rem; margin: 0;}
+        .close-cart { background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 20px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .cart-item-info h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; }
+        .cart-item-info p { font-size: 0.8rem; color: var(--text-muted); }
+        .cart-item-price { color: var(--gold-primary); font-weight: bold; margin-top: 5px; }
+        .cart-item-actions { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { background: rgba(212,175,55,0.2); border: none; color: var(--gold-primary); width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;}
+        .remove-btn { color: #ff4d4d; background: transparent; border: none; cursor: pointer; font-size: 1.3rem; margin-left: 5px;}
+        .cart-footer { padding: 20px; border-top: 1px solid var(--border-gold); background: var(--bg-card); }
+        .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; border: none;}
 
         /* --- FOOTER GLOBAL --- */
-        footer {
-            padding: 20px 0;
-            background-color: var(--bg-surface);
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: auto; /* Lo empuja al fondo */
-        }
+        footer { padding: 20px 0; background-color: var(--bg-surface); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }
 
-        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 70px;
-                left: 0;
-                width: 100%;
-                background: var(--bg-surface);
-                flex-direction: column;
-                padding: 20px;
-                border-bottom: 1px solid var(--border-gold);
-            }
+            .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: var(--bg-surface); flex-direction: column; padding: 20px; border-bottom: 1px solid var(--border-gold); }
             .nav-links.show { display: flex; }
             .mobile-menu-btn { display: block; }
-            .hero h2 { font-size: 1.8rem; }
             .decant-steps, .product-grid { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; padding: 20px; gap: 30px;}
+            .detail-image-col { min-height: 300px; }
+            .detail-title { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -425,11 +172,8 @@
     <!-- NAVEGACIÓN -->
     <nav>
         <div class="container nav-content">
-            <!-- AQUÍ VA TU LOGO (Para el menú) -->
             <img src="logo.png" alt="Attar House" class="logo-nav" onclick="navigateTo('inicio')" onerror="this.src='https://placehold.co/150x50/000000/D4AF37?text=Attar+House'">
-            
             <i class="ph ph-list mobile-menu-btn" id="menuBtn"></i>
-            
             <div class="nav-links" id="navLinks">
                 <button onclick="navigateTo('inicio')" class="nav-btn active" data-target="inicio">Inicio</button>
                 <button onclick="navigateTo('decants')" class="nav-btn" data-target="decants">¿Qué es un Decant?</button>
@@ -439,15 +183,13 @@
         </div>
     </nav>
 
-    <!-- CONTENIDO PRINCIPAL (PESTAÑAS) -->
+    <!-- CONTENIDO PRINCIPAL -->
     <main>
         
         <!-- SECCIÓN 1: INICIO -->
         <section id="inicio" class="page-section active">
             <div class="hero-content">
-                <!-- AQUÍ VA TU LOGO GRANDE (Para la portada) -->
-                <img src="logo.png" alt="Attar House" class="logo-hero" onerror="this.src='https://placehold.co/300x300/000000/D4AF37?text=Tu+Logo+Aqui'">
-                
+                <img src="logo.png" alt="Attar House" class="logo-hero" onerror="this.src='https://placehold.co/300x300/000000/D4AF37?text=Tu+Logo'">
                 <h2 class="serif">"No son perfumes, es presencia."</h2>
                 <p>Descubre la alta perfumería y fragancias árabes en formatos accesibles. Perfumes sellados 100% originales y decants extraídos directamente del frasco de origen. Valdivia.</p>
                 <button onclick="navigateTo('catalogo')" class="btn-primary">Ver Catálogo</button>
@@ -491,48 +233,20 @@
                     <button class="filter-btn" onclick="filterSelection('disenador')">Diseñador</button>
                 </div>
 
-                <div class="product-grid">
-                    <!-- Producto 1 -->
-                    <div class="product-card filter-item arabe">
-                        <div class="product-image-container">
-                            <div class="arch-frame"><div class="bottle bottle-brun"></div></div>
-                        </div>
-                        <div class="product-brand">Lattafa - Fragrance World</div>
-                        <h3 class="product-title serif">Liquid Brun</h3>
-                        <div class="notes-tags">
-                            <span class="note-tag">Vainilla</span>
-                            <span class="note-tag">Canela</span>
-                            <span class="note-tag">Praliné</span>
-                        </div>
-                        <div class="pricing-box">
-                            <div class="price-row"><span class="format-name">Sellado 100ml</span><span class="format-price sellado">$31.000</span></div>
-                            <div class="price-row"><span class="format-name">Decant 10ml</span><span class="format-price">$5.000</span></div>
-                            <div class="price-row"><span class="format-name">Decant 5ml</span><span class="format-price">$3.000</span></div>
-                            <div class="price-row"><span class="format-name">Decant 3ml</span><span class="format-price">$2.000</span></div>
-                        </div>
-                        <button class="btn-whatsapp" onclick="buy('Liquid Brun')"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Comprar</button>
-                    </div>
+                <!-- El catálogo se generará aquí automáticamente con JavaScript -->
+                <div class="product-grid" id="catalogo-grid">
+                    <!-- Las tarjetas se inyectan desde la base de datos -->
+                </div>
+            </div>
+        </section>
 
-                    <!-- Producto 2 -->
-                    <div class="product-card filter-item arabe">
-                        <div class="product-image-container">
-                            <div class="arch-frame"><div class="bottle bottle-asad"></div></div>
-                        </div>
-                        <div class="product-brand">Lattafa</div>
-                        <h3 class="product-title serif">Asad</h3>
-                        <div class="notes-tags">
-                            <span class="note-tag">Especiado</span>
-                            <span class="note-tag">Vainilla</span>
-                            <span class="note-tag">Maderas</span>
-                        </div>
-                        <div class="pricing-box">
-                            <div class="price-row"><span class="format-name">Sellado 100ml</span><span class="format-price sellado">$28.000</span></div>
-                            <div class="price-row"><span class="format-name">Decant 10ml</span><span class="format-price">$4.500</span></div>
-                            <div class="price-row"><span class="format-name">Decant 5ml</span><span class="format-price">$2.500</span></div>
-                            <div class="price-row"><span class="format-name">Decant 3ml</span><span class="format-price">$1.500</span></div>
-                        </div>
-                        <button class="btn-whatsapp" onclick="buy('Asad Lattafa')"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Comprar</button>
-                    </div>
+        <!-- NUEVA SECCIÓN: DETALLE DE PERFUME -->
+        <section id="detalle-perfume" class="page-section">
+            <div class="container">
+                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
+                
+                <div class="detail-grid" id="detalle-container">
+                    <!-- El contenido de la página individual del perfume se inyecta aquí -->
                 </div>
             </div>
         </section>
@@ -553,7 +267,7 @@
                             <i class="ph ph-instagram-logo"></i>
                             <span>Instagram</span>
                         </a>
-                        <a href="#" class="social-link-big" onclick="buy('información general')">
+                        <a href="https://wa.me/56930679481?text=Hola%20Attar%20House!%20Me%20gustar%C3%ADa%20hacer%20una%20consulta." target="_blank" class="social-link-big">
                             <i class="ph ph-whatsapp-logo"></i>
                             <span>WhatsApp</span>
                         </a>
@@ -564,27 +278,287 @@
 
     </main>
 
-    <!-- FOOTER GLOBAL -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 Attar House. Todos los derechos reservados.</p>
+    <!-- CARRITO UI -->
+    <div class="cart-toggle" onclick="toggleCart()">
+        <i class="ph ph-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3 class="serif">Tu Pedido</h3>
+            <button class="close-cart" onclick="toggleCart()"><i class="ph ph-x"></i></button>
         </div>
+        <div class="cart-items" id="cart-items">
+            <p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Tu carrito está vacío</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span style="color: var(--gold-primary)">$<span id="cart-total-price">0</span></span>
+            </div>
+            <button class="btn-whatsapp" onclick="sendWhatsAppOrder()" style="background-color: var(--whatsapp); color: white;">
+                <i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Enviar por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container"><p>&copy; 2026 Attar House. Todos los derechos reservados.</p></div>
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- ========================================================== -->
+    <!-- BASE DE DATOS DE PERFUMES (FÁCIL DE EDITAR)                -->
+    <!-- ========================================================== -->
     <script>
-        // Lógica del sistema de pestañas (Navegación sin recargar página)
-        function navigateTo(pageId) {
-            // Ocultar todas las secciones
-            const sections = document.querySelectorAll('.page-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
+        const perfumesDB = [
+            {
+                id: 'liquid-brun',
+                brand: 'Lattafa - Fragrance World',
+                name: 'Liquid Brun',
+                category: 'arabe',
+                bottleClass: 'bottle-brun',
+                notes: ['Vainilla', 'Canela', 'Praliné'],
+                inspiration: 'Althaïr de Parfums de Marly',
+                description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado de la canela, ideal para climas fríos o salidas nocturnas donde quieres dejar una estela inolvidable.',
+                prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'asad',
+                brand: 'Lattafa',
+                name: 'Asad',
+                category: 'arabe',
+                bottleClass: 'bottle-asad',
+                notes: ['Especiado', 'Vainilla', 'Maderas'],
+                inspiration: 'Dior Sauvage Elixir',
+                description: 'Un aroma poderoso, maduro y misterioso. Abre con notas especiadas muy marcadas y asienta en una base oscura de maderas y vainilla ambarada. Proyección bestial y masculinidad pura.',
+                prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }
+            },
+            {
+                id: 'vulcan-feu',
+                brand: 'Fragrance World',
+                name: 'Vulcan Feu',
+                category: 'arabe',
+                bottleClass: 'bottle-club',
+                notes: ['Cítrico', 'Especiado', 'Ámbar'],
+                inspiration: 'Bvlgari Le Gemme Tygar',
+                description: 'La sofisticación hecha perfume. Una salida de pomelo ultra realista y chispeante que se mezcla magistralmente con notas amaderadas y ámbar. Un aroma magnético que huele a exclusividad y riqueza.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'hawas-tropical',
+                brand: 'Rasasi',
+                name: 'Hawas Tropical',
+                category: 'arabe',
+                bottleClass: 'bottle-asad',
+                notes: ['Tropical', 'Frutal', 'Fresco'],
+                inspiration: 'Variante frutal de Invictus / Hawas',
+                description: 'Un cóctel explosivo de frutas tropicales. Extremadamente juguetón, dulce y fresco a la vez. Es un imán de cumplidos en verano y situaciones informales.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'hawas-verde',
+                brand: 'Rasasi',
+                name: 'Hawas Verde',
+                category: 'arabe',
+                bottleClass: 'bottle-brun',
+                notes: ['Cítrico', 'Aromático', 'Verde'],
+                inspiration: 'Variante fresca de la línea Hawas',
+                description: 'La versión más fresca, limpia y revitalizante de la familia Hawas. Notas verdes y cítricos potentes que proyectan limpieza y energía durante todo el día.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'khamrah-qahwa',
+                brand: 'Lattafa',
+                name: 'Khamrah Qahwa',
+                category: 'arabe',
+                bottleClass: 'bottle-asad',
+                notes: ['Café', 'Praliné', 'Vainilla'],
+                inspiration: 'Kilian Angels\' Share (con toque de café)',
+                description: 'El famoso y dulce Khamrah, pero perfeccionado. Se le añade una nota intensa de café tostado en la salida que corta el dulzor y lo vuelve más oscuro, maduro y adictivo.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'sceptre-malachite',
+                brand: 'Maison Alhambra',
+                name: 'Sceptre Malachite',
+                category: 'arabe',
+                bottleClass: 'bottle-club',
+                notes: ['Afrutado', 'Amaderado', 'Fresco'],
+                inspiration: 'God of Fire de Stéphane Humbert Lucas',
+                description: 'Un viaje exótico. Una nota prominente de mango verde y cítricos que evoluciona hacia una base amaderada muy fina. Fresco, afrutado pero profundamente elegante.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'yara',
+                brand: 'Lattafa',
+                name: 'Yara',
+                category: 'arabe',
+                bottleClass: 'bottle-brun',
+                notes: ['Atalcado', 'Vainilla', 'Dulce'],
+                inspiration: 'Creación original (Vibe Dior Poison Girl)',
+                description: 'El perfume viral de TikTok por excelencia. Huele a un batido cremoso de fresa y vainilla, con un fondo suave y atalcado. Es una fragancia tierna, femenina y muy gustable.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'yara-candy',
+                brand: 'Lattafa',
+                name: 'Yara Candy',
+                category: 'arabe',
+                bottleClass: 'bottle-brun',
+                notes: ['Caramelo', 'Frutal', 'Dulce'],
+                inspiration: 'Kayali Vanilla Candy Rock Sugar',
+                description: 'La hermana más golosa de la familia Yara. Una explosión de caramelos, frutas confitadas y azúcar que te envuelve en una nube dulce e hiper femenina.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'his-confession',
+                brand: 'Lattafa',
+                name: 'His Confession',
+                category: 'arabe',
+                bottleClass: 'bottle-asad',
+                notes: ['Amaderado', 'Especiado', 'Ámbar'],
+                inspiration: 'Alta perfumería de diseñador masculina',
+                description: 'Una declaración de intenciones. Un aroma profundo, nocturno y muy seductor donde las especias cálidas se encuentran con maderas nobles y un fondo ambarado irresistible.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'tag-rosso',
+                brand: 'Armaf',
+                name: 'Tag Him Uomo Rosso',
+                category: 'arabe',
+                bottleClass: 'bottle-club',
+                notes: ['Especiado', 'Vainilla', 'Amaderado'],
+                inspiration: 'Invictus Victory / Paco Rabanne 1 Million',
+                description: 'Dulce, intenso y hecho para destacar en la noche. Una fragancia que combina la vainilla oscura con toques especiados para crear un perfil de "chico malo" moderno.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'tropical-vibe',
+                brand: 'Fragrance World',
+                name: 'Tropical Vibe',
+                category: 'arabe',
+                bottleClass: 'bottle-asad',
+                notes: ['Piña', 'Coco', 'Tropical'],
+                inspiration: 'Louis Vuitton Pacific Chill / City of Stars',
+                description: 'Vacaciones embotelladas. Una mezcla vibrante y jugosa de frutas tropicales donde resalta el coco y la piña fresca. Perfecto para días de calor y relajación.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'honor-glory',
+                brand: 'Lattafa (Bade\'e Al Oud)',
+                name: 'Honor & Glory',
+                category: 'arabe',
+                bottleClass: 'bottle-brun',
+                notes: ['Piña', 'Crème Brûlée', 'Vainilla'],
+                inspiration: 'Tribeca de Bond No 9',
+                description: 'Una salida brillante de piña fresca que rápidamente se transforma en un postre gourmet: un crème brûlée rico y cremoso espolvoreado con especias suaves. Lujoso y diferente.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'amber-dubai',
+                brand: 'Al Haramain',
+                name: 'Amber Oud Dubai Night',
+                category: 'arabe',
+                bottleClass: 'bottle-club',
+                notes: ['Ámbar', 'Oud', 'Especiado'],
+                inspiration: 'Perfumería oriental ultra-nicho',
+                description: 'Opulencia de Medio Oriente. Un oud domesticado pero rico, entrelazado con un ámbar dorado y resinas. Una fragancia densa, lujosa y que grita estatus y poder.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            },
+            {
+                id: 'givenchy-gentleman',
+                brand: 'Givenchy',
+                name: 'Gentleman EDP',
+                category: 'disenador',
+                bottleClass: 'bottle-asad',
+                notes: ['Iris', 'Pimienta Negra', 'Vainilla Negra'],
+                inspiration: 'Original de Diseñador',
+                description: 'El epítome de la elegancia masculina contemporánea. Abre con un golpe de pimienta negra que da paso a un corazón atalcado de iris refinado y descansa sobre una vainilla oscura y seductora.',
+                prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }
+            }
+        ];
 
-            // Mostrar la sección seleccionada
+        // --- FUNCIONES DE RENDERIZADO Y NAVEGACIÓN ---
+        
+        // 1. Dibuja el catálogo inicial leyendo la Base de Datos
+        function renderCatalog() {
+            const grid = document.getElementById('catalogo-grid');
+            grid.innerHTML = ''; // Limpiar
+            
+            perfumesDB.forEach(perfume => {
+                const tagsHTML = perfume.notes.map(note => `<span class="note-tag">${note}</span>`).join('');
+                
+                const cardHTML = `
+                    <div class="product-card filter-item ${perfume.category}" onclick="openPerfumeDetail('${perfume.id}')">
+                        <div class="product-image-container">
+                            <div class="arch-frame"><div class="bottle ${perfume.bottleClass}"></div></div>
+                        </div>
+                        <div class="product-brand">${perfume.brand}</div>
+                        <h3 class="product-title serif">${perfume.name}</h3>
+                        <div class="notes-tags">${tagsHTML}</div>
+                        <button class="btn-view-detail">Ver Detalles</button>
+                    </div>
+                `;
+                grid.innerHTML += cardHTML;
+            });
+        }
+
+        // 2. Abre la "Página Nueva" de cada perfume
+        function openPerfumeDetail(id) {
+            const perfume = perfumesDB.find(p => p.id === id);
+            const container = document.getElementById('detalle-container');
+            const tagsHTML = perfume.notes.map(note => `<span class="note-tag">${note}</span>`).join('');
+            
+            container.innerHTML = `
+                <div class="detail-image-col">
+                    <div class="detail-arch">
+                        <div class="bottle ${perfume.bottleClass}"></div>
+                    </div>
+                </div>
+                <div class="detail-info-col">
+                    <div class="detail-brand">${perfume.brand}</div>
+                    <h2 class="detail-title serif">${perfume.name}</h2>
+                    
+                    <div class="inspiration-badge">
+                        Inspirado en: <strong>${perfume.inspiration}</strong>
+                    </div>
+                    
+                    <p class="detail-desc">${perfume.description}</p>
+                    
+                    <div class="detail-notes">
+                        <h4>Notas Olfativas Principales</h4>
+                        <div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div>
+                    </div>
+                    
+                    <div class="purchase-box">
+                        <select class="format-select" id="format-detail-${perfume.id}">
+                            <option value="Sellado 100ml|${perfume.prices.sellado}">Frasco Sellado - $${perfume.prices.sellado.toLocaleString('es-CL')}</option>
+                            <option value="Decant 10ml|${perfume.prices.decant10}">Decant 10ml - $${perfume.prices.decant10.toLocaleString('es-CL')}</option>
+                            <option value="Decant 5ml|${perfume.prices.decant5}">Decant 5ml - $${perfume.prices.decant5.toLocaleString('es-CL')}</option>
+                            <option value="Decant 3ml|${perfume.prices.decant3}">Decant 3ml - $${perfume.prices.decant3.toLocaleString('es-CL')}</option>
+                        </select>
+                        <button class="btn-add-cart" onclick="addToCart('${perfume.name}', 'format-detail-${perfume.id}')">
+                            <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> Añadir al Carrito
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            navigateTo('detalle-perfume'); // Cambia la pantalla a la vista de detalle
+        }
+
+        // Ejecutar al cargar la página
+        window.onload = () => {
+            renderCatalog();
+        };
+
+        // --- SISTEMA DE PESTAÑAS ---
+        function navigateTo(pageId) {
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(section => section.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
 
-            // Actualizar botones del menú (color dorado al activo)
             const navButtons = document.querySelectorAll('.nav-btn');
             navButtons.forEach(btn => {
                 btn.classList.remove('active');
@@ -593,19 +567,15 @@
                 }
             });
 
-            // Cerrar menú móvil si está abierto
             document.getElementById('navLinks').classList.remove('show');
-
-            // Volver arriba
             window.scrollTo(0, 0);
         }
 
-        // Menú móvil
         document.getElementById('menuBtn').addEventListener('click', () => {
             document.getElementById('navLinks').classList.toggle('show');
         });
 
-        // Filtrado del catálogo
+        // --- FILTROS DE CATÁLOGO ---
         function filterSelection(category) {
             const items = document.getElementsByClassName('filter-item');
             const btns = document.getElementsByClassName('filter-btn');
@@ -616,7 +586,6 @@
                     btns[i].classList.add('active');
                 }
             }
-
             for (let i = 0; i < items.length; i++) {
                 if (category === 'all' || items[i].classList.contains(category)) {
                     items[i].style.display = 'flex';
@@ -626,11 +595,102 @@
             }
         }
 
-        // Función de compra por WhatsApp
-        function buy(productName) {
-            const phoneNumber = "56930679481"; // Cambiado a tu número exacto
-            const message = encodeURIComponent(`Hola Attar House! Vengo de su página web y me interesa el perfume: ${productName}.`);
-            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+        // --- LÓGICA DEL CARRITO DE COMPRAS ---
+        let cart = [];
+
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('open');
+        }
+
+        function addToCart(productName, selectId) {
+            const selectElement = document.getElementById(selectId);
+            const selectedValue = selectElement.value; 
+            const [format, priceStr] = selectedValue.split('|');
+            const price = parseInt(priceStr);
+
+            const existingItem = cart.find(item => item.name === productName && item.format === format);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ name: productName, format: format, price: price, quantity: 1 });
+            }
+            
+            updateCartUI();
+            document.getElementById('cart-sidebar').classList.add('open');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function updateQuantity(index, change) {
+            cart[index].quantity += change;
+            if (cart[index].quantity <= 0) {
+                removeFromCart(index);
+            } else {
+                updateCartUI();
+            }
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartBadge = document.getElementById('cart-badge');
+            const cartTotalPrice = document.getElementById('cart-total-price');
+
+            let totalItems = 0;
+            let totalPrice = 0;
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Tu carrito está vacío</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    totalItems += item.quantity;
+                    totalPrice += (item.price * item.quantity);
+
+                    cartItemsContainer.innerHTML += `
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <h4 class="serif">${item.name}</h4>
+                                <p>${item.format}</p>
+                                <div class="cart-item-price">$${(item.price * item.quantity).toLocaleString('es-CL')}</div>
+                            </div>
+                            <div class="cart-item-actions">
+                                <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                                <button class="remove-btn" onclick="removeFromCart(${index})"><i class="ph ph-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartBadge.innerText = totalItems;
+            cartTotalPrice.innerText = totalPrice.toLocaleString('es-CL');
+        }
+
+        function sendWhatsAppOrder() {
+            if (cart.length === 0) {
+                alert("Tu carrito está vacío. Añade productos antes de enviar el pedido.");
+                return;
+            }
+
+            const phoneNumber = "56930679481"; 
+            let orderText = "¡Hola Attar House! Me gustaría realizar el siguiente pedido:%0A%0A";
+            let total = 0;
+            
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                orderText += `▪ ${item.quantity}x ${item.name} (${item.format}) - $${subtotal.toLocaleString('es-CL')}%0A`;
+            });
+
+            orderText += `%0A*Total Estimado: $${total.toLocaleString('es-CL')}*%0A%0A`;
+            orderText += "Quedo atento/a para coordinar el pago y la entrega. ¡Gracias!";
+
+            window.open(`https://wa.me/${phoneNumber}?text=${orderText}`, '_blank');
         }
     </script>
 </body>
