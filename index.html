@@ -35,16 +35,38 @@
         .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
         /* --- NAVEGACIÓN --- */
-        nav { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-gold); z-index: 1000; padding: 15px 0; }
+        /* NUEVO: Cinta de anuncio superior */
+        .announcement-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--gold-primary);
+            color: var(--bg-base);
+            text-align: center;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 1001;
+            text-transform: uppercase;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Se ajusta la navegación para que quede debajo de la cinta */
+        nav { position: fixed; top: 35px; width: 100%; background: rgba(3, 3, 3, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-gold); z-index: 1000; padding: 15px 0; }
         .nav-content { display: flex; justify-content: space-between; align-items: center; }
-        .logo-nav { height: 40px; width: auto; object-fit: contain; cursor: pointer; }
+        .logo-nav { height: 40px; width: auto; object-fit: contain; cursor: pointer; mix-blend-mode: screen; }
         .nav-links { display: flex; gap: 30px; }
         .nav-links button { background: none; border: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: color 0.3s; font-weight: 500; }
         .nav-links button:hover, .nav-links button.active { color: var(--gold-primary); }
         .mobile-menu-btn { display: none; color: var(--gold-primary); font-size: 1.5rem; cursor: pointer; }
 
         /* --- SISTEMA DE PESTAÑAS (SPA) --- */
-        main { flex: 1; margin-top: 70px; }
+        /* Se ajusta el margen principal por la nueva altura combinada */
+        main { flex: 1; margin-top: 105px; }
         .page-section { display: none; animation: fadeIn 0.4s ease-in-out; padding: 40px 0 80px 0; min-height: calc(100vh - 150px); }
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -54,7 +76,7 @@
         #inicio.active { display: flex; }
         #inicio::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('https://images.unsplash.com/photo-1594035910387-fea477274976?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; opacity: 0.1; z-index: -1; }
         .hero-content { max-width: 800px; padding: 0 20px; }
-        .logo-hero { max-height: 180px; width: auto; margin: 0 auto 30px auto; object-fit: contain; display: block; }
+        .logo-hero { max-height: 180px; width: auto; margin: 0 auto 30px auto; object-fit: contain; display: block; mix-blend-mode: screen; }
         .hero h2 { font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 20px; letter-spacing: 2px; }
         .hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 80px; max-width: 600px; margin-left: auto; margin-right: auto; }
         .btn-primary { display: inline-block; padding: 15px 40px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.3s; }
@@ -72,9 +94,13 @@
         .step-card p { color: var(--text-muted); font-size: 0.95rem; }
 
         /* --- PESTAÑA: CATÁLOGO --- */
-        .filters { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap; }
+        .filters-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+        .filters { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 0; }
         .filter-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 24px; border-radius: 30px; font-size: 0.9rem; transition: all 0.3s; }
         .filter-btn.active, .filter-btn:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .sort-select { width: auto; padding: 8px 20px; margin-bottom: 0; border-radius: 30px; font-size: 0.85rem; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); cursor: pointer; outline: none; transition: all 0.3s;}
+        .sort-select:hover, .sort-select:focus { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .sort-select option { background: var(--bg-surface); color: var(--text-main); }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .product-card { background-color: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 30px 20px; text-align: center; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
         .product-card:hover { transform: translateY(-5px); border-color: var(--gold-primary); }
@@ -141,6 +167,12 @@
         .cart-header { padding: 20px; border-bottom: 1px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center; }
         .cart-header h3 { color: var(--gold-primary); font-size: 1.5rem; margin: 0;}
         .close-cart { background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; }
+        
+        /* NUEVO: Barra de progreso de envío */
+        .shipping-progress { background: rgba(255,255,255,0.03); padding: 12px 20px; text-align: center; font-size: 0.85rem; border-bottom: 1px solid var(--border-gold); color: var(--text-muted); display: none; }
+        .shipping-progress strong { color: var(--gold-primary); font-weight: bold; }
+        .shipping-success { color: #25D366; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;}
+
         .cart-items { flex: 1; overflow-y: auto; padding: 20px; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cart-item-info h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; }
@@ -160,7 +192,24 @@
             .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: var(--bg-surface); flex-direction: column; padding: 20px; border-bottom: 1px solid var(--border-gold); }
             .nav-links.show { display: flex; }
             .mobile-menu-btn { display: block; }
-            .decant-steps, .product-grid { grid-template-columns: 1fr; }
+            .filters-wrapper { flex-direction: column; justify-content: center; }
+            .filters { justify-content: center; }
+            
+            /* Mantiene la sección de "Qué es un decant" en 1 columna */
+            .decant-steps { grid-template-columns: 1fr; }
+            
+            /* --- MODIFICACIÓN: Catálogo de 2 Columnas en Celulares --- */
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .product-card { padding: 15px 10px; border-radius: 12px; }
+            .product-image-container { height: 110px; margin-bottom: 10px; }
+            .arch-frame { width: 90px; height: 110px; }
+            .bottle { transform: scale(0.75); transform-origin: center bottom; }
+            .product-title { font-size: 1.1rem; margin-bottom: 8px; }
+            .notes-tags { gap: 4px; margin-bottom: 12px; }
+            .note-tag { font-size: 0.55rem; padding: 3px 6px; }
+            .btn-view-detail { font-size: 0.65rem; padding: 6px 2px; }
+            /* --------------------------------------------------------- */
+            
             .detail-grid { grid-template-columns: 1fr; padding: 20px; gap: 30px;}
             .detail-image-col { min-height: 300px; }
             .detail-title { font-size: 2.2rem; }
@@ -168,6 +217,11 @@
     </style>
 </head>
 <body>
+
+    <!-- CINTA DE ANUNCIOS SUPERIOR -->
+    <div class="announcement-bar">
+        ✨ Envío gratis a todo Chile por compras sobre $45.000 ✨
+    </div>
 
     <!-- NAVEGACIÓN -->
     <nav>
@@ -227,10 +281,19 @@
             <div class="container">
                 <h2 class="section-title serif">Nuestro Catálogo</h2>
                 
-                <div class="filters">
-                    <button class="filter-btn active" onclick="filterSelection('all')">Todos</button>
-                    <button class="filter-btn" onclick="filterSelection('arabe')">Perfumes Árabes</button>
-                    <button class="filter-btn" onclick="filterSelection('disenador')">Diseñador</button>
+                <div class="filters-wrapper">
+                    <div class="filters">
+                        <button class="filter-btn active" onclick="filterSelection('all')">Todos</button>
+                        <button class="filter-btn" onclick="filterSelection('arabe')">Perfumes Árabes</button>
+                        <button class="filter-btn" onclick="filterSelection('disenador')">Diseñador</button>
+                    </div>
+                    <div class="sort-container">
+                        <select id="sortSelect" class="sort-select" onchange="sortCatalog()">
+                            <option value="default">Ordenar por: Destacados</option>
+                            <option value="price-asc">Precio: Menor a Mayor</option>
+                            <option value="price-desc">Precio: Mayor a Menor</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- El catálogo se generará aquí automáticamente con JavaScript -->
@@ -258,7 +321,7 @@
                 <p class="section-subtitle">Realizamos entregas en Valdivia y envíos a todo Chile.</p>
 
                 <div class="contact-box">
-                    <img src="logo.png" alt="Attar House" style="max-height: 80px; margin-bottom: 20px; object-fit: contain;" onerror="this.src='https://placehold.co/100x100/111/D4AF37?text=Logo'">
+                    <img src="logo.png" alt="Attar House" style="max-height: 80px; margin-bottom: 20px; object-fit: contain; mix-blend-mode: screen;" onerror="this.src='https://placehold.co/100x100/111/D4AF37?text=Logo'">
                     <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 10px;">Attar House</h3>
                     <p style="color: var(--text-muted);">No son perfumes, es presencia.</p>
 
@@ -289,6 +352,10 @@
             <h3 class="serif">Tu Pedido</h3>
             <button class="close-cart" onclick="toggleCart()"><i class="ph ph-x"></i></button>
         </div>
+        
+        <!-- Mensaje dinámico de envío gratis -->
+        <div id="shipping-progress-container" class="shipping-progress"></div>
+
         <div class="cart-items" id="cart-items">
             <p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Tu carrito está vacío</p>
         </div>
@@ -481,13 +548,32 @@
 
         // --- FUNCIONES DE RENDERIZADO Y NAVEGACIÓN ---
         
-        // 1. Dibuja el catálogo inicial leyendo la Base de Datos
-        function renderCatalog() {
+        let currentCategory = 'all';
+        let currentSort = 'default';
+
+        // 1. Dibuja el catálogo leyendo la Base de Datos, aplicando filtros y orden
+        function updateCatalog() {
             const grid = document.getElementById('catalogo-grid');
             grid.innerHTML = ''; // Limpiar
             
-            perfumesDB.forEach(perfume => {
+            // Filtrar por categoría
+            let filteredPerfumes = perfumesDB.filter(p => currentCategory === 'all' || p.category === currentCategory);
+
+            // Ordenar por precio (usamos el precio del decant más pequeño como referencia: decant3)
+            if (currentSort === 'price-asc') {
+                filteredPerfumes.sort((a, b) => a.prices.decant3 - b.prices.decant3);
+            } else if (currentSort === 'price-desc') {
+                filteredPerfumes.sort((a, b) => b.prices.decant3 - a.prices.decant3);
+            } else {
+                // Volver al orden original (por índice en la BD)
+                filteredPerfumes.sort((a, b) => perfumesDB.indexOf(a) - perfumesDB.indexOf(b));
+            }
+
+            filteredPerfumes.forEach(perfume => {
                 const tagsHTML = perfume.notes.map(note => `<span class="note-tag">${note}</span>`).join('');
+                
+                // Obtener el precio más bajo para mostrar "A partir de"
+                const minPrice = perfume.prices.decant3;
                 
                 const cardHTML = `
                     <div class="product-card filter-item ${perfume.category}" onclick="openPerfumeDetail('${perfume.id}')">
@@ -497,7 +583,7 @@
                         <div class="product-brand">${perfume.brand}</div>
                         <h3 class="product-title serif">${perfume.name}</h3>
                         <div class="notes-tags">${tagsHTML}</div>
-                        <button class="btn-view-detail">Ver Detalles</button>
+                        <button class="btn-view-detail" style="font-weight: 600;">A partir de $${minPrice.toLocaleString('es-CL')}</button>
                     </div>
                 `;
                 grid.innerHTML += cardHTML;
@@ -550,7 +636,7 @@
 
         // Ejecutar al cargar la página
         window.onload = () => {
-            renderCatalog();
+            updateCatalog();
         };
 
         // --- SISTEMA DE PESTAÑAS ---
@@ -575,24 +661,25 @@
             document.getElementById('navLinks').classList.toggle('show');
         });
 
-        // --- FILTROS DE CATÁLOGO ---
+        // --- FILTROS DE CATÁLOGO Y ORDEN ---
         function filterSelection(category) {
-            const items = document.getElementsByClassName('filter-item');
+            currentCategory = category;
             const btns = document.getElementsByClassName('filter-btn');
             
             for (let i = 0; i < btns.length; i++) {
                 btns[i].classList.remove('active');
-                if (btns[i].innerText.toLowerCase().includes(category) || (category === 'all' && btns[i].innerText === 'Todos')) {
+                if ((category === 'all' && btns[i].innerText === 'Todos') || 
+                    (category === 'arabe' && btns[i].innerText === 'Perfumes Árabes') ||
+                    (category === 'disenador' && btns[i].innerText === 'Diseñador')) {
                     btns[i].classList.add('active');
                 }
             }
-            for (let i = 0; i < items.length; i++) {
-                if (category === 'all' || items[i].classList.contains(category)) {
-                    items[i].style.display = 'flex';
-                } else {
-                    items[i].style.display = 'none';
-                }
-            }
+            updateCatalog();
+        }
+
+        function sortCatalog() {
+            currentSort = document.getElementById('sortSelect').value;
+            updateCatalog();
         }
 
         // --- LÓGICA DEL CARRITO DE COMPRAS ---
@@ -637,6 +724,7 @@
             const cartItemsContainer = document.getElementById('cart-items');
             const cartBadge = document.getElementById('cart-badge');
             const cartTotalPrice = document.getElementById('cart-total-price');
+            const shippingContainer = document.getElementById('shipping-progress-container');
 
             let totalItems = 0;
             let totalPrice = 0;
@@ -644,6 +732,7 @@
 
             if (cart.length === 0) {
                 cartItemsContainer.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Tu carrito está vacío</p>';
+                shippingContainer.style.display = 'none';
             } else {
                 cart.forEach((item, index) => {
                     totalItems += item.quantity;
@@ -665,6 +754,16 @@
                         </div>
                     `;
                 });
+
+                // Lógica del Envío Gratis
+                const freeShippingThreshold = 45000;
+                shippingContainer.style.display = 'block';
+                if (totalPrice >= freeShippingThreshold) {
+                    shippingContainer.innerHTML = `<span class="shipping-success"><i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> ¡Felicidades! Tienes envío gratis.</span>`;
+                } else {
+                    const amountLeft = freeShippingThreshold - totalPrice;
+                    shippingContainer.innerHTML = `Agrega <strong>$${amountLeft.toLocaleString('es-CL')}</strong> más para obtener envío gratis.`;
+                }
             }
 
             cartBadge.innerText = totalItems;
@@ -687,8 +786,14 @@
                 orderText += `▪ ${item.quantity}x ${item.name} (${item.format}) - $${subtotal.toLocaleString('es-CL')}%0A`;
             });
 
-            orderText += `%0A*Total Estimado: $${total.toLocaleString('es-CL')}*%0A%0A`;
-            orderText += "Quedo atento/a para coordinar el pago y la entrega. ¡Gracias!";
+            orderText += `%0A*Total Estimado: $${total.toLocaleString('es-CL')}*%0A`;
+            
+            // Añadir nota de envío gratis al WhatsApp si aplica
+            if (total >= 45000) {
+                orderText += `🎁 *¡Mi pedido califica para ENVÍO GRATIS!*%0A`;
+            }
+
+            orderText += `%0AQuedo atento/a para coordinar el pago y la entrega. ¡Gracias!`;
 
             window.open(`https://wa.me/${phoneNumber}?text=${orderText}`, '_blank');
         }
