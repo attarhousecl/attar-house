@@ -60,7 +60,8 @@
         .hero-content { max-width: 800px; padding: 0 20px; }
         .logo-hero { max-height: 180px; width: auto; margin: 0 auto 30px auto; object-fit: contain; display: block; }
         .hero-content h2 { font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 20px; letter-spacing: 2px; }
-        .hero-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 100px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        /* CORRECCIÓN: Margen inferior reducido de 100px a 35px para acercar el botón */
+        .hero-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 35px; max-width: 600px; margin-left: auto; margin-right: auto; }
         .btn-primary { display: inline-block; padding: 15px 40px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.3s; }
         .btn-primary:hover { background: var(--gold-primary); color: var(--bg-base); }
 
@@ -79,7 +80,10 @@
         .catalog-layout { display: flex; gap: 40px; align-items: flex-start; }
         
         /* SIDEBAR FILTROS */
-        .catalog-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; padding: 25px; position: sticky; top: 120px; }
+        .catalog-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; padding: 25px; position: sticky; top: 120px; max-height: calc(100vh - 140px); overflow-y: auto; }
+        /* Ocultar barra de scroll en sidebar para que se vea más limpio */
+        .catalog-sidebar::-webkit-scrollbar { width: 6px; }
+        .catalog-sidebar::-webkit-scrollbar-thumb { background-color: rgba(212, 175, 55, 0.3); border-radius: 10px; }
         .close-filters-btn { display: none; background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; position: absolute; top: 15px; right: 15px; cursor: pointer; }
         
         .filter-section { margin-bottom: 30px; }
@@ -218,6 +222,11 @@
             .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: var(--bg-surface); flex-direction: column; padding: 20px; border-bottom: 1px solid var(--border-gold); }
             .nav-links.show { display: flex; }
             .mobile-menu-btn { display: block; }
+            
+            /* CORRECCIÓN: Ajustes adicionales para el inicio en teléfonos */
+            .hero-content p { margin-bottom: 25px; font-size: 1rem; }
+            .hero-content h2 { font-size: 1.8rem; }
+            
             .decant-steps { grid-template-columns: 1fr; }
             
             .catalog-layout { flex-direction: column; }
@@ -328,8 +337,23 @@
                             <h4>Ordenar Por</h4>
                             <ul class="filter-list" id="sort-list">
                                 <li class="active" onclick="setSort('default', this)">Por defecto</li>
+                                <li onclick="setSort('popularity', this)">Popularidad</li>
                                 <li onclick="setSort('price-asc', this)">Precio: menor a mayor</li>
                                 <li onclick="setSort('price-desc', this)">Precio: mayor a menor</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- NUEVA SECCIÓN: FAMILIA OLFATIVA -->
+                        <div class="filter-section">
+                            <h4>Familia Olfativa</h4>
+                            <ul class="filter-list" id="aroma-list">
+                                <li class="active" onclick="setAroma('all', this)">Todas <span class="filter-count" id="count-aroma-all">0</span></li>
+                                <li onclick="setAroma('Dulce', this)">Dulce <span class="filter-count" id="count-aroma-dulce">0</span></li>
+                                <li onclick="setAroma('Fresco', this)">Fresco <span class="filter-count" id="count-aroma-fresco">0</span></li>
+                                <li onclick="setAroma('Amaderado', this)">Amaderado <span class="filter-count" id="count-aroma-amaderado">0</span></li>
+                                <li onclick="setAroma('Especiado', this)">Especiado <span class="filter-count" id="count-aroma-especiado">0</span></li>
+                                <li onclick="setAroma('Frutal', this)">Frutal <span class="filter-count" id="count-aroma-frutal">0</span></li>
+                                <li onclick="setAroma('Cítrico', this)">Cítrico <span class="filter-count" id="count-aroma-citrico">0</span></li>
                             </ul>
                         </div>
 
@@ -438,21 +462,21 @@
 
     <script>
         const perfumesDB = [
-            { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'asad', brand: 'Lattafa', name: 'Asad', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Especiado', 'Vainilla', 'Maderas'], inspiration: 'Dior Sauvage Elixir', description: 'Un aroma poderoso, maduro y misterioso. Abre con notas especiadas muy marcadas y asienta en una base oscura de maderas y vainilla ambarada.', prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Cítrico', 'Especiado', 'Ámbar'], inspiration: 'Bvlgari Le Gemme Tygar', description: 'La sofisticación hecha perfume. Una salida de pomelo ultra realista y chispeante que se mezcla magistralmente con notas amaderadas y ámbar.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Tropical', 'Frutal', 'Fresco'], inspiration: 'Variante frutal de Invictus / Hawas', description: 'Un cóctel explosivo de frutas tropicales. Extremadamente juguetón, dulce y fresco a la vez. Es un imán de cumplidos en verano.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'hawas-verde', brand: 'Rasasi', name: 'Hawas Verde', gender: 'Masculino', bottleClass: 'bottle-brun', notes: ['Cítrico', 'Aromático', 'Verde'], inspiration: 'Variante fresca de la línea Hawas', description: 'La versión más fresca, limpia y revitalizante de la familia Hawas. Notas verdes y cítricos potentes que proyectan limpieza y energía.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'khamrah-qahwa', brand: 'Lattafa', name: 'Khamrah Qahwa', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Café', 'Praliné', 'Vainilla'], inspiration: 'Kilian Angels\' Share (con toque de café)', description: 'El famoso y dulce Khamrah, pero perfeccionado. Se le añade una nota intensa de café tostado en la salida que corta el dulzor y lo vuelve más oscuro.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Afrutado', 'Amaderado', 'Fresco'], inspiration: 'God of Fire de Stéphane Humbert Lucas', description: 'Un viaje exótico. Una nota prominente de mango verde y cítricos que evoluciona hacia una base amaderada muy fina.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Atalcado', 'Vainilla', 'Dulce'], inspiration: 'Creación original (Vibe Dior Poison Girl)', description: 'El perfume viral de TikTok por excelencia. Huele a un batido cremoso de fresa y vainilla, con un fondo suave y atalcado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Frutal', 'Dulce'], inspiration: 'Kayali Vanilla Candy Rock Sugar', description: 'La hermana más golosa de la familia Yara. Una explosión de caramelos, frutas confitadas y azúcar que te envuelve en una nube dulce.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Amaderado', 'Especiado', 'Ámbar'], inspiration: 'Alta perfumería de diseñador', description: 'Una declaración de intenciones. Un aroma profundo, nocturno y muy seductor donde las especias cálidas se encuentran con maderas nobles.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'tag-rosso', brand: 'Armaf', name: 'Tag Him Uomo Rosso', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Especiado', 'Vainilla', 'Amaderado'], inspiration: 'Invictus Victory / Paco Rabanne 1 Million', description: 'Dulce, intenso y hecho para destacar en la noche. Una fragancia que combina la vainilla oscura con toques especiados.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Piña', 'Coco', 'Tropical'], inspiration: 'Louis Vuitton Pacific Chill / City of Stars', description: 'Vacaciones embotelladas. Una mezcla vibrante y jugosa de frutas tropicales donde resalta el coco y la piña fresca.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée', 'Vainilla'], inspiration: 'Tribeca de Bond No 9', description: 'Una salida brillante de piña fresca que rápidamente se transforma en un postre gourmet: un crème brûlée rico y cremoso espolvoreado con especias suaves.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'amber-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Ámbar', 'Oud', 'Especiado'], inspiration: 'Perfumería oriental ultra-nicho', description: 'Opulencia de Medio Oriente. Un oud domesticado pero rico, entrelazado con un ámbar dorado y resinas. Una fragancia densa y lujosa.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'givenchy-gentleman', brand: 'Givenchy', name: 'Gentleman EDP', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Iris', 'Pimienta', 'Vainilla'], inspiration: 'Original de Diseñador', description: 'El epítome de la elegancia masculina contemporánea. Abre con un golpe de pimienta negra que da paso a un corazón atalcado de iris refinado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } }
+            { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 95, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'asad', brand: 'Lattafa', name: 'Asad', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Especiado', 'Vainilla', 'Maderas'], families: ['Especiado', 'Amaderado'], popularity: 90, inspiration: 'Dior Sauvage Elixir', description: 'Un aroma poderoso, maduro y misterioso. Abre con notas especiadas muy marcadas y asienta en una base oscura de maderas y vainilla ambarada.', prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Cítrico', 'Especiado', 'Ámbar'], families: ['Cítrico', 'Especiado'], popularity: 80, inspiration: 'Bvlgari Le Gemme Tygar', description: 'La sofisticación hecha perfume. Una salida de pomelo ultra realista y chispeante que se mezcla magistralmente con notas amaderadas y ámbar.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Tropical', 'Frutal', 'Fresco'], families: ['Frutal', 'Fresco'], popularity: 88, inspiration: 'Variante frutal de Invictus / Hawas', description: 'Un cóctel explosivo de frutas tropicales. Extremadamente juguetón, dulce y fresco a la vez. Es un imán de cumplidos en verano.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'hawas-verde', brand: 'Rasasi', name: 'Hawas Verde', gender: 'Masculino', bottleClass: 'bottle-brun', notes: ['Cítrico', 'Aromático', 'Verde'], families: ['Fresco', 'Cítrico'], popularity: 82, inspiration: 'Variante fresca de la línea Hawas', description: 'La versión más fresca, limpia y revitalizante de la familia Hawas. Notas verdes y cítricos potentes que proyectan limpieza y energía.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'khamrah-qahwa', brand: 'Lattafa', name: 'Khamrah Qahwa', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Café', 'Praliné', 'Vainilla'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Kilian Angels\' Share (con toque de café)', description: 'El famoso y dulce Khamrah, pero perfeccionado. Se le añade una nota intensa de café tostado en la salida que corta el dulzor y lo vuelve más oscuro.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Afrutado', 'Amaderado', 'Fresco'], families: ['Frutal', 'Amaderado', 'Fresco'], popularity: 85, inspiration: 'God of Fire de Stéphane Humbert Lucas', description: 'Un viaje exótico. Una nota prominente de mango verde y cítricos que evoluciona hacia una base amaderada muy fina.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Atalcado', 'Vainilla', 'Dulce'], families: ['Dulce'], popularity: 100, inspiration: 'Creación original (Vibe Dior Poison Girl)', description: 'El perfume viral de TikTok por excelencia. Huele a un batido cremoso de fresa y vainilla, con un fondo suave y atalcado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Frutal', 'Dulce'], families: ['Dulce', 'Frutal'], popularity: 92, inspiration: 'Kayali Vanilla Candy Rock Sugar', description: 'La hermana más golosa de la familia Yara. Una explosión de caramelos, frutas confitadas y azúcar que te envuelve en una nube dulce.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Amaderado', 'Especiado', 'Ámbar'], families: ['Amaderado', 'Especiado'], popularity: 84, inspiration: 'Alta perfumería de diseñador', description: 'Una declaración de intenciones. Un aroma profundo, nocturno y muy seductor donde las especias cálidas se encuentran con maderas nobles.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'tag-rosso', brand: 'Armaf', name: 'Tag Him Uomo Rosso', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Especiado', 'Vainilla', 'Amaderado'], families: ['Especiado', 'Amaderado', 'Dulce'], popularity: 75, inspiration: 'Invictus Victory / Paco Rabanne 1 Million', description: 'Dulce, intenso y hecho para destacar en la noche. Una fragancia que combina la vainilla oscura con toques especiados.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Piña', 'Coco', 'Tropical'], families: ['Frutal', 'Fresco'], popularity: 89, inspiration: 'Louis Vuitton Pacific Chill / City of Stars', description: 'Vacaciones embotelladas. Una mezcla vibrante y jugosa de frutas tropicales donde resalta el coco y la piña fresca.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée', 'Vainilla'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', description: 'Una salida brillante de piña fresca que rápidamente se transforma en un postre gourmet: un crème brûlée rico y cremoso espolvoreado con especias suaves.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'amber-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Ámbar', 'Oud', 'Especiado'], families: ['Amaderado', 'Especiado'], popularity: 78, inspiration: 'Perfumería oriental ultra-nicho', description: 'Opulencia de Medio Oriente. Un oud domesticado pero rico, entrelazado con un ámbar dorado y resinas. Una fragancia densa y lujosa.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'givenchy-gentleman', brand: 'Givenchy', name: 'Gentleman EDP', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Iris', 'Pimienta', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 87, inspiration: 'Original de Diseñador', description: 'El epítome de la elegancia masculina contemporánea. Abre con un golpe de pimienta negra que da paso a un corazón atalcado de iris refinado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } }
         ];
 
         // --- SISTEMA DE FILTROS LATERAL Y BUSCADOR ---
@@ -460,6 +484,7 @@
         let currentGender = 'all';
         let currentBrand = 'all';
         let currentSearch = '';
+        let currentAroma = 'all'; // NUEVA VARIABLE PARA AROMAS
 
         function searchCatalog() {
             currentSearch = document.getElementById('searchInput').value.toLowerCase();
@@ -472,6 +497,15 @@
             document.getElementById('count-fem').innerText = perfumesDB.filter(p => p.gender === 'Femenino').length;
             document.getElementById('count-masc').innerText = perfumesDB.filter(p => p.gender === 'Masculino').length;
             document.getElementById('count-uni').innerText = perfumesDB.filter(p => p.gender === 'Unisex').length;
+
+            // Contar Aromas (Familias)
+            document.getElementById('count-aroma-all').innerText = perfumesDB.length;
+            document.getElementById('count-aroma-dulce').innerText = perfumesDB.filter(p => p.families.includes('Dulce')).length;
+            document.getElementById('count-aroma-fresco').innerText = perfumesDB.filter(p => p.families.includes('Fresco')).length;
+            document.getElementById('count-aroma-amaderado').innerText = perfumesDB.filter(p => p.families.includes('Amaderado')).length;
+            document.getElementById('count-aroma-especiado').innerText = perfumesDB.filter(p => p.families.includes('Especiado')).length;
+            document.getElementById('count-aroma-frutal').innerText = perfumesDB.filter(p => p.families.includes('Frutal')).length;
+            document.getElementById('count-aroma-citrico').innerText = perfumesDB.filter(p => p.families.includes('Cítrico')).length;
 
             // Extraer y Renderizar Marcas únicas
             const allBrands = [...new Set(perfumesDB.map(p => p.brand))].sort();
@@ -487,6 +521,13 @@
             currentSort = val;
             updateActiveState(element, 'sort-list');
             updateCatalog();
+        }
+        
+        function setAroma(val, element) {
+            currentAroma = val;
+            updateActiveState(element, 'aroma-list');
+            updateCatalog();
+            if(window.innerWidth <= 768) toggleSidebar(); 
         }
 
         function setGender(val, element) {
@@ -524,18 +565,21 @@
             let filtered = perfumesDB.filter(p => {
                 const matchGender = (currentGender === 'all' || p.gender === currentGender);
                 const matchBrand = (currentBrand === 'all' || p.brand === currentBrand);
+                const matchAroma = (currentAroma === 'all' || p.families.includes(currentAroma));
                 const matchSearch = currentSearch === '' || 
                                     p.name.toLowerCase().includes(currentSearch) || 
                                     p.brand.toLowerCase().includes(currentSearch) || 
                                     p.notes.some(n => n.toLowerCase().includes(currentSearch));
                                     
-                return matchGender && matchBrand && matchSearch;
+                return matchGender && matchBrand && matchAroma && matchSearch;
             });
 
             if (currentSort === 'price-asc') {
                 filtered.sort((a, b) => a.prices.decant3 - b.prices.decant3);
             } else if (currentSort === 'price-desc') {
                 filtered.sort((a, b) => b.prices.decant3 - a.prices.decant3);
+            } else if (currentSort === 'popularity') {
+                filtered.sort((a, b) => b.popularity - a.popularity);
             }
 
             if(filtered.length === 0) {
