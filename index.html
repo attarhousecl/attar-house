@@ -521,14 +521,14 @@
         <div class="trust-badge"><i class="ph ph-credit-card"></i> Todo medio de pago</div>
     </div>
 
-    <footer>&copy; 2026 Attar House. Valdivia, Chile.</footer>
+    <footer><div class="container"><p>&copy; 2026 Attar House. Todos los derechos reservados.</p></div></footer>
 
     <script>
         // BASE DE DATOS COMPLETA (Mantiene tus urls de imagen y todos los datos)
         const perfumesDB = [
             { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
-            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.jpg', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
             { id: 'tag-uomo-rosso', brand: 'Armaf', name: 'Tag-Him Uomo Rosso', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Lavanda', 'Cardamomo', 'Haba Tonka'], families: ['Especiado', 'Dulce'], popularity: 85, inspiration: 'Paco Rabanne Invictus Victory', description: 'Un aroma nocturno, dulce y altamente seductor. La lavanda oscura se moderniza abrazada por el dulzor del haba tonka y toques de cardamomo.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
@@ -876,31 +876,23 @@
                             <button class="remove-btn" onclick="updateQty(${idx}, -999)"><i class="ph ph-trash"></i></button>
                         </div>
                     </div>`;
-            });
+                });
 
-            const giftThreshold = 15000;
-            const totalGiftThreshold = 70000;
-            const freeShippingThreshold = 60000;
+                const giftThreshold = 15000;
+                const totalGiftThreshold = 70000;
+                const freeShippingThreshold = 60000;
 
-            sProg.style.display = 'block';
-            let giftMsg = '';
-            let shippingMsg = '';
+                sProg.style.display = 'block';
+                let giftMsg = '';
+                let shippingMsg = '';
 
-            if(decantTotal >= giftThreshold || totalPrice >= totalGiftThreshold) {
-                giftMsg = `<span style="color: var(--gold-primary); font-weight: 600;"><i class="ph ph-gift"></i> ¡Ganaste un decant de regalo!</span>`;
-                gCont.style.display = 'block';
-            } else {
-                const amountLeftDecants = giftThreshold - decantTotal;
-                const amountLeftTotal = totalGiftThreshold - totalPrice;
-                giftMsg = `Agrega <strong>$${amountLeftDecants.toLocaleString('es-CL')} en decants</strong> o <strong>$${amountLeftTotal.toLocaleString('es-CL')} al total</strong> para tu 🎁.`;
-                gCont.style.display = 'none';
-            }
-
-            if(totalPrice >= freeShippingThreshold) {
-                shippingMsg = `<span class="shipping-success" style="margin-top: 6px;"><i class="ph ph-check-circle" style="font-size: 1.1rem;"></i> ¡Envío gratis alcanzado!</span>`;
-            } else {
-                    const amountLeft = giftThreshold - decantTotal;
-                    giftMsg = `Agrega <strong>$${amountLeft.toLocaleString('es-CL')} en decants</strong> para un 🎁 de regalo.`;
+                if(decantTotal >= giftThreshold || totalPrice >= totalGiftThreshold) {
+                    giftMsg = `<span style="color: var(--gold-primary); font-weight: 600;"><i class="ph ph-gift"></i> ¡Ganaste un decant de regalo!</span>`;
+                    gCont.style.display = 'block';
+                } else {
+                    const amountLeftDecants = giftThreshold - decantTotal;
+                    const amountLeftTotal = totalGiftThreshold - totalPrice;
+                    giftMsg = `Agrega <strong>$${amountLeftDecants.toLocaleString('es-CL')} en decants</strong> o <strong>$${amountLeftTotal.toLocaleString('es-CL')} al total</strong> para tu 🎁.`;
                     gCont.style.display = 'none';
                 }
 
