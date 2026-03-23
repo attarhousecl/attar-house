@@ -6,10 +6,10 @@
       <stop offset="100%" stop-color="#8A6D3B" />
     </linearGradient>
   </defs>
-  <rect width="512" height="512" fill="#030303" rx="120"/>
   
-  <g fill="url(#oro)" font-family="Georgia, serif" font-size="300" font-weight="bold">
-    <text x="185" y="350" text-anchor="middle">A</text>
-    <text x="315" y="350" text-anchor="middle" font-style="italic">H</text>
+  <rect width="512" height="512" fill="#030303" rx="100"/>
+  
+  <g fill="url(#oro)" font-family="Arial, sans-serif" font-size="260" font-weight="900" letter-spacing="-15">
+    <text x="256" y="340" text-anchor="middle">AH</text>
   </g>
 </svg>
