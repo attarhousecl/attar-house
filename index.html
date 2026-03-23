@@ -429,9 +429,7 @@
         </section>
 
         <section id="detalle-perfume" class="page-section">
-            <div class="container">
-                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
-                <div class="detail-grid" id="detalle-container"></div>
+            <div class="container" id="detalle-container">
             </div>
         </section>
 
@@ -528,7 +526,7 @@
         const perfumesDB = [
             { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
-            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.jpg', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
             { id: 'tag-uomo-rosso', brand: 'Armaf', name: 'Tag-Him Uomo Rosso', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Lavanda', 'Cardamomo', 'Haba Tonka'], families: ['Especiado', 'Dulce'], popularity: 85, inspiration: 'Paco Rabanne Invictus Victory', description: 'Un aroma nocturno, dulce y altamente seductor. La lavanda oscura se moderniza abrazada por el dulzor del haba tonka y toques de cardamomo.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
@@ -780,22 +778,30 @@
                 : `<div class="detail-arch"><div class="bottle ${p.bottleClass}"></div></div>`;
 
             container.innerHTML = `
-                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
-                <div class="detail-grid">
-                    <div class="detail-image-col">
-                        ${imageHTML}
+                <div class="detail-image-col">
+                    ${imageHTML}
+                </div>
+                <div class="detail-info-col">
+                    <div class="detail-brand">${p.brand} | ${p.gender}</div>
+                    <h2 class="detail-title serif">${p.name}</h2>
+                    <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
+                    <p class="detail-desc">${p.description}</p>
+                    <div class="detail-notes">
+                        <h4>Notas Olfativas Principales</h4>
+                        <div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div>
                     </div>
-                    <div class="detail-info-col">
-                        <div class="detail-brand">${p.brand} | ${p.gender}</div>
-                        <h2 class="detail-title serif">${p.name}</h2>
-                        <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
-                        <p class="detail-desc">${p.description}</p>
-                        <div class="detail-notes"><h4>Notas Olfativas Principales</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
-                        <div class="purchase-box">
-                            <select class="format-select" id="format-detail-${p.id}">${opts}</select>
-                            <button class="btn-add-cart" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
-                                <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
-                            </button>
+                </div>
+                <div class="detail-action-col">
+                    <div class="purchase-box">
+                        <h4 style="color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Elige tu formato</h4>
+                        <select class="format-select" id="format-detail-${p.id}">${opts}</select>
+                        <button class="btn-add-cart-gold" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
+                            <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
+                        </button>
+                        <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;"><i class="ph ph-shield-check" style="color: var(--gold-primary); font-size: 1.3rem;"></i> Garantía de Autenticidad</div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;"><i class="ph ph-truck" style="color: var(--gold-primary); font-size: 1.3rem;"></i> Envíos a todo Chile</div>
+                            <div style="display: flex; align-items: center; gap: 10px;"><i class="ph ph-gift" style="color: var(--gold-primary); font-size: 1.3rem;"></i> Decant de regalo sobre $15.000</div>
                         </div>
                     </div>
                 </div>`;
