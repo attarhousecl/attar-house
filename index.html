@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
-        /* --- VARIABLES DE MARCA --- */
+        /* --- VARIABLES DE MARCA: LUXURY DARK --- */
         :root {
             --bg-base: #030303;
             --bg-surface: #0a0a0a;
@@ -41,7 +41,15 @@
         /* --- NAVEGACIÓN --- */
         nav { position: fixed; top: 35px; width: 100%; background: rgba(3, 3, 3, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-gold); z-index: 1000; padding: 15px 0; }
         .nav-content { display: flex; justify-content: space-between; align-items: center; }
-        .logo-nav { height: 40px; width: auto; object-fit: contain; cursor: pointer; }
+        
+        .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold-primary); letter-spacing: 3px; cursor: pointer; text-transform: uppercase; transition: opacity 0.3s;}
+        .nav-brand:hover { opacity: 0.8; }
+        
+        .custom-logo-hero { margin: 0 auto 40px auto; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .custom-logo-hero .monogram { font-family: 'Playfair Display', serif; font-size: 6rem; line-height: 1; letter-spacing: -6px; background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 45%, #8A6D3B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 8px 15px rgba(212, 175, 55, 0.15)); margin-bottom: 15px; padding-right: 10px; }
+        .custom-logo-hero .monogram span { font-style: italic; }
+        .custom-logo-hero .logo-text { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; font-weight: 400; letter-spacing: 12px; color: var(--gold-primary); margin-bottom: 5px; margin-right: -12px; }
+
         .nav-links { display: flex; gap: 30px; }
         .nav-links button { background: none; border: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: color 0.3s; font-weight: 500; }
         .nav-links button:hover, .nav-links button.active { color: var(--gold-primary); }
@@ -56,11 +64,8 @@
         /* --- INICIO (HERO) --- */
         #inicio { padding: 0; display: none; height: calc(100vh - 70px); align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, var(--bg-base) 70%); position: relative; }
         #inicio.active { display: flex; }
-        #inicio::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('https://images.unsplash.com/photo-1594035910387-fea477274976?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; opacity: 0.1; z-index: -1; }
-        .hero-content { max-width: 800px; padding: 0 20px; }
-        .logo-hero { max-height: 180px; width: auto; margin: 0 auto 30px auto; object-fit: contain; display: block; }
+        .hero-content { max-width: 800px; padding: 0 20px; z-index: 1; }
         .hero-content h2 { font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 20px; letter-spacing: 2px; }
-        /* CORRECCIÓN: Margen inferior reducido de 100px a 35px para acercar el botón */
         .hero-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 35px; max-width: 600px; margin-left: auto; margin-right: auto; }
         .btn-primary { display: inline-block; padding: 15px 40px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.3s; }
         .btn-primary:hover { background: var(--gold-primary); color: var(--bg-base); }
@@ -79,9 +84,7 @@
         /* --- NUEVO LAYOUT CATÁLOGO (SIDEBAR) --- */
         .catalog-layout { display: flex; gap: 40px; align-items: flex-start; }
         
-        /* SIDEBAR FILTROS */
         .catalog-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; padding: 25px; position: sticky; top: 120px; max-height: calc(100vh - 140px); overflow-y: auto; }
-        /* Ocultar barra de scroll en sidebar para que se vea más limpio */
         .catalog-sidebar::-webkit-scrollbar { width: 6px; }
         .catalog-sidebar::-webkit-scrollbar-thumb { background-color: rgba(212, 175, 55, 0.3); border-radius: 10px; }
         .close-filters-btn { display: none; background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; position: absolute; top: 15px; right: 15px; cursor: pointer; }
@@ -102,21 +105,23 @@
         .brand-btn { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 8px 5px; text-align: center; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.3s; }
         .brand-btn:hover, .brand-btn.active { border-color: var(--gold-primary); color: var(--gold-primary); background: rgba(212, 175, 55, 0.05); }
 
-        /* GRID PRINCIPAL */
         .catalog-main { flex: 1; }
         .btn-mobile-filters { display: none; width: 100%; padding: 12px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; border-radius: 6px; margin-bottom: 20px; font-family: 'Montserrat', sans-serif;}
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         .product-card { position: relative; background-color: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 25px 20px; text-align: center; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
         .product-card:hover { transform: translateY(-5px); border-color: var(--gold-primary); }
-        .product-image-container { height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; pointer-events: none;}
+        .product-image-container { height: 180px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; pointer-events: none;}
+        
+        /* Contenedor de imágenes reales o css fallback */
+        .real-img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); }
         .arch-frame { width: 110px; height: 140px; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 55px 55px 0 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); }
         
         .sold-out-badge { position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; z-index: 10; }
         .card-disabled { opacity: 0.6; cursor: not-allowed; border-color: #333; }
         .card-disabled:hover { transform: none; border-color: #333; }
 
-        /* Botellas CSS */
+        /* Botellas CSS (Fallback) */
         .bottle { position: relative; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.6), 0 10px 20px rgba(0,0,0,0.5); }
         .bottle-brun { width: 40px; height: 80px; background: linear-gradient(135deg, #8B5A2B 0%, #4A2E15 100%); border-radius: 4px 4px 2px 2px; }
         .bottle-brun::before { content: ''; position: absolute; top: -10px; left: 8px; width: 24px; height: 10px; background: linear-gradient(90deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%); border-radius: 2px; }
@@ -130,16 +135,22 @@
         .notes-tags { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
         .note-tag { font-size: 0.6rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .btn-view-detail { margin-top: auto; padding: 10px; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); border-radius: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s; }
-        .product-card:not(.card-disabled):hover .btn-view-detail { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .btn-view-detail, .btn-add-cart { 
+            margin-top: auto; padding: 12px; background: transparent; 
+            border: 1px solid var(--gold-primary); color: var(--gold-primary); 
+            border-radius: 6px; text-transform: uppercase; font-size: 0.75rem; 
+            letter-spacing: 1px; transition: all 0.3s; font-weight: 600;
+        }
+        .btn-view-detail:hover, .btn-add-cart:hover { background: var(--gold-primary); color: var(--bg-base); }
 
         /* --- DETALLE PERFUME --- */
         .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: none; border: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; }
         .btn-back:hover { color: var(--gold-primary); }
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; }
-        .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; }
+        .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; padding: 30px;}
         .detail-arch { width: 220px; height: 300px; border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 110px 110px 0 0; display: flex; align-items: center; justify-content: center; }
         .detail-arch .bottle { transform: scale(1.8); }
+        
         .detail-info-col { display: flex; flex-direction: column; justify-content: center; }
         .detail-brand { color: var(--gold-primary); text-transform: uppercase; letter-spacing: 3px; font-size: 0.9rem; margin-bottom: 10px; }
         .detail-title { font-size: 3rem; margin-bottom: 15px; line-height: 1.1; }
@@ -154,7 +165,7 @@
         .format-select option:disabled { color: var(--danger); font-style: italic; }
         .btn-add-cart { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: var(--gold-primary); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; }
         .btn-add-cart:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
-        .btn-add-cart:disabled { background-color: #333; color: #666; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-add-cart:disabled { background-color: #333; color: #666; cursor: not-allowed; transform: none; box-shadow: none; border-color: transparent;}
 
         /* --- CONTACTO --- */
         .contact-box { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 16px; padding: 50px; text-align: center; max-width: 600px; margin: 0 auto; }
@@ -223,7 +234,6 @@
             .nav-links.show { display: flex; }
             .mobile-menu-btn { display: block; }
             
-            /* CORRECCIÓN: Ajustes adicionales para el inicio en teléfonos */
             .hero-content p { margin-bottom: 25px; font-size: 1rem; }
             .hero-content h2 { font-size: 1.8rem; }
             
@@ -237,7 +247,7 @@
 
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .product-card { padding: 15px 10px; border-radius: 12px; }
-            .product-image-container { height: 100px; margin-bottom: 10px; }
+            .product-image-container { height: 120px; margin-bottom: 10px; }
             .arch-frame { width: 80px; height: 100px; }
             .bottle { transform: scale(0.65); transform-origin: center bottom; }
             .product-title { font-size: 1rem; margin-bottom: 8px; }
@@ -246,7 +256,7 @@
             .btn-view-detail { font-size: 0.6rem; padding: 6px 2px; }
             
             .detail-grid { grid-template-columns: 1fr; padding: 20px; gap: 30px;}
-            .detail-image-col { min-height: 300px; }
+            .detail-image-col { min-height: 300px; padding: 15px;}
             .detail-title { font-size: 2.2rem; }
             
             .yield-grid { grid-template-columns: 1fr; }
@@ -262,7 +272,7 @@
 
     <nav>
         <div class="container nav-content">
-            <img src="logo.png" alt="Attar House" class="logo-nav" onclick="navigateTo('inicio')" onerror="this.src='https://placehold.co/150x50/000000/D4AF37?text=Attar+House'">
+            <div class="nav-brand" onclick="navigateTo('inicio')">Attar House</div>
             <i class="ph ph-list mobile-menu-btn" id="menuBtn"></i>
             <div class="nav-links" id="navLinks">
                 <button onclick="navigateTo('inicio')" class="nav-btn active" data-target="inicio">Inicio</button>
@@ -277,17 +287,20 @@
     <main>
         <section id="inicio" class="page-section active">
             <div class="hero-content">
-                <img src="logo.png" alt="Attar House" class="logo-hero" onerror="this.src='https://placehold.co/300x300/000000/D4AF37?text=Tu+Logo'">
-                <h2 class="serif">"No son perfumes, es presencia."</h2>
-                <p>Descubre la alta perfumería y fragancias árabes en formatos accesibles. Perfumes sellados 100% originales y decants extraídos directamente del frasco de origen. Valdivia.</p>
-                <button onclick="navigateTo('catalogo')" class="btn-primary">Ver Catálogo</button>
+                <div class="custom-logo-hero">
+                    <div class="monogram">A<span>H</span></div>
+                    <div class="logo-text">ATTAR HOUSE</div>
+                </div>
+                <h2 class="serif" style="font-size: 2.2rem; margin-bottom: 20px;">"No son perfumes, es presencia."</h2>
+                <p>Nuestra misión es que tengas una experiencia increíble. Queremos que te sientas cómodo y seguro de lo que eliges. Por eso, <strong>contamos con testers de todo nuestro catálogo</strong>, además de frascos sellados, decants y accesorios para tu colección.</p>
+                <button onclick="navigateTo('catalogo')" class="btn-primary">Ver Perfumes</button>
             </div>
         </section>
 
         <section id="decants" class="page-section">
             <div class="container">
                 <h2 class="section-title serif">¿Qué es un Decant?</h2>
-                <p class="section-subtitle">Es la forma más inteligente de probar alta perfumería. Consiste en transferir la fragancia original desde su frasco de fábrica a un atomizador más pequeño, ideal para conocer un aroma antes de comprar la botella completa.</p>
+                <p class="section-subtitle">Es la forma más inteligente de probar perfumes de lujo. Sacamos un poco del perfume original y lo pasamos a un frasco más pequeño, ideal para que veas cómo queda en tu piel. <strong>Cuando encuentres el que te encanta, puedes comprarnos el frasco sellado.</strong></p>
                 <div class="decant-steps">
                     <div class="step-card"><i class="ph ph-flask step-icon"></i><h3 class="serif">1. Perfume Original</h3><p>Trabajamos exclusivamente con botellas 100% originales y selladas. Garantizamos la autenticidad de cada gota.</p></div>
                     <div class="step-card"><i class="ph ph-needle step-icon"></i><h3 class="serif">2. Extracción Precisa</h3><p>Extraemos el líquido utilizando jeringas estériles, evitando que el perfume entre en contacto con el aire para no alterar sus notas.</p></div>
@@ -343,7 +356,6 @@
                             </ul>
                         </div>
                         
-                        <!-- NUEVA SECCIÓN: FAMILIA OLFATIVA -->
                         <div class="filter-section">
                             <h4>Familia Olfativa</h4>
                             <ul class="filter-list" id="aroma-list">
@@ -382,6 +394,13 @@
             </div>
         </section>
 
+        <section id="accesorios" class="page-section">
+            <div class="container">
+                <h2 class="section-title serif">Accesorios</h2>
+                <div class="product-grid" id="accesorios-grid"></div>
+            </div>
+        </section>
+
         <section id="detalle-perfume" class="page-section">
             <div class="container">
                 <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
@@ -396,47 +415,58 @@
                 
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-question">¿Puedo probar los perfumes antes de comprar? <i class="ph ph-plus faq-icon"></i></div>
+                        <div class="faq-answer">¡Por supuesto! Queremos que compres con total seguridad. <strong>Contamos con testers de todo nuestro catálogo a tu disposición</strong>. Puedes adquirir nuestros decants para probarlos tranquilamente en tu día a día, o contactarnos para recibir asesoría experta y asegurar que te lleves el perfume perfecto para ti.</div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-question">¿Venden solo decants o también la botella completa? <i class="ph ph-plus faq-icon"></i></div>
+                        <div class="faq-answer"><strong>Ofrecemos ambos formatos.</strong> Puedes adquirir nuestros decants (3ml, 5ml o 10ml) para descubrir cómo evoluciona la fragancia en tu piel durante días, o comprar el frasco original completamente sellado de fábrica si ya conoces el aroma y quieres la experiencia completa.</div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
                         <div class="faq-question">¿Los perfumes son 100% originales? <i class="ph ph-plus faq-icon"></i></div>
                         <div class="faq-answer">Absolutamente. Extraemos el líquido directamente de las botellas originales y selladas de fábrica. Garantizamos la autenticidad de cada gota de nuestros decants. No vendemos réplicas ni imitaciones.</div>
                     </div>
                     <div class="faq-item" onclick="toggleFaq(this)">
-                        <div class="faq-question">¿Cómo se realiza el pago? <i class="ph ph-plus faq-icon"></i></div>
-                        <div class="faq-answer">Para brindarte un trato seguro y evitar fraudes online, el pago no se hace con tarjetas en esta página. Al confirmar tu carrito, nos envías el pedido por WhatsApp donde te compartiremos los datos para realizar una <strong>Transferencia Bancaria</strong>.</div>
+                        <div class="faq-question">¿Cómo se realiza el proceso de pago? <i class="ph ph-plus faq-icon"></i></div>
+                        <div class="faq-answer">Al confirmar tu carrito, pasaremos a WhatsApp para coordinar tu pedido de forma personal. <strong>Si eres de Valdivia, puedes pagar al momento de recibir tu producto</strong> (Efectivo, Débito o Crédito) en entregas a coordinar o delivery. <strong>Para envíos a otras regiones</strong>, el pago se realiza mediante transferencia bancaria previa al despacho.</div>
                     </div>
                     <div class="faq-item" onclick="toggleFaq(this)">
                         <div class="faq-question">¿Cuánto demoran y cómo son los envíos? <i class="ph ph-plus faq-icon"></i></div>
-                        <div class="faq-answer">Hacemos entregas presenciales en Valdivia. Para el resto de Chile, enviamos a través de <strong>Starken y Chilexpress</strong>. Los pedidos se despachan en 24 a 48 horas hábiles tras recibir el comprobante de transferencia.</div>
-                    </div>
-                    <div class="faq-item" onclick="toggleFaq(this)">
-                        <div class="faq-question">¿Qué pasa si el perfume no me gusta? <i class="ph ph-plus faq-icon"></i></div>
-                        <div class="faq-answer">¡Justamente para eso son los decants! La idea es que pruebes la fragancia en tu propia piel durante días sin arriesgar el valor de una botella completa. Si el aroma no va con tu estilo, habrás invertido muy poco en descubrirlo.</div>
+                        <div class="faq-answer">Hacemos entregas presenciales en Valdivia. Para el resto de Chile, enviamos a través de <strong>Starken y Chilexpress</strong>. Los pedidos se despachan cuidadosamente empaquetados en 24 a 48 horas hábiles tras recibir tu compra.</div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="contacto" class="page-section">
-            <div class="container">
-                <h2 class="section-title serif">Hablemos</h2>
-                <p class="section-subtitle">Realizamos entregas en Valdivia y envíos a todo Chile.</p>
-                <div class="contact-box">
-                    <img src="logo.png" alt="Attar House" style="max-height: 80px; margin-bottom: 20px; object-fit: contain;" onerror="this.src='https://placehold.co/100x100/111/D4AF37?text=Logo'">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title serif">Conversemos</h2>
+                <p>¿Necesitas asesoría personalizada? Contáctanos directamente.</p>
+                <div class="contact-box" style="margin-top: 40px;">
+                    <div class="custom-logo-hero" style="margin-bottom: 20px;">
+                        <div class="monogram" style="font-size: 4rem;">A<span>H</span></div>
+                    </div>
                     <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 10px;">Attar House</h3>
                     <p style="color: var(--text-muted);">No son perfumes, es presencia.</p>
                     <div class="social-links-big">
                         <a href="https://instagram.com/attar_housecl" target="_blank" class="social-link-big"><i class="ph ph-instagram-logo"></i><span>Instagram</span></a>
-                        <a href="https://wa.me/56930679481?text=Hola%20Attar%20House!%20Me%20gustar%C3%ADa%20hacer%20una%20consulta." target="_blank" class="social-link-big"><i class="ph ph-whatsapp-logo"></i><span>WhatsApp</span></a>
+                        <a href="https://wa.me/56930679481?text=Hola%20Attar%20House!%20Me%20gustaría%20hacer%20una%20consulta." target="_blank" class="social-link-big"><i class="ph ph-whatsapp-logo"></i><span>WhatsApp</span></a>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <div class="cart-toggle" onclick="toggleCart()"><i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge">0</span></div>
+    <div class="cart-toggle" onclick="toggleCart()">
+        <i class="ph ph-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+    </div>
 
     <div class="cart-sidebar" id="main-cart">
-        <div class="cart-header"><h3 class="serif">Tu Pedido</h3><button class="close-cart" onclick="toggleCart()"><i class="ph ph-x"></i></button></div>
+        <div class="cart-header">
+            <h3 class="serif">Tu Pedido</h3>
+            <button class="close-cart" onclick="toggleCart()"><i class="ph ph-x"></i></button>
+        </div>
         
         <div id="shipping-progress-container" class="shipping-progress"></div>
         <div class="cart-items" id="cart-items"><p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Tu carrito está vacío</p></div>
@@ -447,58 +477,118 @@
         </div>
 
         <div class="cart-footer">
-            <div class="cart-total"><span>Total:</span><span style="color: var(--gold-primary)">$<span id="cart-total-price">0</span></span></div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span style="color: var(--gold-primary)">$<span id="cart-total-price">0</span></span>
+            </div>
             <button class="btn-whatsapp" onclick="sendWhatsAppOrder()" style="background-color: var(--whatsapp); color: white;"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Enviar por WhatsApp</button>
+            <p style="text-align: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 15px; text-transform: none;">Pago contra entrega en Valdivia. Transferencia bancaria para envíos a regiones.</p>
         </div>
     </div>
 
     <div class="trust-badges">
-        <div class="trust-badge"><i class="ph ph-shield-check"></i> 100% Originales Extraídos del Frasco</div>
-        <div class="trust-badge"><i class="ph ph-bank"></i> Pago Seguro por Transferencia</div>
-        <div class="trust-badge"><i class="ph ph-truck"></i> Envíos por Starken y Chilexpress</div>
+        <div class="trust-badge"><i class="ph ph-shield-check"></i> Garantía de Autenticidad</div>
+        <div class="trust-badge"><i class="ph ph-package"></i> Envíos desde Valdivia</div>
+        <div class="trust-badge"><i class="ph ph-credit-card"></i> Todo medio de pago</div>
     </div>
 
-    <footer><div class="container"><p>&copy; 2026 Attar House. Todos los derechos reservados.</p></div></footer>
+    <footer>&copy; 2026 Attar House. Valdivia, Chile.</footer>
 
     <script>
+        // BASE DE DATOS
         const perfumesDB = [
-            { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 95, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'asad', brand: 'Lattafa', name: 'Asad', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Especiado', 'Vainilla', 'Maderas'], families: ['Especiado', 'Amaderado'], popularity: 90, inspiration: 'Dior Sauvage Elixir', description: 'Un aroma poderoso, maduro y misterioso. Abre con notas especiadas muy marcadas y asienta en una base oscura de maderas y vainilla ambarada.', prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Cítrico', 'Especiado', 'Ámbar'], families: ['Cítrico', 'Especiado'], popularity: 80, inspiration: 'Bvlgari Le Gemme Tygar', description: 'La sofisticación hecha perfume. Una salida de pomelo ultra realista y chispeante que se mezcla magistralmente con notas amaderadas y ámbar.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Tropical', 'Frutal', 'Fresco'], families: ['Frutal', 'Fresco'], popularity: 88, inspiration: 'Variante frutal de Invictus / Hawas', description: 'Un cóctel explosivo de frutas tropicales. Extremadamente juguetón, dulce y fresco a la vez. Es un imán de cumplidos en verano.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'hawas-verde', brand: 'Rasasi', name: 'Hawas Verde', gender: 'Masculino', bottleClass: 'bottle-brun', notes: ['Cítrico', 'Aromático', 'Verde'], families: ['Fresco', 'Cítrico'], popularity: 82, inspiration: 'Variante fresca de la línea Hawas', description: 'La versión más fresca, limpia y revitalizante de la familia Hawas. Notas verdes y cítricos potentes que proyectan limpieza y energía.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'khamrah-qahwa', brand: 'Lattafa', name: 'Khamrah Qahwa', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Café', 'Praliné', 'Vainilla'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Kilian Angels\' Share (con toque de café)', description: 'El famoso y dulce Khamrah, pero perfeccionado. Se le añade una nota intensa de café tostado en la salida que corta el dulzor y lo vuelve más oscuro.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Afrutado', 'Amaderado', 'Fresco'], families: ['Frutal', 'Amaderado', 'Fresco'], popularity: 85, inspiration: 'God of Fire de Stéphane Humbert Lucas', description: 'Un viaje exótico. Una nota prominente de mango verde y cítricos que evoluciona hacia una base amaderada muy fina.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Atalcado', 'Vainilla', 'Dulce'], families: ['Dulce'], popularity: 100, inspiration: 'Creación original (Vibe Dior Poison Girl)', description: 'El perfume viral de TikTok por excelencia. Huele a un batido cremoso de fresa y vainilla, con un fondo suave y atalcado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Frutal', 'Dulce'], families: ['Dulce', 'Frutal'], popularity: 92, inspiration: 'Kayali Vanilla Candy Rock Sugar', description: 'La hermana más golosa de la familia Yara. Una explosión de caramelos, frutas confitadas y azúcar que te envuelve en una nube dulce.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Amaderado', 'Especiado', 'Ámbar'], families: ['Amaderado', 'Especiado'], popularity: 84, inspiration: 'Alta perfumería de diseñador', description: 'Una declaración de intenciones. Un aroma profundo, nocturno y muy seductor donde las especias cálidas se encuentran con maderas nobles.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'tag-rosso', brand: 'Armaf', name: 'Tag Him Uomo Rosso', gender: 'Masculino', bottleClass: 'bottle-club', notes: ['Especiado', 'Vainilla', 'Amaderado'], families: ['Especiado', 'Amaderado', 'Dulce'], popularity: 75, inspiration: 'Invictus Victory / Paco Rabanne 1 Million', description: 'Dulce, intenso y hecho para destacar en la noche. Una fragancia que combina la vainilla oscura con toques especiados.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', bottleClass: 'bottle-asad', notes: ['Piña', 'Coco', 'Tropical'], families: ['Frutal', 'Fresco'], popularity: 89, inspiration: 'Louis Vuitton Pacific Chill / City of Stars', description: 'Vacaciones embotelladas. Una mezcla vibrante y jugosa de frutas tropicales donde resalta el coco y la piña fresca.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée', 'Vainilla'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', description: 'Una salida brillante de piña fresca que rápidamente se transforma en un postre gourmet: un crème brûlée rico y cremoso espolvoreado con especias suaves.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'amber-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', bottleClass: 'bottle-club', notes: ['Ámbar', 'Oud', 'Especiado'], families: ['Amaderado', 'Especiado'], popularity: 78, inspiration: 'Perfumería oriental ultra-nicho', description: 'Opulencia de Medio Oriente. Un oud domesticado pero rico, entrelazado con un ámbar dorado y resinas. Una fragancia densa y lujosa.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-            { id: 'givenchy-gentleman', brand: 'Givenchy', name: 'Gentleman EDP', gender: 'Masculino', bottleClass: 'bottle-asad', notes: ['Iris', 'Pimienta', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 87, inspiration: 'Original de Diseñador', description: 'El epítome de la elegancia masculina contemporánea. Abre con un golpe de pimienta negra que da paso a un corazón atalcado de iris refinado.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } }
+            { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'tag-uomo-rosso', brand: 'Armaf', name: 'Tag-Him Uomo Rosso', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Lavanda', 'Cardamomo', 'Haba Tonka'], families: ['Especiado', 'Dulce'], popularity: 85, inspiration: 'Paco Rabanne Invictus Victory', description: 'Un aroma nocturno, dulce y altamente seductor. La lavanda oscura se moderniza abrazada por el dulzor del haba tonka y toques de cardamomo.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Frutas T.', 'Jazmín', 'Almizcle'], families: ['Frutal', 'Fresco'], popularity: 89, inspiration: 'Louis Vuitton Pacific Chill', description: 'Vacaciones embotelladas. Una mezcla vibrante y jugosa de frutas tropicales con un fondo limpio y duradero de almizcle y toques florales.', prices: { sellado: 39000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'hawas-fire', brand: 'Rasasi', name: 'Hawas Fire', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Manzana', 'Canela', 'Sándalo'], families: ['Especiado', 'Amaderado'], popularity: 92, inspiration: 'Creación Exclusiva', description: 'La versión más cálida, misteriosa y seductora de la aclamada línea Hawas. Manzana jugosa con canela sobre maderas preciosas que encienden la noche.', prices: { sellado: 44000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Piña', 'Melón', 'Almizcle'], families: ['Frutal', 'Cítrico'], popularity: 90, inspiration: 'Variante exótica de Hawas', description: 'Un cóctel explosivo de frescura infinita. Piña jugosa, melón y frutas tropicales que garantizan cumplidos en los días de calor.', prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'amber-oud-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-club', notes: ['Bergamota', 'Oud', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 82, inspiration: 'Perfumería oriental ultra-nicho', description: 'Opulencia pura del Medio Oriente. Un oud muy amigable y perfectamente equilibrado, rodeado de ámbar dorado, vainilla y una salida luminosa de bergamota.', prices: { sellado: 50000, decant10: 7000, decant5: 5000, decant3: 4000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'asad-bourbon', brand: 'Lattafa', name: 'Asad Bourbon', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Pimienta N.', 'Café', 'Iris'], families: ['Especiado', 'Dulce'], popularity: 95, inspiration: 'Dior Sauvage Elixir (con toque gourmand)', description: 'Una variación exquisita y madura del clásico Asad. Incorpora fuertes notas de café tostado sobre una vainilla oscura, pimienta y toques atalcados de iris.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'philos-pura', brand: 'Maison Alhambra', name: 'Philos Pura', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Naranja', 'Frutas', 'Almizcle Blanco'], families: ['Cítrico', 'Frutal'], popularity: 87, inspiration: 'Xerjoff Erba Pura', description: 'Una explosión frutal cítrica de altísima proyección que se asienta en un fondo de almizcle blanco y vainilla súper duradero.', prices: { sellado: 23000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'musamam', brand: 'Lattafa', name: 'Musamam', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Mandarina', 'Azafrán', 'Maderas'], families: ['Especiado', 'Amaderado'], popularity: 84, inspiration: 'Alta Perfumería Árabe / M7 YSL', description: 'Elegancia oriental embotellada. Una salida de mandarina vibrante que se funde en azafrán de lujo y un fondo de maderas misteriosas.', prices: { sellado: 30000, decant10: 4000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'art-universe', brand: 'Lattafa', name: 'Art Of Universe', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Bergamota', 'Jazmín', 'Sándalo'], families: ['Cítrico', 'Fresco'], popularity: 89, inspiration: 'Louis Vuitton Imagination', description: 'Un viaje fresco y lujoso. Una salida cítrica espectacular dominada por la bergamota, equilibrada con notas florales de jazmín y un sándalo adictivo en el fondo.', prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée', 'Benjuí'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', description: 'Una salida brillante de piña fresca que rápidamente se transforma en un rico postre de crème brûlée espolvoreado con especias suaves y vainilla.', prices: { sellado: 26000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-asad', notes: ['Cardamomo', 'Iris', 'Sándalo'], families: ['Amaderado', 'Especiado'], popularity: 84, inspiration: 'Alta perfumería de diseñador', description: 'Una declaración de intenciones. Un aroma profundo, nocturno y muy seductor donde el cardamomo cálido se encuentra con el iris atalcado y maderas nobles.', prices: { sellado: 34000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Frutos Rojos', 'Vainilla'], families: ['Dulce', 'Frutal'], popularity: 92, inspiration: 'Kayali Vanilla Candy Rock Sugar', description: 'La hermana más golosa de la familia Yara. Una explosión de caramelos, grosellas negras y azúcar que te envuelve en una nube frutal dulce y juvenil.', prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            
+            { id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Orquídea', 'Frutas T.', 'Vainilla'], families: ['Dulce'], popularity: 100, inspiration: 'Creación original', description: 'El perfume viral de TikTok por excelencia. Huele a un batido cremoso de frutas tropicales y vainilla, con un corazón floral de orquídea y heliotropo.', prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } }
         ];
 
-        // --- SISTEMA DE FILTROS LATERAL Y BUSCADOR ---
+        const accesoriosDB = [
+            { id: 'porta-decant', name: 'Porta Decant', description: 'Estuche elegante para transporte.', price: 5000, icon: 'ph ph-briefcase' },
+            { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 3000, icon: 'ph ph-codepen-logo' }
+        ];
+
+        // ESTADO GLOBAL (Con persistencia)
+        let cart = JSON.parse(localStorage.getItem('attar_cart')) || [];
         let currentSort = 'default';
         let currentGender = 'all';
         let currentBrand = 'all';
+        let currentAroma = 'all';
         let currentSearch = '';
-        let currentAroma = 'all'; // NUEVA VARIABLE PARA AROMAS
 
-        function searchCatalog() {
-            currentSearch = document.getElementById('searchInput').value.toLowerCase();
-            updateCatalog();
+        // NAVEGACIÓN
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if(target) target.classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-target') === pageId);
+            });
+            document.getElementById('navLinks').classList.remove('show');
+            window.scrollTo(0,0);
         }
 
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('show');
+        });
+
+        function toggleCart() { document.getElementById('main-cart').classList.toggle('open'); }
+        function toggleSidebar() { document.getElementById('catalog-sidebar').classList.toggle('open'); }
+        function toggleFaq(el) { el.classList.toggle('active'); }
+
+        // --- ROTACIÓN DE ANUNCIOS ---
+        const announcements = [
+            "✨ Envío gratis a todo Chile por compras sobre $60.000 ✨",
+            "🎁 Gana un decant de regalo sobre $15.000 en decants o $70.000 total 🎁"
+        ];
+        let currentAnnIndex = 0;
+
+        function rotateAnnouncements() {
+            const el = document.getElementById('announcement-text');
+            if(!el) return;
+            setInterval(() => {
+                el.classList.add('fade-out');
+                setTimeout(() => {
+                    currentAnnIndex = (currentAnnIndex + 1) % announcements.length;
+                    el.innerText = announcements[currentAnnIndex];
+                    el.classList.remove('fade-out');
+                }, 400);
+            }, 5000);
+        }
+
+        // --- INICIALIZACIÓN DE LA BARRA LATERAL ---
         function initSidebar() {
-            // Contar Géneros
             document.getElementById('count-all').innerText = perfumesDB.length;
             document.getElementById('count-fem').innerText = perfumesDB.filter(p => p.gender === 'Femenino').length;
             document.getElementById('count-masc').innerText = perfumesDB.filter(p => p.gender === 'Masculino').length;
             document.getElementById('count-uni').innerText = perfumesDB.filter(p => p.gender === 'Unisex').length;
 
-            // Contar Aromas (Familias)
             document.getElementById('count-aroma-all').innerText = perfumesDB.length;
             document.getElementById('count-aroma-dulce').innerText = perfumesDB.filter(p => p.families.includes('Dulce')).length;
             document.getElementById('count-aroma-fresco').innerText = perfumesDB.filter(p => p.families.includes('Fresco')).length;
@@ -507,7 +597,6 @@
             document.getElementById('count-aroma-frutal').innerText = perfumesDB.filter(p => p.families.includes('Frutal')).length;
             document.getElementById('count-aroma-citrico').innerText = perfumesDB.filter(p => p.families.includes('Cítrico')).length;
 
-            // Extraer y Renderizar Marcas únicas
             const allBrands = [...new Set(perfumesDB.map(p => p.brand))].sort();
             const brandList = document.getElementById('brand-list');
             brandList.innerHTML = `<button class="brand-btn active" onclick="setBrand('all', this)">Todas</button>`;
@@ -516,24 +605,24 @@
             });
         }
 
-        // Acciones al clickear filtros
+        // --- FUNCIONES DE FILTRADO ---
         function setSort(val, element) {
             currentSort = val;
             updateActiveState(element, 'sort-list');
-            updateCatalog();
+            renderCatalog();
         }
-        
+
         function setAroma(val, element) {
             currentAroma = val;
             updateActiveState(element, 'aroma-list');
-            updateCatalog();
+            renderCatalog();
             if(window.innerWidth <= 768) toggleSidebar(); 
         }
 
         function setGender(val, element) {
             currentGender = val;
             updateActiveState(element, 'gender-list');
-            updateCatalog();
+            renderCatalog();
             if(window.innerWidth <= 768) toggleSidebar(); 
         }
 
@@ -542,7 +631,7 @@
             const btns = document.getElementById('brand-list').getElementsByClassName('brand-btn');
             for(let b of btns) b.classList.remove('active');
             element.classList.add('active');
-            updateCatalog();
+            renderCatalog();
             if(window.innerWidth <= 768) toggleSidebar(); 
         }
 
@@ -552,24 +641,24 @@
             element.classList.add('active');
         }
 
-        function toggleSidebar() {
-            document.getElementById('catalog-sidebar').classList.toggle('open');
+        function searchCatalog() {
+            currentSearch = document.getElementById('searchInput').value.toLowerCase();
+            renderCatalog();
         }
 
-        // --- RENDERIZADO DEL CATÁLOGO ---
-        function updateCatalog() {
+        // RENDERIZADO
+        function renderCatalog() {
             const grid = document.getElementById('catalogo-grid');
-            grid.innerHTML = ''; 
+            grid.innerHTML = '';
             
-            // Filtrar y Ordenar
             let filtered = perfumesDB.filter(p => {
                 const matchGender = (currentGender === 'all' || p.gender === currentGender);
                 const matchBrand = (currentBrand === 'all' || p.brand === currentBrand);
-                const matchAroma = (currentAroma === 'all' || p.families.includes(currentAroma));
+                const matchAroma = (currentAroma === 'all' || (p.families && p.families.includes(currentAroma)));
                 const matchSearch = currentSearch === '' || 
                                     p.name.toLowerCase().includes(currentSearch) || 
                                     p.brand.toLowerCase().includes(currentSearch) || 
-                                    p.notes.some(n => n.toLowerCase().includes(currentSearch));
+                                    (p.notes && p.notes.some(n => n.toLowerCase().includes(currentSearch)));
                                     
                 return matchGender && matchBrand && matchAroma && matchSearch;
             });
@@ -579,7 +668,7 @@
             } else if (currentSort === 'price-desc') {
                 filtered.sort((a, b) => b.prices.decant3 - a.prices.decant3);
             } else if (currentSort === 'popularity') {
-                filtered.sort((a, b) => b.popularity - a.popularity);
+                filtered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
             }
 
             if(filtered.length === 0) {
@@ -591,11 +680,15 @@
                 const tagsHTML = perfume.notes.map(note => `<span class="note-tag">${note}</span>`).join('');
                 const isTotallyOut = !perfume.stock.sellado && !perfume.stock.decant10 && !perfume.stock.decant5 && !perfume.stock.decant3;
                 
+                const imageHTML = perfume.imageUrl && perfume.imageUrl !== '' 
+                    ? `<img src="${perfume.imageUrl}" alt="${perfume.name}" class="real-img">`
+                    : `<div class="arch-frame"><div class="bottle ${perfume.bottleClass}"></div></div>`;
+
                 const cardHTML = `
-                    <div class="product-card ${isTotallyOut ? 'card-disabled' : ''}" onclick="${isTotallyOut ? '' : `openPerfumeDetail('${perfume.id}')`}">
+                    <div class="product-card ${isTotallyOut ? 'card-disabled' : ''}" onclick="${isTotallyOut ? '' : `openDetail('${perfume.id}')`}">
                         ${isTotallyOut ? '<span class="sold-out-badge">Agotado</span>' : ''}
                         <div class="product-image-container">
-                            <div class="arch-frame"><div class="bottle ${perfume.bottleClass}"></div></div>
+                            ${imageHTML}
                         </div>
                         <div class="product-brand">${perfume.brand}</div>
                         <h3 class="product-title serif">${perfume.name}</h3>
@@ -607,8 +700,24 @@
             });
         }
 
-        // --- DETALLES Y NAVEGACIÓN ---
-        function openPerfumeDetail(id) {
+        function renderAccesorios() {
+            const grid = document.getElementById('accesorios-grid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            accesoriosDB.forEach(acc => {
+                grid.innerHTML += `
+                    <div class="product-card" style="cursor:default;">
+                        <div class="product-image-container"><i class="${acc.icon}" style="font-size:3rem; color:var(--gold-primary);"></i></div>
+                        <h3 class="product-title">${acc.name}</h3>
+                        <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">${acc.description}</p>
+                        <div style="font-weight:bold; color:var(--gold-primary); margin-bottom:15px;">$${acc.price.toLocaleString('es-CL')}</div>
+                        <button class="btn-add-cart" onclick="addAccesorioToCart('${acc.id}')">Añadir al Carrito</button>
+                    </div>`;
+            });
+        }
+
+        // LÓGICA DE CARRITO
+        function openDetail(id) {
             const p = perfumesDB.find(x => x.id === id);
             const container = document.getElementById('detalle-container');
             const tagsHTML = p.notes.map(n => `<span class="note-tag">${n}</span>`).join('');
@@ -621,78 +730,32 @@
 
             const allSoldOut = !p.stock.sellado && !p.stock.decant10 && !p.stock.decant5 && !p.stock.decant3;
             
+            const imageHTML = p.imageUrl && p.imageUrl !== '' 
+                ? `<img src="${p.imageUrl}" alt="${p.name}" class="real-img">`
+                : `<div class="detail-arch"><div class="bottle ${p.bottleClass}"></div></div>`;
+
             container.innerHTML = `
-                <div class="detail-image-col"><div class="detail-arch"><div class="bottle ${p.bottleClass}"></div></div></div>
-                <div class="detail-info-col">
-                    <div class="detail-brand">${p.brand} | ${p.gender}</div>
-                    <h2 class="detail-title serif">${p.name}</h2>
-                    <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
-                    <p class="detail-desc">${p.description}</p>
-                    <div class="detail-notes"><h4>Notas Olfativas Principales</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
-                    <div class="purchase-box">
-                        <select class="format-select" id="format-detail-${p.id}">${opts}</select>
-                        <button class="btn-add-cart" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
-                            <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
-                        </button>
+                <div class="detail-grid">
+                    <div class="detail-image-col">
+                        ${imageHTML}
+                    </div>
+                    <div class="detail-info-col">
+                        <div class="detail-brand">${p.brand} | ${p.gender}</div>
+                        <h2 class="detail-title serif">${p.name}</h2>
+                        <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
+                        <p class="detail-desc">${p.description}</p>
+                        <div class="detail-notes"><h4>Notas Olfativas Principales</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
+                        <div class="purchase-box">
+                            <select class="format-select" id="format-detail-${p.id}">${opts}</select>
+                            <button class="btn-add-cart" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
+                                <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
+                            </button>
+                        </div>
                     </div>
                 </div>`;
             navigateTo('detalle-perfume');
         }
 
-        // --- ROTACIÓN DE ANUNCIOS ---
-        const announcements = [
-            "✨ Decant de regalo por $15.000 en decants ✨",
-            "🚚 Envío gratis a todo Chile sobre $60.000 🚚"
-        ];
-        let announcementIdx = 0;
-
-        function startAnnouncementRotation() {
-            setInterval(() => {
-                const el = document.getElementById('announcement-text');
-                if(!el) return;
-                
-                el.classList.add('fade-out');
-                
-                setTimeout(() => {
-                    announcementIdx = (announcementIdx + 1) % announcements.length;
-                    el.innerText = announcements[announcementIdx];
-                    el.classList.remove('fade-out');
-                }, 400); // Espera a que termine de desvanecerse
-                
-            }, 4000); // Cambia de mensaje cada 4 segundos
-        }
-
-        window.onload = () => {
-            initSidebar();
-            updateCatalog();
-            populateGiftSelect();
-            startAnnouncementRotation(); // Iniciamos la rotación al cargar la página
-        };
-
-        function navigateTo(pageId) {
-            const sections = document.querySelectorAll('.page-section');
-            sections.forEach(s => s.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-
-            const navBtns = document.querySelectorAll('.nav-btn');
-            navBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('data-target') === pageId) btn.classList.add('active');
-            });
-            document.getElementById('navLinks').classList.remove('show');
-            window.scrollTo(0, 0);
-        }
-
-        document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('show'));
-
-        function toggleFaq(element) {
-            element.classList.toggle('active');
-        }
-
-        // --- CARRITO ---
-        let cart = [];
-        function toggleCart() { document.getElementById('main-cart').classList.toggle('open'); }
-        
         function populateGiftSelect() {
             const select = document.getElementById('free-gift-select');
             select.innerHTML = '';
@@ -711,9 +774,22 @@
             document.getElementById('main-cart').classList.add('open');
         }
 
+        function addAccesorioToCart(id) {
+            const acc = accesoriosDB.find(x => x.id === id);
+            const exist = cart.find(i => i.name === acc.name);
+            if(exist) exist.quantity++; else cart.push({ name: acc.name, format: 'Accesorio', price: acc.price, quantity: 1 });
+            updateCartUI();
+            toggleCart();
+        }
+
         function updateQty(idx, mod) {
             cart[idx].quantity += mod;
             if(cart[idx].quantity <= 0) cart.splice(idx, 1);
+            updateCartUI();
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
             updateCartUI();
         }
 
@@ -724,12 +800,13 @@
             const sProg = document.getElementById('shipping-progress-container');
             const gCont = document.getElementById('free-gift-container');
 
+            localStorage.setItem('attar_cart', JSON.stringify(cart));
+            
+            cItems.innerHTML = '';
             let totalItems = 0; 
             let totalPrice = 0; 
-            let decantTotal = 0; // SEPARADOR DE MARGEN: Solo suma lo gastado en decants
+            let decantTotal = 0; 
 
-            cItems.innerHTML = '';
-            
             if(cart.length === 0) {
                 cItems.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top:20px;">Tu carrito está vacío</p>';
                 sProg.style.display = 'none'; gCont.style.display = 'none';
@@ -739,7 +816,6 @@
                     let itemSubtotal = (i.price * i.quantity);
                     totalPrice += itemSubtotal;
 
-                    // Si la palabra "Decant" está en el formato, lo sumamos al pozo de regalos
                     if(i.format.toLowerCase().includes('decant')) {
                         decantTotal += itemSubtotal;
                     }
@@ -762,8 +838,7 @@
                 let giftMsg = '';
                 let shippingMsg = '';
 
-                // Lógica 1: Regalo (Basado ESTRICTAMENTE en decants)
-                if(decantTotal >= giftThreshold) {
+                if(decantTotal >= giftThreshold || totalPrice >= 70000) {
                     giftMsg = `<span style="color: var(--gold-primary); font-weight: 600;"><i class="ph ph-gift"></i> ¡Ganaste un decant de regalo!</span>`;
                     gCont.style.display = 'block';
                 } else {
@@ -772,7 +847,6 @@
                     gCont.style.display = 'none';
                 }
 
-                // Lógica 2: Envío (Basado en el total general)
                 if(totalPrice >= freeShippingThreshold) {
                     shippingMsg = `<span class="shipping-success" style="margin-top: 6px;"><i class="ph ph-check-circle" style="font-size: 1.1rem;"></i> ¡Envío gratis alcanzado!</span>`;
                 } else {
@@ -803,11 +877,20 @@
             text += `%0A*Total Estimado: $${t.toLocaleString('es-CL')}*%0A`;
             
             if(t >= 60000) text += `🚚 *¡Mi pedido califica para ENVÍO GRATIS!*%0A`;
-            if(decantT >= 15000) text += `🎁 *Mi pedido incluye un decant de regalo de 3ML: ${document.getElementById('free-gift-select').value}*%0A`;
+            if(decantT >= 15000 || t >= 70000) text += `🎁 *Mi pedido incluye un decant de regalo de 3ML: ${document.getElementById('free-gift-select').value}*%0A`;
             
             text += `%0AQuedo atento/a para coordinar el pago y la entrega. ¡Gracias!`;
             window.open(`https://wa.me/56930679481?text=${text}`, '_blank');
         }
+
+        window.onload = () => {
+            initSidebar();
+            renderCatalog();
+            renderAccesorios();
+            populateGiftSelect();
+            updateCartUI();
+            rotateAnnouncements(); 
+        };
     </script>
 </body>
 </html>
