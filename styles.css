@@ -155,17 +155,21 @@ main { flex: 1; margin-top: 105px; }
 .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: var(--bg-surface); border-left: 1px solid var(--border-gold); z-index: 1002; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.8); }
 .cart-sidebar.open { right: 0; }
 .cart-header { padding: 25px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+.cart-header h3 { color: var(--gold-primary); } 
 .shipping-progress { background: rgba(212,175,55,0.05); padding: 15px 20px; text-align: center; font-size: 0.85rem; border-bottom: 1px solid var(--border-gold); color: var(--text-muted); display: none; line-height: 1.4;}
 .shipping-success { color: #25D366; font-weight: bold; }
 .cart-items { flex: 1; overflow-y: auto; padding: 25px; }
 .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.cart-item-info h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; }
+.cart-item-info h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; font-weight: 500; }
 .cart-item-info p { font-size: 0.8rem; color: var(--text-muted); }
 .cart-item-price { color: var(--gold-primary); font-weight: bold; margin-top: 5px; }
 .cart-item-actions { display: flex; align-items: center; gap: 10px; }
-.qty-btn { background: rgba(212,175,55,0.2); border: none; color: var(--gold-primary); width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;}
-.remove-btn { color: var(--danger); background: transparent; border: none; cursor: pointer; font-size: 1.3rem; margin-left: 5px;}
 
+/* Botones más limpios y transparentes */
+.qty-btn { background: transparent; border: 1px solid var(--border-gold); color: var(--gold-primary); width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s; }
+.qty-btn:hover { border-color: var(--gold-primary); background: rgba(212, 175, 55, 0.1); }
+
+.remove-btn { color: var(--danger); background: transparent; border: none; cursor: pointer; font-size: 1.3rem; margin-left: 5px;}
 .cart-footer { padding: 20px; background: #0a0a0a; border-top: 1px solid #333; }
 .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
 .btn-whatsapp-final { width: 100%; padding: 18px; background: var(--whatsapp); color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
