@@ -397,6 +397,7 @@ function sendWhatsAppOrder() {
 }
 
 // ==========================================
+// ==========================================
 // UTILIDADES Y EVENTOS DE VENTANA
 // ==========================================
 function toggleCart() { document.getElementById('main-cart').classList.toggle('open'); }
@@ -411,6 +412,9 @@ window.onload = () => {
     updateCartUI();
     
     const giftSelect = document.getElementById('free-gift-select');
-    // MODIFICADO: Llenar el select de regalos de la base de datos de perfumes directamente.
-    perfumesDB.forEach(p => giftSelect.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+    
+    // MODIFICADO: Agregamos " - Decant 3ml" al texto visible y al valor que se envía por WhatsApp
+    perfumesDB.forEach(p => {
+        giftSelect.innerHTML += `<option value="${p.name} (Decant 3ml)">${p.name} - Decant 3ml</option>`;
+    });
 };
