@@ -211,13 +211,13 @@ function renderCatalog() {
         return;
     }
 
-    filtered.forEach(p => {
+   filtered.forEach(p => {
         const isOut = !p.stock.decant3;
         grid.innerHTML += `
             <div class="product-card ${isOut ? 'card-disabled' : ''}" onclick="openDetail('${p.id}')">
                 ${isOut ? '<span class="sold-out-badge">Agotado</span>' : ''}
                 <div class="product-image-container">
-                    ${p.imageUrl ? `<img src="${p.imageUrl}" class="real-img" onerror="handleImageError(this, '${p.bottleClass}')">` : `<div class="arch-frame"><div class="bottle ${p.bottleClass}"></div></div>`}
+                    ${p.imageUrl ? `<img src="${p.imageUrl}" alt="Decant de perfume árabe ${p.name} en Valdivia" class="real-img" onerror="handleImageError(this, '${p.bottleClass}')">` : `<div class="arch-frame"><div class="bottle ${p.bottleClass}"></div></div>`}
                 </div>
                 <div class="product-brand">${p.brand}</div>
                 <h3 class="product-title serif">${p.name}</h3>
