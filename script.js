@@ -1,4 +1,6 @@
+// ==========================================
 // BASE DE DATOS COMPLETA DE PERFUMES
+// ==========================================
 const perfumesDB = [
     { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
     { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante de mango jugoso.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
@@ -23,10 +25,21 @@ const accesoriosDB = [
     { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 3000, icon: 'ph ph-codepen-logo' }
 ];
 
+// MODIFICADO: Definimos un "mapa" global para convertir claves técnicas en nombres bonitos.
+const labelsFormatos = {
+    'sellado': 'Sellado',
+    'decant10': '10ml',
+    'decant5': '5ml',
+    'decant3': '3ml',
+    'Accesorio': 'Accesorio' // Para mantener consistencia con accesorios
+};
+
 let cart = JSON.parse(localStorage.getItem('attar_cart')) || [];
 let currentSort = 'default', currentGender = 'all', currentBrand = 'all', currentAroma = 'all', currentSearch = '';
 
+// ==========================================
 // NAVEGACIÓN Y MENÚS
+// ==========================================
 function navigateTo(pId) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
     document.getElementById(pId).classList.add('active');
@@ -51,7 +64,9 @@ function rotateAnnouncements() {
     }, 5000);
 }
 
-// FUNCIONES DE FALLBACK VISUAL
+// ==========================================
+// FUNCIONES DE FALLBACK VISUAL (BOTELLAS CSS)
+// ==========================================
 function handleImageError(img, bc) {
     const f = document.createElement('div'); f.className = 'arch-frame';
     f.innerHTML = `<div class="bottle ${bc}"></div>`; img.parentNode.replaceChild(f, img);
@@ -62,7 +77,9 @@ function handleDetailImageError(img, bc) {
     f.innerHTML = `<div class="bottle ${bc}"></div>`; img.parentNode.replaceChild(f, img);
 }
 
-// INICIALIZACIÓN DEL SIDEBAR CON CONTEO DE FILTROS
+// ==========================================
+// INICIALIZACIÓN DEL SIDEBAR Y FILTROS
+// ==========================================
 function initSidebar() {
     document.getElementById('count-all').innerText = perfumesDB.length;
     document.getElementById('count-fem').innerText = perfumesDB.filter(p => p.gender === 'Femenino').length;
@@ -83,7 +100,6 @@ function initSidebar() {
     brands.forEach(b => list.innerHTML += `<button class="brand-btn" onclick="setBrand('${b}', this)">${b}</button>`);
 }
 
-// LÓGICA DE FILTRADO
 function setBrand(v, el) { 
     document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active')); 
     el.classList.add('active'); currentBrand = v; renderCatalog(); 
@@ -109,7 +125,9 @@ function setGender(v, el) {
 
 function searchCatalog() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderCatalog(); }
 
-// RENDERIZADO DEL CATÁLOGO DE PERFUMES
+// ==========================================
+// RENDERIZADO PRINCIPAL
+// ==========================================
 function renderCatalog() {
     const grid = document.getElementById('catalogo-grid'); grid.innerHTML = '';
     
@@ -148,7 +166,6 @@ function renderCatalog() {
     });
 }
 
-// RENDERIZADO DE LOS ACCESORIOS
 function renderAccesorios() {
     const grid = document.getElementById('accesorios-grid');
     if(!grid) return;
@@ -165,14 +182,22 @@ function renderAccesorios() {
     });
 }
 
+// ==========================================
 // VISTA DE DETALLE DEL PERFUME
+// ==========================================
 function openDetail(id) {
     const p = perfumesDB.find(x => x.id === id); const container = document.getElementById('detalle-container');
     const tagsHTML = p.notes.map(n => `<span class="note-tag">${n}</span>`).join('');
-    let opts = ''; for(let k in p.prices) { 
-        if(p.stock[k] !== false) opts += `<option value="${k}|${p.prices[k]}">${k.replace('decant','Decant ')} - $${p.prices[k].toLocaleString('es-CL')}</option>`;
-        else opts += `<option disabled>${k} - AGOTADO</option>`;
+    
+    // MODIFICADO: Generación de opciones del select usando el mapa de nombres bonitos.
+    let opts = ''; 
+    for(let k in p.prices) { 
+        // Usamos labelsFormatos[k] para obtener 'Sellado', '10ml', etc.
+        const nombreFormato = labelsFormatos[k] || k;
+        if(p.stock[k] !== false) opts += `<option value="${k}|${p.prices[k]}">${nombreFormato} - $${p.prices[k].toLocaleString('es-CL')}</option>`;
+        else opts += `<option disabled>${nombreFormato} - AGOTADO</option>`;
     }
+
     container.innerHTML = `
         <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
         <div class="detail-grid">
@@ -203,7 +228,9 @@ function openDetail(id) {
     navigateTo('detalle-perfume');
 }
 
-// CONTROL DEL CARRITO
+// ==========================================
+// CONTROL DEL CARRITO Y PEDIDOS
+// ==========================================
 function addToCart(name, sid) {
     const sel = document.getElementById(sid); const [fmt, price] = sel.value.split('|');
     const exist = cart.find(i => i.name === name && i.format === fmt);
@@ -229,10 +256,18 @@ function updateCartUI() {
     items.innerHTML = ''; let total = 0, dTotal = 0;
     
     cart.forEach((i, idx) => {
-        let sub = i.price * i.quantity; total += sub; if(i.format.toLowerCase().includes('decant')) dTotal += sub;
+        let sub = i.price * i.quantity; 
+        total += sub; 
+        
+        // MODIFICADO: Cálculo de total en decants usando la clave técnica ('decant') antes de formatear
+        if(i.format.startsWith('decant')) dTotal += sub;
+        
+        // MODIFICADO: Usamos el mapa labelsFormatos para mostrar 'Sellado', '10ml' en el HTML del carrito
+        const displayFormat = labelsFormatos[i.format] || i.format;
+
         items.innerHTML += `
             <div class="cart-item">
-                <div class="cart-item-info"><h4>${i.name}</h4><p>${i.format}</p><b>$${sub.toLocaleString('es-CL')}</b></div>
+                <div class="cart-item-info"><h4>${i.name}</h4><p>${displayFormat}</p><b>$${sub.toLocaleString('es-CL')}</b></div>
                 <div class="cart-item-actions">
                     <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button><span>${i.quantity}</span>
                     <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
@@ -284,7 +319,10 @@ function sendWhatsAppOrder() {
     cart.forEach(i => { 
         let sub = i.price * i.quantity;
         total += sub;
-        t += `▪ ${i.quantity}x ${i.name} (${i.format}) - $${sub.toLocaleString('es-CL')}%0A`;
+        
+        // MODIFICADO: Usamos el mapa labelsFormatos para que el mensaje de WhatsApp diga 'Sellado', '10ml'
+        const displayFormat = labelsFormatos[i.format] || i.format;
+        t += `▪ ${i.quantity}x ${i.name} (${displayFormat}) - $${sub.toLocaleString('es-CL')}%0A`;
     });
     
     t += `%0A*Total Estimado: $${total.toLocaleString('es-CL')}*%0A`;
@@ -298,6 +336,9 @@ function sendWhatsAppOrder() {
     window.open(`https://wa.me/56930679481?text=${t}`, '_blank');
 }
 
+// ==========================================
+// UTILIDADES Y EVENTOS DE VENTANA
+// ==========================================
 function toggleCart() { document.getElementById('main-cart').classList.toggle('open'); }
 function toggleSidebar() { document.getElementById('catalog-sidebar').classList.toggle('open'); }
 function toggleFaq(el) { el.classList.toggle('active'); }
@@ -310,5 +351,6 @@ window.onload = () => {
     updateCartUI();
     
     const giftSelect = document.getElementById('free-gift-select');
-    perfumesDB.filter(p=>p.prices.decant3).forEach(p => giftSelect.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+    // MODIFICADO: Llenar el select de regalos de la base de datos de perfumes directamente.
+    perfumesDB.forEach(p => giftSelect.innerHTML += `<option value="${p.name}">${p.name}</option>`);
 };
