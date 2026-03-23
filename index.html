@@ -430,7 +430,8 @@
 
         <section id="detalle-perfume" class="page-section">
             <div class="container">
-                <div id="detalle-container"></div>
+                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
+                <div class="detail-grid" id="detalle-container"></div>
             </div>
         </section>
 
@@ -787,15 +788,12 @@
                     <div class="detail-info-col">
                         <div class="detail-brand">${p.brand} | ${p.gender}</div>
                         <h2 class="detail-title serif">${p.name}</h2>
-                        <div class="inspiration-badge">Inspiración: ${p.inspiration}</div>
-                        <div class="detail-notes"><h4>Notas Olfativas</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
-                        <p class="detail-desc" style="font-size: 0.95rem; margin-top: 20px;">${p.description}</p>
-                    </div>
-                    <div class="detail-action-col">
+                        <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
+                        <p class="detail-desc">${p.description}</p>
+                        <div class="detail-notes"><h4>Notas Olfativas Principales</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
                         <div class="purchase-box">
-                            <h4 style="color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Elige tu formato</h4>
                             <select class="format-select" id="format-detail-${p.id}">${opts}</select>
-                            <button class="btn-add-cart-gold" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
+                            <button class="btn-add-cart" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
                                 <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
                             </button>
                         </div>
@@ -870,27 +868,37 @@
                     }
 
                     cItems.innerHTML += `
-                        <div class="cart-item">
-                            <div class="cart-item-info"><h4 class="serif">${i.name}</h4><p>${i.format}</p><div class="cart-item-price">$${itemSubtotal.toLocaleString('es-CL')}</div></div>
-                            <div class="cart-item-actions">
-                                <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button><span>${i.quantity}</span>
-                                <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
-                                <button class="remove-btn" onclick="updateQty(${idx}, -999)"><i class="ph ph-trash"></i></button>
-                            </div>
-                        </div>`;
-                });
+                    <div class="cart-item">
+                        <div class="cart-item-info"><h4 class="serif">${i.name}</h4><p>${i.format}</p><div class="cart-item-price">$${itemSubtotal.toLocaleString('es-CL')}</div></div>
+                        <div class="cart-item-actions">
+                            <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button><span>${i.quantity}</span>
+                            <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
+                            <button class="remove-btn" onclick="updateQty(${idx}, -999)"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>`;
+            });
 
-                const giftThreshold = 15000;
-                const freeShippingThreshold = 60000;
+            const giftThreshold = 15000;
+            const totalGiftThreshold = 70000;
+            const freeShippingThreshold = 60000;
 
-                sProg.style.display = 'block';
-                let giftMsg = '';
-                let shippingMsg = '';
+            sProg.style.display = 'block';
+            let giftMsg = '';
+            let shippingMsg = '';
 
-                if(decantTotal >= giftThreshold || totalPrice >= 70000) {
-                    giftMsg = `<span style="color: var(--gold-primary); font-weight: 600;"><i class="ph ph-gift"></i> ¡Ganaste un decant de regalo!</span>`;
-                    gCont.style.display = 'block';
-                } else {
+            if(decantTotal >= giftThreshold || totalPrice >= totalGiftThreshold) {
+                giftMsg = `<span style="color: var(--gold-primary); font-weight: 600;"><i class="ph ph-gift"></i> ¡Ganaste un decant de regalo!</span>`;
+                gCont.style.display = 'block';
+            } else {
+                const amountLeftDecants = giftThreshold - decantTotal;
+                const amountLeftTotal = totalGiftThreshold - totalPrice;
+                giftMsg = `Agrega <strong>$${amountLeftDecants.toLocaleString('es-CL')} en decants</strong> o <strong>$${amountLeftTotal.toLocaleString('es-CL')} al total</strong> para tu 🎁.`;
+                gCont.style.display = 'none';
+            }
+
+            if(totalPrice >= freeShippingThreshold) {
+                shippingMsg = `<span class="shipping-success" style="margin-top: 6px;"><i class="ph ph-check-circle" style="font-size: 1.1rem;"></i> ¡Envío gratis alcanzado!</span>`;
+            } else {
                     const amountLeft = giftThreshold - decantTotal;
                     giftMsg = `Agrega <strong>$${amountLeft.toLocaleString('es-CL')} en decants</strong> para un 🎁 de regalo.`;
                     gCont.style.display = 'none';
