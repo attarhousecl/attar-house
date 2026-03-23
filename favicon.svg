@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="oro" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E5AB" />
+      <stop offset="45%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#8A6D3B" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#030303" rx="120"/>
+  <g fill="url(#oro)" font-family="Georgia, serif" font-size="320">
+    <text x="210" y="360" text-anchor="middle">A</text>
+    <text x="340" y="360" text-anchor="middle" font-style="italic">H</text>
+  </g>
+</svg>
