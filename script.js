@@ -2,21 +2,81 @@
 // BASE DE DATOS COMPLETA DE PERFUMES
 // ==========================================
 const perfumesDB = [
-    { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante de mango jugoso.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', imageUrl: 'honor-glory.png', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', description: 'Una salida brillante de piña fresca y postre cremoso.', prices: { sellado: 26000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'amber-oud-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', imageUrl: 'amber-oud-dubai.png', bottleClass: 'bottle-club', notes: ['Bergamota', 'Oud', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 82, inspiration: 'Arabians Tonka de Montale', description: 'Opulencia pura del Medio Oriente.', prices: { sellado: 50000, decant10: 7000, decant5: 5000, decant3: 4000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'asad-bourbon', brand: 'Lattafa', name: 'Asad Bourbon', gender: 'Masculino', imageUrl: 'bourbon.png', bottleClass: 'bottle-asad', notes: ['Café', 'Vainilla'], families: ['Especiado', 'Dulce'], popularity: 95, inspiration: 'Azzaro The Most Wanted', description: 'Una variación exquisita con toques oscuros de café.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', imageUrl: 'yara.png', bottleClass: 'bottle-brun', notes: ['Orquídea', 'Vainilla'], families: ['Dulce'], popularity: 100, inspiration: 'Poison Girl de Dior', description: 'El batido cremoso de frutas viral.', prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', imageUrl: 'yara-candy.png', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Frutos Rojos'], families: ['Dulce', 'Frutal'], popularity: 92, inspiration: 'Pink Me Up', description: 'Explosión frutal dulce y juvenil.', prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'hawas-fire', brand: 'Rasasi', name: 'Hawas Fire', gender: 'Masculino', imageUrl: 'hawas-fire.png', bottleClass: 'bottle-asad', notes: ['Manzana'], families: ['Especiado'], popularity: 92, inspiration: 'Imperial Valley', description: 'Versión cálida y misteriosa de Hawas.', prices: { sellado: 44000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', imageUrl: 'tropical-vibe.png', bottleClass: 'bottle-asad', notes: ['Frutas'], families: ['Frutal'], popularity: 89, inspiration: 'Summer Hammer de Lorenzo Pazzaglia', description: 'Vacaciones embotelladas.', prices: { sellado: 39000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'art-universe', brand: 'Lattafa', name: 'Art Of Universe', gender: 'Unisex', imageUrl: 'art-of-universe.png', bottleClass: 'bottle-asad', notes: ['Bergamota'], families: ['Cítrico'], popularity: 89, inspiration: 'Blue Talisman', description: 'Un viaje fresco y lujoso.', prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', imageUrl: 'his-confession.png', bottleClass: 'bottle-asad', notes: ['Iris'], families: ['Amaderado'], popularity: 84, inspiration: 'Dior Homme Intense', description: 'Aroma profundo y seductor.', prices: { sellado: 34000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', imageUrl: 'hawas-tropical.png', bottleClass: 'bottle-asad', notes: ['Piña'], families: ['Frutal'], popularity: 90, inspiration: 'JPG Paradise Garden', description: 'Frescura infinita tropical.', prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'philos-pura', brand: 'Maison Alhambra', name: 'Philos Pura', gender: 'Unisex', imageUrl: 'philos-pura.png', bottleClass: 'bottle-brun', notes: ['Frutas', 'Almizcle'], families: ['Frutal', 'Cítrico'], popularity: 87, inspiration: 'Xerjoff Erba Pura', description: 'Explosión frutal cítrica de alta proyección.', prices: { sellado: 23000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'tag-him', brand: 'Armaf', name: 'Tag-Him Rosso', gender: 'Masculino', imageUrl: 'tag-him.png', bottleClass: 'bottle-club', notes: ['Cardamomo', 'Tonka'], families: ['Dulce', 'Especiado'], popularity: 85, inspiration: 'Invictus Victory', description: 'Aroma nocturno y seductor.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
-    { id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', imageUrl: 'mlachite.png', bottleClass: 'bottle-club', notes: ['Mango', 'Especias'], families: ['Frutal', 'Especiado'], popularity: 86, inspiration: 'God of Fire', description: 'Aroma verde, exótico y vibrante.', prices: { sellado: 35000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } }
+    { 
+        id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', 
+        description: 'Un aroma cálido y sumamente acogedor donde la vainilla, la canela y el praliné se combinan para darte un aire de elegancia inconfundible. Es esa clase de perfume que deja una estela dulce pero madura por donde pasas. Perfecto para usar de noche, en citas o cuando simplemente quieres destacar sin parecer que te esforzaste demasiado.', 
+        prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', 
+        description: 'Una explosión tropical dominada por un mango jugoso y realista, equilibrado con el toque picante y fresco del jengibre. No es el típico aroma frutal aburrido; tiene muchísima personalidad y un fondo amaderado que lo hace súper versátil. Es tu mejor aliado para llamar la atención en cualquier salida informal o durante el día a día.', 
+        prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', imageUrl: 'honor-glory.png', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', 
+        description: 'Imagina el contraste perfecto entre la frescura ácida de una piña recién cortada y el dulzor tostado de una crème brûlée. Este es un perfume cremoso, magnético y que literalmente hace que la gente pregunte qué llevas puesto. Ideal para usar todo el año cuando quieres proyectar una vibra alegre, atractiva y muy original.', 
+        prices: { sellado: 26000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'amber-oud-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', imageUrl: 'amber-oud-dubai.png', bottleClass: 'bottle-club', notes: ['Bergamota', 'Oud', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 82, inspiration: 'Arabians Tonka de Montale', 
+        description: 'Madera de oud, especias cálidas y vainilla en su versión más lujosa y potente. Es un perfume oscuro, imponente y con un rendimiento bestial que dura todo el día en tu piel. Está diseñado exclusivamente para ocasiones especiales, eventos formales o cuando quieres que tu presencia se note en el momento exacto en que entras a la habitación.', 
+        prices: { sellado: 50000, decant10: 7000, decant5: 5000, decant3: 4000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'asad-bourbon', brand: 'Lattafa', name: 'Asad Bourbon', gender: 'Masculino', imageUrl: 'bourbon.png', bottleClass: 'bottle-asad', notes: ['Café', 'Vainilla'], families: ['Especiado', 'Dulce'], popularity: 95, inspiration: 'Azzaro The Most Wanted', 
+        description: 'El dulzor oscuro e intenso del café tostado se mezcla a la perfección con una vainilla muy masculina y toques especiados. Es un aroma misterioso, con mucho carácter y altamente adictivo. Si buscas una fragancia ganadora para citas nocturnas, fiestas o salidas donde la intención es seducir, esta es una apuesta segura.', 
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'yara', brand: 'Lattafa', name: 'Yara', gender: 'Femenino', imageUrl: 'yara.png', bottleClass: 'bottle-brun', notes: ['Orquídea', 'Vainilla'], families: ['Dulce'], popularity: 100, inspiration: 'Poison Girl de Dior', 
+        description: 'Completamente femenino, cremoso y muy dulce. Es el famoso aroma viral que huele a un delicioso batido de frutillas, orquídeas y mucha vainilla. Tiene una textura suave y atalcada que resulta súper reconfortante. Es el perfume perfecto para usar todos los días, ir al trabajo o simplemente oler increíble y delicada en todo momento.', 
+        prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'yara-candy', brand: 'Lattafa', name: 'Yara Candy', gender: 'Femenino', imageUrl: 'yara-candy.png', bottleClass: 'bottle-brun', notes: ['Dulces', 'Frutos Rojos'], families: ['Dulce', 'Frutal'], popularity: 92, inspiration: 'Pink Me Up', 
+        description: 'Una versión mucho más juguetona, vibrante y golosa que el Yara clásico. Aquí los protagonistas son los frutos rojos jugosos y unos dulces intensos que te envuelven por completo. Es una fragancia juvenil, magnética y súper divertida, ideal para salidas con amigas, tardes relajadas o cuando necesitas un extra de energía en tu día.', 
+        prices: { sellado: 25000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'hawas-fire', brand: 'Rasasi', name: 'Hawas Fire', gender: 'Masculino', imageUrl: 'hawas-fire.png', bottleClass: 'bottle-asad', notes: ['Manzana'], families: ['Especiado'], popularity: 92, inspiration: 'Imperial Valley', 
+        description: 'Una salida potente de manzana crujiente que rápidamente evoluciona hacia especias cálidas y un fondo de maderas fuertes. Es una fragancia con muchísima presencia y una proyección que llena cualquier espacio. Totalmente recomendada para quienes buscan proyectar seguridad, carácter y masculinidad en su entorno laboral o en eventos importantes.', 
+        prices: { sellado: 44000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', imageUrl: 'tropical-vibe.png', bottleClass: 'bottle-asad', notes: ['Frutas'], families: ['Frutal'], popularity: 89, inspiration: 'Summer Hammer de Lorenzo Pazzaglia', 
+        description: 'Un verdadero cóctel embotellado de frutas tropicales que resulta súper fresco, pero con el dulzor exacto para no pasar desapercibido. Te transporta de inmediato a un ambiente de playa y relajo, sin perder la calidad de un buen perfume. Es la opción número uno para los días de calor, vacaciones o para levantar el ánimo cualquier mañana.', 
+        prices: { sellado: 39000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'art-universe', brand: 'Lattafa', name: 'Art Of Universe', gender: 'Unisex', imageUrl: 'art-of-universe.png', bottleClass: 'bottle-asad', notes: ['Bergamota'], families: ['Cítrico'], popularity: 89, inspiration: 'Blue Talisman', 
+        description: 'Cítricos limpios, brillantes y modernos que huelen a puro lujo y sofisticación desde el primer spray. Tiene una evolución fresca y muy pulcra que te hace sentir impecable durante horas. Es tan versátil y elegante que funciona perfecto como tu perfume firma, ese que usas todos los días, ya sea para ir a la oficina o salir a cenar.', 
+        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', imageUrl: 'his-confession.png', bottleClass: 'bottle-asad', notes: ['Iris'], families: ['Amaderado'], popularity: 84, inspiration: 'Dior Homme Intense', 
+        description: 'La elegancia indiscutible de la nota de iris combinada con un fondo amaderado muy sólido. Es un aroma formal, maduro, seductor y con esa clase que atrapa miradas al instante sin necesidad de gritar. Guárdalo para ocasiones donde vistes bien, reuniones de negocios o esas noches donde buscas dejar una impresión inolvidable y sofisticada.', 
+        prices: { sellado: 34000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'hawas-tropical', brand: 'Rasasi', name: 'Hawas Tropical', gender: 'Unisex', imageUrl: 'hawas-tropical.png', bottleClass: 'bottle-asad', notes: ['Piña'], families: ['Frutal'], popularity: 90, inspiration: 'JPG Paradise Garden', 
+        description: 'Pura frescura dominada por una piña ácida y jugosa que se siente extremadamente natural y chispeante. Es un aroma súper enérgico, limpio y muy fácil de llevar, pero con una duración excelente para ser tan fresco. Ideal para destacar de día, ir al gimnasio, o soportar las jornadas más calurosas oliendo como recién salido de la ducha.', 
+        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'philos-pura', brand: 'Maison Alhambra', name: 'Philos Pura', gender: 'Unisex', imageUrl: 'philos-pura.png', bottleClass: 'bottle-brun', notes: ['Frutas', 'Almizcle'], families: ['Frutal', 'Cítrico'], popularity: 87, inspiration: 'Xerjoff Erba Pura', 
+        description: 'Una verdadera bomba de frutas cítricas y dulces sostenida por una base de almizcle muy potente. Huele a limpio, a ropa nueva y a lujo, con una proyección brutal que garantiza que la fragancia dure horas y horas en la piel. Es una opción todoterreno, llamativa y alegre que funciona excelente tanto en hombres como en mujeres.', 
+        prices: { sellado: 23000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'tag-him', brand: 'Armaf', name: 'Tag-Him Rosso', gender: 'Masculino', imageUrl: 'tag-him.png', bottleClass: 'bottle-club', notes: ['Cardamomo', 'Tonka'], families: ['Dulce', 'Especiado'], popularity: 85, inspiration: 'Invictus Victory', 
+        description: 'Una mezcla adictiva de especias dulces, cardamomo y haba tonka diseñada exclusivamente para brillar en la noche. Es un perfume atrevido, moderno y hecho específicamente para generar reacciones y recibir cumplidos continuos. Llévalo a fiestas, bares o discotecas; es una fragancia que compite cara a cara con el humo y la música fuerte.', 
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', imageUrl: 'mlachite.png', bottleClass: 'bottle-club', notes: ['Mango', 'Especias'], families: ['Frutal', 'Especiado'], popularity: 86, inspiration: 'God of Fire', 
+        description: 'Una propuesta frutal totalmente fuera de lo común donde destaca un mango verde, ligeramente ácido y muy especiado. Es un aroma muy fresco, exótico y que rompe con los típicos perfumes comerciales. Si eres de las personas que odian oler igual al resto y buscas un sello personal único e intrigante, esta tiene que ser tu elección.', 
+        prices: { sellado: 35000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    }
 ];
 
 // BASE DE DATOS DE ACCESORIOS
