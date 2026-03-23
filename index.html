@@ -33,8 +33,24 @@
         button { cursor: pointer; font-family: 'Montserrat', sans-serif; }
         .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* --- CINTA DE ANUNCIOS --- */
-        .announcement-bar { position: fixed; top: 0; width: 100%; background-color: var(--gold-primary); color: var(--bg-base); text-align: center; padding: 8px 10px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; z-index: 1001; text-transform: uppercase; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        /* --- CINTA DE ANUNCIOS ROTATIVA --- */
+        .announcement-bar { 
+            position: fixed; top: 0; width: 100%; 
+            background-color: var(--gold-primary); 
+            color: var(--bg-base); 
+            text-align: center; 
+            padding: 8px 10px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            letter-spacing: 1px; 
+            z-index: 1001; 
+            text-transform: uppercase; 
+            height: 35px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden;
+        }
         .announcement-text { transition: opacity 0.4s ease-in-out; opacity: 1; width: 100%; position: absolute;}
         .announcement-text.fade-out { opacity: 0; }
 
@@ -81,7 +97,7 @@
         .step-card h3 { font-size: 1.3rem; margin-bottom: 15px; color: var(--text-main); }
         .step-card p { color: var(--text-muted); font-size: 0.95rem; }
 
-        /* --- NUEVO LAYOUT CATÁLOGO (SIDEBAR) --- */
+        /* --- CATÁLOGO --- */
         .catalog-layout { display: flex; gap: 40px; align-items: flex-start; }
         
         .catalog-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; padding: 25px; position: sticky; top: 120px; max-height: calc(100vh - 140px); overflow-y: auto; }
@@ -114,7 +130,7 @@
         .product-image-container { height: 180px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; pointer-events: none;}
         
         /* Contenedor de imágenes reales o css fallback */
-        .real-img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); }
+        .real-img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); border-radius: 8px; }
         .arch-frame { width: 110px; height: 140px; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 55px 55px 0 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); }
         
         .sold-out-badge { position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; z-index: 10; }
@@ -133,7 +149,7 @@
         .product-brand { font-size: 0.65rem; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .product-title { font-size: 1.3rem; color: var(--text-main); margin-bottom: 12px; letter-spacing: 1px; }
         .notes-tags { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-        .note-tag { font-size: 0.6rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .note-tag { font-size: 0.6rem; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin: 2px; }
 
         .btn-view-detail, .btn-add-cart { 
             margin-top: auto; padding: 12px; background: transparent; 
@@ -143,15 +159,17 @@
         }
         .btn-view-detail:hover, .btn-add-cart:hover { background: var(--gold-primary); color: var(--bg-base); }
 
-        /* --- DETALLE PERFUME --- */
-        .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: none; border: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; }
+        /* --- DETALLE PERFUME REDISEÑADO A 3 COLUMNAS --- */
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: none; border: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; font-family: 'Montserrat', sans-serif;}
         .btn-back:hover { color: var(--gold-primary); }
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; }
-        .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; padding: 30px;}
+        
+        .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 40px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; align-items: start; }
+        
+        .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; padding: 30px; position: sticky; top: 120px; }
         .detail-arch { width: 220px; height: 300px; border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 110px 110px 0 0; display: flex; align-items: center; justify-content: center; }
         .detail-arch .bottle { transform: scale(1.8); }
         
-        .detail-info-col { display: flex; flex-direction: column; justify-content: center; }
+        .detail-info-col { display: flex; flex-direction: column; justify-content: start; padding-top: 10px; }
         .detail-brand { color: var(--gold-primary); text-transform: uppercase; letter-spacing: 3px; font-size: 0.9rem; margin-bottom: 10px; }
         .detail-title { font-size: 3rem; margin-bottom: 15px; line-height: 1.1; }
         .inspiration-badge { display: inline-block; background: rgba(255, 255, 255, 0.05); border-left: 3px solid var(--gold-primary); padding: 8px 15px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; border-radius: 0 6px 6px 0; }
@@ -159,28 +177,39 @@
         .detail-desc { color: #ccc; line-height: 1.8; margin-bottom: 30px; font-size: 1.05rem; }
         .detail-notes { margin-bottom: 40px; }
         .detail-notes h4 { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 15px; }
-        .purchase-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 25px; }
+        
+        .detail-action-col { position: sticky; top: 120px; }
+        .purchase-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
         .format-select { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-gold); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 1rem; outline: none; cursor: pointer; }
         .format-select option { background: var(--bg-surface); color: var(--text-main); }
         .format-select option:disabled { color: var(--danger); font-style: italic; }
-        .btn-add-cart { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: var(--gold-primary); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; }
-        .btn-add-cart:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
-        .btn-add-cart:disabled { background-color: #333; color: #666; cursor: not-allowed; transform: none; box-shadow: none; border-color: transparent;}
+        
+        .btn-add-cart-gold { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: var(--gold-primary); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; }
+        .btn-add-cart-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
+        .btn-add-cart-gold:disabled { background-color: #333; color: #666; cursor: not-allowed; transform: none; box-shadow: none; border-color: transparent;}
 
-        /* --- CONTACTO --- */
+        /* --- CONTACTO Y FAQ --- */
         .contact-box { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 16px; padding: 50px; text-align: center; max-width: 600px; margin: 0 auto; }
         .social-links-big { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
         .social-link-big { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-main); transition: color 0.3s; }
         .social-link-big i { font-size: 3rem; color: var(--gold-primary); }
         .social-link-big:hover { color: var(--gold-primary); }
 
+        .faq-item { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .faq-question { padding: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-size: 1rem;}
+        .faq-answer { padding: 0 20px 20px 20px; color: var(--text-muted); font-size: 0.95rem; display: none; line-height: 1.6; }
+        .faq-item.active { border-color: var(--gold-primary); background: rgba(212, 175, 55, 0.05); }
+        .faq-item.active .faq-answer { display: block; }
+        .faq-item.active .faq-icon { transform: rotate(45deg); color: var(--gold-primary); }
+        .faq-icon { transition: transform 0.3s; font-size: 1.2rem; }
+
         /* --- CARRITO --- */
-        .cart-toggle { position: fixed; bottom: 30px; right: 30px; background: var(--gold-primary); color: var(--bg-base); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 1001; transition: transform 0.3s; }
+        .cart-toggle { position: fixed; bottom: 30px; right: 30px; background: var(--gold-primary); color: var(--bg-base); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; cursor: pointer; z-index: 1001; box-shadow: 0 10px 25px rgba(0,0,0,0.6); transition: transform 0.3s; }
         .cart-toggle:hover { transform: scale(1.1); }
-        .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: white; font-size: 0.8rem; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-base); }
-        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100vh; background: var(--bg-surface); border-left: 1px solid var(--border-gold); z-index: 1002; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.8); }
+        .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: white; font-size: 0.75rem; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-base); font-weight: 700; }
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: var(--bg-surface); border-left: 1px solid var(--border-gold); z-index: 1002; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.8); }
         .cart-sidebar.open { right: 0; }
-        .cart-header { padding: 20px; border-bottom: 1px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center; }
+        .cart-header { padding: 25px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
         .cart-header h3 { color: var(--gold-primary); font-size: 1.5rem; margin: 0;}
         .close-cart { background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; }
         
@@ -192,17 +221,18 @@
         .free-gift-container h4 { color: var(--gold-primary); font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; font-family: 'Montserrat', sans-serif;}
         .free-gift-select { width: 100%; padding: 10px; background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-gold); border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer; }
         
-        .cart-items { flex: 1; overflow-y: auto; padding: 20px 20px 0 20px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .cart-items { flex: 1; overflow-y: auto; padding: 25px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cart-item-info h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; }
         .cart-item-info p { font-size: 0.8rem; color: var(--text-muted); }
         .cart-item-price { color: var(--gold-primary); font-weight: bold; margin-top: 5px; }
         .cart-item-actions { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: rgba(212,175,55,0.2); border: none; color: var(--gold-primary); width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;}
         .remove-btn { color: var(--danger); background: transparent; border: none; cursor: pointer; font-size: 1.3rem; margin-left: 5px;}
-        .cart-footer { padding: 20px; border-top: 1px solid var(--border-gold); background: var(--bg-card); }
+        
+        .cart-footer { padding: 20px; background: #0a0a0a; border-top: 1px solid #333; }
         .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
-        .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; cursor: pointer; border: none;}
+        .btn-whatsapp-final { width: 100%; padding: 18px; background: var(--whatsapp); color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
 
         /* --- NUEVAS SECCIONES --- */
         .search-input { width: 100%; padding: 10px 15px; background: rgba(255,255,255,0.03); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.3s; margin-bottom: 15px; }
@@ -215,19 +245,16 @@
         .yield-card h4 { color: var(--gold-primary); font-size: 1.5rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; }
         .yield-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
         
-        .faq-item { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
-        .faq-question { padding: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-size: 1rem;}
-        .faq-answer { padding: 0 20px 20px 20px; color: var(--text-muted); font-size: 0.95rem; display: none; line-height: 1.6; }
-        .faq-item.active { border-color: var(--gold-primary); background: rgba(212, 175, 55, 0.05); }
-        .faq-item.active .faq-answer { display: block; }
-        .faq-item.active .faq-icon { transform: rotate(45deg); color: var(--gold-primary); }
-        .faq-icon { transition: transform 0.3s; font-size: 1.2rem; }
-        
         .trust-badges { display: flex; justify-content: center; gap: 50px; padding: 40px 20px; background: var(--bg-surface); border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold); flex-wrap: wrap; margin-top: auto; }
         .trust-badge { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px;}
         .trust-badge i { font-size: 2.2rem; color: var(--gold-primary); }
 
         footer { padding: 20px 0; background-color: var(--bg-surface); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }
+
+        @media (max-width: 950px) {
+            .detail-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
+            .detail-image-col, .detail-action-col { position: static; min-height: auto; }
+        }
 
         @media (max-width: 768px) {
             .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: var(--bg-surface); flex-direction: column; padding: 20px; border-bottom: 1px solid var(--border-gold); }
@@ -255,8 +282,6 @@
             .note-tag { font-size: 0.5rem; padding: 2px 4px; }
             .btn-view-detail { font-size: 0.6rem; padding: 6px 2px; }
             
-            .detail-grid { grid-template-columns: 1fr; padding: 20px; gap: 30px;}
-            .detail-image-col { min-height: 300px; padding: 15px;}
             .detail-title { font-size: 2.2rem; }
             
             .yield-grid { grid-template-columns: 1fr; }
@@ -382,13 +407,15 @@
                         <div class="filter-section">
                             <h4>Marcas</h4>
                             <div class="brand-grid" id="brand-list">
-                                </div>
+                                <!-- Se llena vía JS -->
+                            </div>
                         </div>
                     </aside>
 
                     <div class="catalog-main">
                         <div class="product-grid" id="catalogo-grid">
-                            </div>
+                            <!-- Se llena vía JS -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -403,8 +430,7 @@
 
         <section id="detalle-perfume" class="page-section">
             <div class="container">
-                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
-                <div class="detail-grid" id="detalle-container"></div>
+                <div id="detalle-container"></div>
             </div>
         </section>
 
@@ -462,6 +488,7 @@
         <span class="cart-badge" id="cart-badge">0</span>
     </div>
 
+    <!-- SIDEBAR DE CARRITO CON STOCK Y LOCALSTORAGE -->
     <div class="cart-sidebar" id="main-cart">
         <div class="cart-header">
             <h3 class="serif">Tu Pedido</h3>
@@ -481,11 +508,12 @@
                 <span>Total:</span>
                 <span style="color: var(--gold-primary)">$<span id="cart-total-price">0</span></span>
             </div>
-            <button class="btn-whatsapp" onclick="sendWhatsAppOrder()" style="background-color: var(--whatsapp); color: white;"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Enviar por WhatsApp</button>
+            <button class="btn-whatsapp-final" onclick="sendWhatsAppOrder()" style="background-color: var(--whatsapp); color: white;"><i class="ph ph-whatsapp-logo" style="font-size: 1.2rem;"></i> Enviar por WhatsApp</button>
             <p style="text-align: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 15px; text-transform: none;">Pago contra entrega en Valdivia. Transferencia bancaria para envíos a regiones.</p>
         </div>
     </div>
 
+    <!-- TRUST BADGES -->
     <div class="trust-badges">
         <div class="trust-badge"><i class="ph ph-shield-check"></i> Garantía de Autenticidad</div>
         <div class="trust-badge"><i class="ph ph-package"></i> Envíos desde Valdivia</div>
@@ -495,11 +523,11 @@
     <footer>&copy; 2026 Attar House. Valdivia, Chile.</footer>
 
     <script>
-        // BASE DE DATOS
+        // BASE DE DATOS COMPLETA (Mantiene tus urls de imagen y todos los datos)
         const perfumesDB = [
             { id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: '', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', description: 'Una fragancia cálida, elegante y absolutamente cautivadora. La mezcla perfecta entre la dulzura de la vainilla y el toque especiado.', prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
-            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
+            { id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.jpg', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', description: 'Una explosión exótica y vibrante. Su protagonista es un mango jugoso y dulce que choca con la chispa del jengibre y la frescura del limón. Adictivo y con mucho carácter.', prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
             { id: 'tag-uomo-rosso', brand: 'Armaf', name: 'Tag-Him Uomo Rosso', gender: 'Masculino', imageUrl: '', bottleClass: 'bottle-club', notes: ['Lavanda', 'Cardamomo', 'Haba Tonka'], families: ['Especiado', 'Dulce'], popularity: 85, inspiration: 'Paco Rabanne Invictus Victory', description: 'Un aroma nocturno, dulce y altamente seductor. La lavanda oscura se moderniza abrazada por el dulzor del haba tonka y toques de cardamomo.', prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } },
             
@@ -582,6 +610,21 @@
             }, 5000);
         }
 
+        // --- FALLBACK IMAGEN SEGURA PARA VISTA PREVIA ---
+        function handleImageError(img, bottleClass) {
+            const fallback = document.createElement('div');
+            fallback.className = 'arch-frame';
+            fallback.innerHTML = `<div class="bottle ${bottleClass}"></div>`;
+            img.parentNode.replaceChild(fallback, img);
+        }
+
+        function handleDetailImageError(img, bottleClass) {
+            const fallback = document.createElement('div');
+            fallback.className = 'detail-arch';
+            fallback.innerHTML = `<div class="bottle ${bottleClass}"></div>`;
+            img.parentNode.replaceChild(fallback, img);
+        }
+
         // --- INICIALIZACIÓN DE LA BARRA LATERAL ---
         function initSidebar() {
             document.getElementById('count-all').innerText = perfumesDB.length;
@@ -646,10 +689,10 @@
             renderCatalog();
         }
 
-        // RENDERIZADO
+        // RENDERIZADO DEL CATÁLOGO
         function renderCatalog() {
             const grid = document.getElementById('catalogo-grid');
-            grid.innerHTML = '';
+            grid.innerHTML = ''; 
             
             let filtered = perfumesDB.filter(p => {
                 const matchGender = (currentGender === 'all' || p.gender === currentGender);
@@ -678,10 +721,11 @@
 
             filtered.forEach(perfume => {
                 const tagsHTML = perfume.notes.map(note => `<span class="note-tag">${note}</span>`).join('');
+                
                 const isTotallyOut = !perfume.stock.sellado && !perfume.stock.decant10 && !perfume.stock.decant5 && !perfume.stock.decant3;
                 
                 const imageHTML = perfume.imageUrl && perfume.imageUrl !== '' 
-                    ? `<img src="${perfume.imageUrl}" alt="${perfume.name}" class="real-img">`
+                    ? `<img src="${perfume.imageUrl}" alt="${perfume.name}" class="real-img" onerror="handleImageError(this, '${perfume.bottleClass}')">`
                     : `<div class="arch-frame"><div class="bottle ${perfume.bottleClass}"></div></div>`;
 
                 const cardHTML = `
@@ -716,7 +760,7 @@
             });
         }
 
-        // LÓGICA DE CARRITO
+        // --- DETALLE DE PRODUCTO ---
         function openDetail(id) {
             const p = perfumesDB.find(x => x.id === id);
             const container = document.getElementById('detalle-container');
@@ -731,10 +775,11 @@
             const allSoldOut = !p.stock.sellado && !p.stock.decant10 && !p.stock.decant5 && !p.stock.decant3;
             
             const imageHTML = p.imageUrl && p.imageUrl !== '' 
-                ? `<img src="${p.imageUrl}" alt="${p.name}" class="real-img">`
+                ? `<img src="${p.imageUrl}" alt="${p.name}" class="real-img" onerror="handleDetailImageError(this, '${p.bottleClass}')">`
                 : `<div class="detail-arch"><div class="bottle ${p.bottleClass}"></div></div>`;
 
             container.innerHTML = `
+                <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
                 <div class="detail-grid">
                     <div class="detail-image-col">
                         ${imageHTML}
@@ -742,12 +787,15 @@
                     <div class="detail-info-col">
                         <div class="detail-brand">${p.brand} | ${p.gender}</div>
                         <h2 class="detail-title serif">${p.name}</h2>
-                        <div class="inspiration-badge">Inspirado en: <strong>${p.inspiration}</strong></div>
-                        <p class="detail-desc">${p.description}</p>
-                        <div class="detail-notes"><h4>Notas Olfativas Principales</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
+                        <div class="inspiration-badge">Inspiración: ${p.inspiration}</div>
+                        <div class="detail-notes"><h4>Notas Olfativas</h4><div class="notes-tags" style="justify-content: flex-start;">${tagsHTML}</div></div>
+                        <p class="detail-desc" style="font-size: 0.95rem; margin-top: 20px;">${p.description}</p>
+                    </div>
+                    <div class="detail-action-col">
                         <div class="purchase-box">
+                            <h4 style="color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Elige tu formato</h4>
                             <select class="format-select" id="format-detail-${p.id}">${opts}</select>
-                            <button class="btn-add-cart" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
+                            <button class="btn-add-cart-gold" onclick="addToCart('${p.name}', 'format-detail-${p.id}')" ${allSoldOut ? 'disabled' : ''}>
                                 <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> ${allSoldOut ? 'Sin Stock' : 'Añadir al Carrito'}
                             </button>
                         </div>
@@ -756,6 +804,7 @@
             navigateTo('detalle-perfume');
         }
 
+        // --- LÓGICA DE CARRITO ---
         function populateGiftSelect() {
             const select = document.getElementById('free-gift-select');
             select.innerHTML = '';
