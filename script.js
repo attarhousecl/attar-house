@@ -114,7 +114,12 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 
 // ROTACIÓN DE ANUNCIOS
 function rotateAnnouncements() {
-    const list = ["✨ Envío gratis a todo Chile sobre $60.000 ✨", "🎁 Regalo sobre $15.000 en decants o $70.000 total 🎁"];
+    const list = [
+        "✨ Envío gratis a todo Chile sobre $60.000 ✨", 
+        "🎁 ¡Llevate un DECANT DE REGALO por compras sobre $15.000 en decants! 🎁",
+        "🛍️ ¡REGALO SEGURO en compras sobre $70.000 total! 🛍️"
+    ];
+    // ... resto del código
     let idx = 0; const el = document.getElementById('announcement-text');
     setInterval(() => {
         el.classList.add('fade-out');
