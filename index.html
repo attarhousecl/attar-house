@@ -44,12 +44,13 @@
                     <div class="logo-text">ATTAR HOUSE</div>
                 </div>
                 
-                <h1 class="serif" style="font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 10px; letter-spacing: 2px;">Alta Perfumería Árabe en Valdivia</h1>
+                <!-- H1 oculto visualmente pero visible para Google (SEO) -->
+                <h1 style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;">Alta Perfumería Árabe en Valdivia | Attar House</h1>
                 
-                <h2 class="serif" style="font-size: 1.5rem; color: var(--text-main); margin-bottom: 20px; font-weight: 400; font-style: italic;">"No son perfumes, es presencia."</h2>
+                <h2 class="serif" style="font-size: 1.6rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 400; font-style: italic;">"No son perfumes, es presencia."</h2>
                 
                 <p>Nuestra principal misión es brindarte una experiencia excepcional. Queremos que te sientas absolutamente cómodo y seguro de tu elección. Por ello, contamos con <strong>testers de todo nuestro catálogo</strong>, además de frascos sellados 100% originales y decants para que descubras tu aroma ideal.</p>
-                <button onclick="navigateTo('catalogo')" class="btn-primary">Ver Catálogo</button>
+                <button onclick="navigateTo('catalogo')" class="btn-primary"><span>Ver Catálogo</span></button>
             </div>
         </section>
         <section id="decants" class="page-section">
@@ -207,6 +208,9 @@
 
     <div class="cart-toggle" onclick="toggleCart()"><i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge">0</span></div>
 
+    <!-- Overlay para sidebar de filtros en móvil -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
     <div class="cart-sidebar" id="main-cart">
         <div class="cart-header"><h3 class="serif">Tu Pedido</h3><button class="close-cart" onclick="toggleCart()"><i class="ph ph-x"></i></button></div>
         <div id="shipping-progress-container" class="shipping-progress"></div>
@@ -230,6 +234,9 @@
 
     <footer><div class="container">&copy; 2026 Attar House. Valdivia, Chile.</div></footer>
 
+    <script src="script.js"></script>
+</body>
+</html>
     <script src="script.js"></script>
 </body>
 </html>
