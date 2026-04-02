@@ -116,7 +116,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 function rotateAnnouncements() {
     const list = [
         "✨ Envío gratis a todo Chile sobre $60.000 ✨", 
-        "🎁 ¡Llevate un DECANT DE REGALO por compras sobre $15.000 en decants! 🎁",
+        "🎁 ¡Por compras sobre 15.000 en decants LLEVATE UN DECANT DE REGALO! 🎁",
         "🛍️ ¡REGALO SEGURO en compras sobre $70.000 total! 🛍️"
     ];
     // ... resto del código
