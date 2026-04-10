@@ -158,7 +158,18 @@ function navigateTo(pId) {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-target') === pId));
     document.getElementById('navLinks').classList.remove('show');
     window.scrollTo(0,0);
+    // Actualizar historial del navegador
+    history.pushState({ page: pId }, '', '#' + pId);
 }
+
+// Manejar botón atrás del navegador
+window.addEventListener('popstate', (e) => {
+    const pId = e.state?.page || 'inicio';
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(pId).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-target') === pId));
+    window.scrollTo(0,0);
+});
 
 document.getElementById('menuBtn').addEventListener('click', () => {
     document.getElementById('navLinks').classList.toggle('show');
@@ -447,13 +458,13 @@ function openDetail(id) {
             </div>
             <div class="detail-action-col">
                 <div class="purchase-box">
-                    <h4 style="margin-bottom:15px; font-size:0.9rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">ELIGE TU FORMATO</h4>
+                    <h4 style="margin-bottom:15px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--gold-primary); border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">Elige tu formato</h4>
                     <select class="format-select" id="format-detail-${p.id}">${opts}</select>
                     <button class="btn-add-cart-gold" onclick="addToCart('${p.name}', 'format-detail-${p.id}')">
-                        <i class="ph ph-shopping-cart" style="font-size: 1.4rem;"></i> Añadir al Carrito
+                        <i class="ph ph-shopping-cart" style="font-size: 1.2rem;"></i> Añadir al Carrito
                     </button>
-                    <div style="margin-top: 20px; font-size: 0.75rem; color: #888;">
-                        <p style="margin-bottom: 5px;">✓ Autenticidad Garantizada</p>
+                    <div style="margin-top: 18px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.8;">
+                        <p>✓ Autenticidad Garantizada</p>
                         <p>✓ Envíos a todo Chile por Starken</p>
                     </div>
                 </div>
@@ -606,6 +617,9 @@ window.onload = () => {
     renderAccesorios();
     rotateAnnouncements(); 
     updateCartUI();
+
+    // Inicializar historial para que el botón atrás funcione bien
+    history.replaceState({ page: 'inicio' }, '', '#inicio');
     
     const giftSelect = document.getElementById('free-gift-select');
     perfumesDB.forEach(p => {
@@ -618,4 +632,3 @@ window.onload = () => {
         document.getElementById('sidebar-overlay').classList.remove('show');
     });
 };
-
