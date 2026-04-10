@@ -8,6 +8,22 @@
     
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     
+    <!-- Open Graph / SEO Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://attarhouse.cl/">
+    <meta property="og:title" content="Attar House | Perfumería Árabe y Decants en Valdivia">
+    <meta property="og:description" content="Descubre la mejor perfumería árabe y decants en Valdivia. Fragancias exclusivas, testers originales y envíos a todo Chile.">
+    <meta property="og:image" content="https://attarhouse.cl/his-confession.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:site_name" content="Attar House">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Attar House | Perfumería Árabe y Decants en Valdivia">
+    <meta name="twitter:description" content="Descubre la mejor perfumería árabe y decants en Valdivia. Fragancias exclusivas y envíos a todo Chile.">
+    <meta name="twitter:image" content="https://attarhouse.cl/his-confession.png">
+    
     <meta name="description" content="Descubre la mejor alta perfumería árabe y decants en Valdivia. Fragancias exclusivas, testers originales y envíos a todo Chile. Attar House: No son perfumes, es presencia.">
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -47,7 +63,7 @@
                 <!-- H1 oculto visualmente pero visible para Google (SEO) -->
                 <h1 style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;">Alta Perfumería Árabe en Valdivia | Attar House</h1>
                 
-                <h2 class="serif" style="font-size: 1.6rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 400; font-style: italic;">"No son perfumes, es presencia."</h2>
+                <h2 class="serif" style="font-size: 1.7rem; color: var(--gold-primary); margin-bottom: 20px; font-weight: 400; font-style: italic; opacity: 0.85;">"No son perfumes, es presencia."</h2>
                 
                 <p>Nuestra principal misión es brindarte una experiencia excepcional. Queremos que te sientas absolutamente cómodo y seguro de tu elección. Por ello, contamos con <strong>testers de todo nuestro catálogo</strong>, además de frascos sellados 100% originales y decants para que descubras tu aroma ideal.</p>
                 <button onclick="navigateTo('catalogo')" class="btn-primary"><span>Ver Catálogo</span></button>
@@ -80,7 +96,7 @@
                         <div class="yield-card">
                             <h4>10ml</h4>
                             <div style="color: var(--gold-light); font-weight: bold; margin-bottom: 8px;">~150 Sprays</div>
-                            <p>La mejor option precio/cantidad. Te durará entre 1.5 a 2 meses de uso regular.</p>
+                            <p>La mejor opción precio/cantidad. Te durará entre 1.5 a 2 meses de uso regular.</p>
                         </div>
                     </div>
                 </div>
@@ -164,6 +180,10 @@
                 <p class="section-subtitle">Resolvemos todas tus dudas para que compres con total tranquilidad.</p>
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-question">¿Tienen envío gratis? <i class="ph ph-plus faq-icon"></i></div>
+                        <div class="faq-answer">Sí. <strong>El envío es gratis a todo Chile en compras sobre $60.000.</strong> Para pedidos menores, el costo de envío varía según la región y se coordina directamente por WhatsApp. En Valdivia realizamos entregas presenciales sin costo adicional.</div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
                         <div class="faq-question">¿Puedo probar los perfumes antes de comprar? <i class="ph ph-plus faq-icon"></i></div>
                         <div class="faq-answer">¡Por supuesto! Queremos que compres con total seguridad. <strong>Contamos con testers de todo nuestro catálogo a tu disposición</strong>. Puedes adquirir nuestros decants para probarlos tranquilamente en tu día a día, o contactarnos para recibir asesoría experta y asegurar que te lleves el perfume perfecto para ti.</div>
                     </div>
@@ -197,6 +217,12 @@
                     </div>
                     <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 10px; color: var(--gold-primary);">Attar House</h3>
                     <p style="color: var(--text-muted); margin-bottom: 30px;">No son perfumes, es presencia.</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                        <i class="ph ph-clock" style="color: var(--gold-primary);"></i> Respondemos en menos de 1 hora · Lunes a Sábado 10:00–21:00
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 30px;">
+                        <i class="ph ph-map-pin" style="color: var(--gold-primary);"></i> Retiro presencial disponible en Valdivia
+                    </p>
                     <div class="social-links-big">
                         <a href="https://instagram.com/attar_housecl" target="_blank" class="social-link-big"><i class="ph ph-instagram-logo"></i><span>Instagram</span></a>
                         <a href="https://wa.me/56930679481" target="_blank" class="social-link-big"><i class="ph ph-whatsapp-logo"></i><span>WhatsApp</span></a>
@@ -232,11 +258,13 @@
         <div class="trust-badge"><i class="ph ph-credit-card"></i> Todo medio de pago</div>
     </div>
 
-    <footer><div class="container">&copy; 2026 Attar House. Valdivia, Chile.</div></footer>
+    <footer>
+        <div class="container" style="text-align:center;">
+            <p>&copy; 2026 Attar House. Valdivia, Chile.</p>
+            <p style="font-size: 0.75rem; color: #555; margin-top: 6px;">Perfumería árabe y decants en Valdivia · Envíos a todo Chile por Starken y Chilexpress · Retiro presencial disponible</p>
+        </div>
+    </footer>
 
-    <script src="script.js"></script>
-</body>
-</html>
     <script src="script.js"></script>
 </body>
 </html>
