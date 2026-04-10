@@ -262,8 +262,8 @@ main { flex: 1; margin-top: 105px; }
     background: radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.06) 0%, transparent 70%);
     padding: 0;
     border-bottom: 1px solid rgba(255,255,255,0.04);
-    overflow: hidden;
     border-radius: var(--card-radius) var(--card-radius) 0 0;
+    overflow: hidden;
 }
 
 .product-image-container {
@@ -272,6 +272,7 @@ main { flex: 1; margin-top: 105px; }
     pointer-events: none;
     transition: transform 0.5s var(--transition-smooth);
     overflow: hidden;
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
 }
 .product-card:hover .product-image-container { transform: scale(1.07); }
 
@@ -281,22 +282,25 @@ main { flex: 1; margin-top: 105px; }
     object-position: center 20%;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     transition: filter 0.4s;
+    display: block;
 }
 .product-card:hover .real-img { filter: drop-shadow(0 10px 30px rgba(212,175,55,0.15)); }
 
-/* Badge de popularidad */
+/* Badge de popularidad - sobre la imagen, esquina inferior izquierda */
 .popularity-badge {
     position: absolute;
-    bottom: 10px; left: 12px;
-    background: rgba(212,175,55,0.15);
-    border: 1px solid rgba(212,175,55,0.3);
+    bottom: 10px; left: 10px;
+    background: rgba(3,3,3,0.75);
+    border: 1px solid rgba(212,175,55,0.5);
     color: var(--gold-primary);
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 20px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    z-index: 3;
+    backdrop-filter: blur(4px);
 }
 
 /* Cuerpo de la tarjeta */
@@ -305,12 +309,6 @@ main { flex: 1; margin-top: 105px; }
     display: flex; flex-direction: column; flex: 1;
 }
 
-.real-img {
-    max-height: 100%; max-width: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5));
-    border-radius: 8px;
-}
 .arch-frame {
     width: 110px; height: 140px;
     border: 1px solid rgba(212, 175, 55, 0.3);
