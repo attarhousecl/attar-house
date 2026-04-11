@@ -300,7 +300,6 @@ function renderCatalog() {
         card.innerHTML = `
             <div class="card-image-area">
                 ${isOut ? '<span class="sold-out-badge">Agotado</span>' : ''}
-                ${isPopular && !isOut ? '<span class="popularity-badge">⭐ Popular</span>' : ''}
                 <div class="product-image-container">
                     ${p.imageUrl 
                         ? `<img src="${p.imageUrl}" alt="Decant de perfume árabe ${p.name} en Valdivia" class="real-img" onerror="handleImageError(this, '${p.bottleClass}')">`
@@ -309,6 +308,7 @@ function renderCatalog() {
                 </div>
             </div>
             <div class="card-body">
+                ${isPopular && !isOut ? '<span class="popularity-badge">⭐ Popular</span>' : ''}
                 <div class="product-brand">${p.brand}</div>
                 <h3 class="product-title serif">${p.name}</h3>
                 <span class="gender-tag">${p.gender}</span>
