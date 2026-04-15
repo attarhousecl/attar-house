@@ -2,6 +2,33 @@
 // BASE DE DATOS COMPLETA DE PERFUMES
 // ==========================================
 const perfumesDB = [
+    // --- NUEVOS PERFUMES AGREGADOS ---
+    { 
+        id: 'eclaire', brand: 'Lattafa', name: 'Eclaire', gender: 'Femenino', imageUrl: 'eclaire.png', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Leche', 'Vainilla'], families: ['Dulce'], popularity: 98, inspiration: 'Bianco Latte de Giardini di Toscana', 
+        description: 'Un deleite absoluto. Huele a un postre cremoso de caramelo y vainilla, con un toque cálido de leche y miel. Es una fragancia súper acogedora, dulce y adictiva que deja una estela deliciosa por donde pasas. Ideal para el clima frío o cuando quieres oler literalmente a un postre irresistible.', 
+        prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'khamrah-qahwa', brand: 'Lattafa', name: 'Khamrah Qahwa', gender: 'Unisex', imageUrl: 'khamrah-qahwa.png', bottleClass: 'bottle-asad', notes: ['Café', 'Praliné', 'Canela'], families: ['Dulce', 'Especiado'], popularity: 96, inspiration: 'Angels\' Share de By Kilian (con café)', 
+        description: 'El exitoso ADN dulce y acaramelado de Khamrah, pero mejorado con un toque profundo y adictivo de café tostado. Notas de praliné, canela y vainilla se mezclan creando un aroma espectacular, cálido e ideal para la noche, fiestas o citas donde quieres proyectar misterio y dulzura.', 
+        prices: { sellado: 35000, decant10: 5500, decant5: 3500, decant3: 2500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'atlantis-extrait', brand: 'French Avenue', name: 'Atlantis Extrait', gender: 'Unisex', imageUrl: 'atlantis-extrait.png', bottleClass: 'bottle-club', notes: ['Sandía', 'Coco', 'Ámbar Gris'], families: ['Frutal', 'Fresco'], popularity: 92, inspiration: 'Wavechild de Room 1015', 
+        description: 'Una explosión tropical vibrante. Destaca una jugosa nota de sandía como dulce de caramelo junto a un sutil toque de coco cremoso, todo envuelto en una vibra salada y fresca gracias al ámbar gris. Es un perfume alegre y con un rendimiento espectacular para los días de calor.', 
+        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'musamam', brand: 'Lattafa', name: 'Musamam', gender: 'Masculino', imageUrl: 'musamam.png', bottleClass: 'bottle-club', notes: ['Azafrán', 'Cuero', 'Incienso'], families: ['Amaderado', 'Especiado'], popularity: 85, inspiration: 'Gucci Guilty Absolute / Bvlgari Kobraa', 
+        description: 'Una fragancia imponente, oscura y muy elegante. Abre con notas de azafrán y mandarina, para dar paso a un corazón ahumado de incienso y un fondo fuertemente marcado por el cuero y maderas profundas. Hecho para el hombre que busca proyectar carácter, madurez y sofisticación.', 
+        prices: { sellado: 32000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'pisa', brand: 'Lattafa', name: 'Pisa', gender: 'Masculino', imageUrl: 'pisa.png', bottleClass: 'bottle-club', notes: ['Mandarina', 'Bergamota', 'Sándalo'], families: ['Cítrico', 'Fresco'], popularity: 87, inspiration: 'Tygar de Bvlgari / Afternoon Swim', 
+        description: 'Una apertura cítrica sumamente vibrante y natural donde destaca la mandarina y la bergamota jugosa, evolucionando rápidamente hacia un fondo rico y masculino en madera de sándalo y ámbar. Fresco, limpio y perfecto para el verano, como un viaje a la costa italiana.', 
+        prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+    },
+    // --- RESTO DE TUS PERFUMES ORIGINALES ---
     { 
         id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', 
         description: 'Un aroma cálido y sumamente acogedor donde la vainilla, la canela y el praliné se combinan para darte un aire de elegancia inconfundible. Es esa clase de perfume que deja una estela dulce pero madura por donde pasas. Perfecto para usar de noche, en citas o cuando simplemente quieres destacar sin parecer que te esforzaste demasiado.', 
@@ -40,7 +67,7 @@ const perfumesDB = [
     { 
         id: 'hawas-fire', brand: 'Rasasi', name: 'Hawas Fire', gender: 'Masculino', imageUrl: 'hawas-fire.png', bottleClass: 'bottle-asad', notes: ['Manzana'], families: ['Especiado'], popularity: 92, inspiration: 'Imperial Valley', 
         description: 'Una salida potente de manzana crujiente que rápidamente evoluciona hacia especias cálidas y un fondo de maderas fuertes. Es una fragancia con muchísima presencia y una proyección que llena cualquier espacio. Totalmente recomendada para quienes buscan proyectar seguridad, carácter y masculinidad en su entorno laboral o en eventos importantes.', 
-        prices: { sellado: 44000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 45000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'tropical-vibe', brand: 'Rayhaan', name: 'Tropical Vibe', gender: 'Unisex', imageUrl: 'tropical-vibe.png', bottleClass: 'bottle-asad', notes: ['Frutas'], families: ['Frutal'], popularity: 89, inspiration: 'Summer Hammer de Lorenzo Pazzaglia', 
@@ -50,7 +77,7 @@ const perfumesDB = [
     { 
         id: 'art-universe', brand: 'Lattafa', name: 'Art Of Universe', gender: 'Unisex', imageUrl: 'art-of-universe.png', bottleClass: 'bottle-asad', notes: ['Bergamota'], families: ['Cítrico'], popularity: 89, inspiration: 'Blue Talisman', 
         description: 'Cítricos limpios, brillantes y modernos que huelen a puro lujo y sofisticación desde el primer spray. Tiene una evolución fresca y muy pulcra que te hace sentir impecable durante horas. Es tan versátil y elegante que funciona perfecto como tu perfume firma, ese que usas todos los días, ya sea para ir a la oficina o salir a cenar.', 
-        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'his-confession', brand: 'Lattafa', name: 'His Confession', gender: 'Masculino', imageUrl: 'his-confession.png', bottleClass: 'bottle-asad', notes: ['Iris'], families: ['Amaderado'], popularity: 84, inspiration: 'Dior Homme Intense', 
@@ -65,42 +92,42 @@ const perfumesDB = [
     { 
         id: 'philos-pura', brand: 'Maison Alhambra', name: 'Philos Pura', gender: 'Unisex', imageUrl: 'philos-pura.png', bottleClass: 'bottle-brun', notes: ['Frutas', 'Almizcle'], families: ['Frutal', 'Cítrico'], popularity: 87, inspiration: 'Xerjoff Erba Pura', 
         description: 'Una verdadera bomba de frutas cítricas y dulces sostenida por una base de almizcle muy potente. Huele a limpio, a ropa nueva y a lujo, con una proyección brutal que garantiza que la fragancia dure horas y horas en la piel. Es una opción todoterreno, llamativa y alegre que funciona excelente tanto en hombres como en mujeres.', 
-        prices: { sellado: 23000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 23000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: false, decant10: false, decant5: false, decant3: false } 
     },
     { 
         id: 'tag-him', brand: 'Armaf', name: 'Tag-Him Rosso', gender: 'Masculino', imageUrl: 'tag-him.png', bottleClass: 'bottle-club', notes: ['Cardamomo', 'Tonka'], families: ['Dulce', 'Especiado'], popularity: 85, inspiration: 'Invictus Victory', 
         description: 'Una mezcla adictiva de especias dulces, cardamomo y haba tonka diseñada exclusivamente para brillar en la noche. Es un perfume atrevido, moderno y hecho específicamente para generar reacciones y recibir cumplidos continuos. Llévalo a fiestas, bares o discotecas; es una fragancia que compite cara a cara con el humo y la música fuerte.', 
-        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'sceptre-malachite', brand: 'Maison Alhambra', name: 'Sceptre Malachite', gender: 'Unisex', imageUrl: 'mlachite.png', bottleClass: 'bottle-club', notes: ['Mango', 'Especias'], families: ['Frutal', 'Especiado'], popularity: 86, inspiration: 'God of Fire', 
         description: 'Una propuesta frutal totalmente fuera de lo común donde destaca un mango verde, ligeramente ácido y muy especiado. Es un aroma muy fresco, exótico y que rompe con los típicos perfumes comerciales. Si eres de las personas que odian oler igual al resto y buscas un sello personal único e intrigante, esta tiene que ser tu elección.', 
-        prices: { sellado: 35000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 32000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     {
         id: 'turathi-blue', brand: 'Afnan', name: 'Turathi Blue', gender: 'Masculino', imageUrl: 'turathi-blue.png', bottleClass: 'bottle-club', notes: ['Pomelo', 'Ámbar', 'Almizcle'], families: ['Cítrico', 'Amaderado'], popularity: 88, inspiration: 'Le Gemme Tygar de Bvlgari',
         description: 'Una explosión de pomelo frío y brillante que atrapa desde el primer spray. Limpio, elegante y con una base de ámbar y almizcle que le da una masculinidad sólida sin perder frescura. Es ese tipo de fragancia que funciona igual de bien en una reunión importante que en una salida casual. Versátil, con proyección notable y la duración que te exige el día.',
-        prices: { sellado: 32000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 32000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: false, decant10: false, decant5: false, decant3: false }
     },
     {
         id: 'nitro-white', brand: 'Dumont', name: 'Nitro White', gender: 'Masculino', imageUrl: 'nitro-white.png', bottleClass: 'bottle-club', notes: ['Vainilla', 'Miel', 'Cuero'], families: ['Dulce', 'Especiado'], popularity: 87, inspiration: 'Stronger With You de Armani',
         description: 'Dulce pero con carácter. Nitro White abre con bayas de enebro y ciprés que le dan un inicio fresco y resinoso, para luego evolucionar hacia un corazón de mirra y pachulí que introduce profundidad y misterio. El fondo de miel, vainilla, ámbar y cuero es adictivo y dura horas en la piel. Una fragancia para noches donde quieres dejar huella sin necesidad de decir nada.',
-        prices: { sellado: 28000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 32000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'afeef', brand: 'Lattafa', name: 'Afeef', gender: 'Femenino', imageUrl: 'afeef.png', bottleClass: 'bottle-brun', notes: ['Durazno', 'Nardo', 'Sándalo'], families: ['Frutal', 'Dulce'], popularity: 89, inspiration: 'New York Nights de Bond No. 9',
         description: 'Femenino sin ser predecible. Abre con un durazno jugoso, pimienta rosa y bergamota que te atrapa desde el primer momento. En el corazón, el nardo y el jazmín despliegan una elegancia floral cremosa e hipnótica. El fondo de sándalo, ámbar y praliné lo convierte en un aroma que permanece en la memoria de quienes te rodean. Ideal para quienes buscan sofisticación sin esfuerzo.',
-        prices: { sellado: 27000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'hawas-malibu', brand: 'Rasasi', name: 'Hawas Malibu', gender: 'Unisex', imageUrl: 'hawas-malibu.png', bottleClass: 'bottle-asad', notes: ['Piña', 'Lavanda', 'Tonka'], families: ['Frutal', 'Fresco'], popularity: 88, inspiration: 'Le Beau Le Parfum de JPG',
         description: 'Huele exactamente como se siente el primer día de vacaciones. La piña, la naranja y el pomelo explotan con energía tropical en la salida, y la lavanda con el iris le dan una elegancia aromática que te distingue del montón. El fondo de haba tonka y cachemira lo convierte en algo más que un perfume de verano: es una experiencia. Para los días que simplemente quieres oler increíble.',
-        prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 45000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'odyssey-aqua', brand: 'Armaf', name: 'Odyssey Aqua', gender: 'Masculino', imageUrl: 'odyssey-aqua.png', bottleClass: 'bottle-club', notes: ['Pomelo', 'Menta', 'Ciprés'], families: ['Cítrico', 'Fresco'], popularity: 86, inspiration: 'Invictus Platinum de Paco Rabanne',
         description: 'Un aroma ganador. Pomelo, naranja y artemisa se combinan en una salida fresca y energética que despierta los sentidos al instante. La menta y la lavanda del corazón le añaden un carácter aromático limpio y moderno. El ambroxán en el fondo le da esa firma que perdura. Perfecto para la oficina, el día a día o cualquier ocasión donde quieras proyectar confianza sin esfuerzo.',
-        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'jean-lowe-vibe', brand: 'Maison Alhambra', name: 'Jean Lowe Vibe', gender: 'Unisex', imageUrl: 'jean-lowe-vibe.png', bottleClass: 'bottle-brun', notes: ['Menta', 'Cítricos', 'Higo'], families: ['Cítrico', 'Fresco'], popularity: 87, inspiration: 'Pacific Chill de Louis Vuitton',
@@ -110,22 +137,22 @@ const perfumesDB = [
     {
         id: 'opulent-dubai', brand: 'Lattafa', name: 'Opulent Dubai', gender: 'Unisex', imageUrl: 'opulent-dubai.png', bottleClass: 'bottle-asad', notes: ['Mango', 'Jazmín', 'Ámbar Gris'], families: ['Frutal', 'Amaderado'], popularity: 90, inspiration: 'God of Fire de Stéphane Humbert Lucas',
         description: 'La opulencia embotellada. Un mango exótico y jugoso abre paso a un corazón de jazmín, cedro y violeta que huele a lujo sin disculparse. El fondo de ámbar gris, benjuí y musgo de roble crea una estela profunda y magnética que deja presencia real. Si buscas una fragancia que impresione sin necesitar explicación, Opulent Dubai es exactamente eso.',
-        prices: { sellado: 24000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'obsidian', brand: 'Rayhaan', name: 'Obsidian', gender: 'Masculino', imageUrl: 'obsidian.png', bottleClass: 'bottle-asad', notes: ['Iris', 'Cuero', 'Sándalo'], families: ['Amaderado', 'Especiado'], popularity: 91, inspiration: 'Dior Homme Intense',
         description: 'Oscuro, pulido y con una elegancia que no necesita alzar la voz. El iris abre con una frescura empolvada y sofisticada que evoluciona hacia un corazón de cuero suave, íntimo y muy masculino. El fondo de sándalo, cedro y oud crea una base cálida y envolvente que dura en la piel durante horas. Para quienes saben que la elegancia verdadera no se anuncia, simplemente se siente.',
-        prices: { sellado: 28000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'terra', brand: 'Rayhaan', name: 'Terra', gender: 'Masculino', imageUrl: 'terra.png', bottleClass: 'bottle-asad', notes: ['Cardamomo', 'Azafrán', 'Oud'], families: ['Especiado', 'Amaderado'], popularity: 89, inspiration: 'Amouage Guidance',
         description: 'Una fragancia que va más allá del perfume árabe típico. Cardamomo, pimienta de Sichuan y bergamota crean una apertura especiada y vibrante. El corazón de azafrán, pachulí y flor de azahar añade una riqueza oriental profunda e intrigante. El fondo de oud, incienso y ámbar hace de Terra una experiencia sensorial completa, pensada para quienes buscan algo verdaderamente especial.',
-        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
         id: 'aquatica', brand: 'Rayhaan', name: 'Aquatica', gender: 'Masculino', imageUrl: 'aquatica.png', bottleClass: 'bottle-club', notes: ['Coco', 'Lima', 'Tonka'], families: ['Frutal', 'Fresco'], popularity: 90, inspiration: 'Very Irresistible Water de Givenchy',
         description: 'Cierra los ojos y es verano instantáneo. La lima y el coco abren con una cremosidad tropical que se siente increíblemente natural y refrescante. El corazón de jazmín y gardenia le añade un brillo floral sutil, y el ron con la haba tonka en el fondo lo convierten en algo más cálido y seductor de lo que parece a primera vista. El perfume de playa que querrás llevar contigo a todas partes.',
-        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
+        prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     }
 ];
 
