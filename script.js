@@ -6,17 +6,17 @@ const perfumesDB = [
     { 
         id: 'eclaire', brand: 'Lattafa', name: 'Eclaire', gender: 'Femenino', imageUrl: 'eclaire.png', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Leche', 'Vainilla'], families: ['Dulce'], popularity: 98, inspiration: 'Bianco Latte de Giardini di Toscana', 
         description: 'Un deleite absoluto. Huele a un postre cremoso de caramelo y vainilla, con un toque cálido de leche y miel. Es una fragancia súper acogedora, dulce y adictiva que deja una estela deliciosa por donde pasas. Ideal para el clima frío o cuando quieres oler literalmente a un postre irresistible.', 
-        prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'khamrah-qahwa', brand: 'Lattafa', name: 'Khamrah Qahwa', gender: 'Unisex', imageUrl: 'khamrah-qahwa.png', bottleClass: 'bottle-asad', notes: ['Café', 'Praliné', 'Canela'], families: ['Dulce', 'Especiado'], popularity: 96, inspiration: 'Angels\' Share de By Kilian (con café)', 
         description: 'El exitoso ADN dulce y acaramelado de Khamrah, pero mejorado con un toque profundo y adictivo de café tostado. Notas de praliné, canela y vainilla se mezclan creando un aroma espectacular, cálido e ideal para la noche, fiestas o citas donde quieres proyectar misterio y dulzura.', 
-        prices: { sellado: 35000, decant10: 5500, decant5: 3500, decant3: 2500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'atlantis-extrait', brand: 'French Avenue', name: 'Atlantis Extrait', gender: 'Unisex', imageUrl: 'atlantis-extrait.png', bottleClass: 'bottle-club', notes: ['Sandía', 'Coco', 'Ámbar Gris'], families: ['Frutal', 'Fresco'], popularity: 92, inspiration: 'Wavechild de Room 1015', 
         description: 'Una explosión tropical vibrante. Destaca una jugosa nota de sandía como dulce de caramelo junto a un sutil toque de coco cremoso, todo envuelto en una vibra salada y fresca gracias al ámbar gris. Es un perfume alegre y con un rendimiento espectacular para los días de calor.', 
-        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 41000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'musamam', brand: 'Lattafa', name: 'Musamam', gender: 'Masculino', imageUrl: 'musamam.png', bottleClass: 'bottle-club', notes: ['Azafrán', 'Cuero', 'Incienso'], families: ['Amaderado', 'Especiado'], popularity: 85, inspiration: 'Gucci Guilty Absolute / Bvlgari Kobraa', 
@@ -26,7 +26,7 @@ const perfumesDB = [
     { 
         id: 'pisa', brand: 'Lattafa', name: 'Pisa', gender: 'Masculino', imageUrl: 'pisa.png', bottleClass: 'bottle-club', notes: ['Mandarina', 'Bergamota', 'Sándalo'], families: ['Cítrico', 'Fresco'], popularity: 87, inspiration: 'Tygar de Bvlgari / Afternoon Swim', 
         description: 'Una apertura cítrica sumamente vibrante y natural donde destaca la mandarina y la bergamota jugosa, evolucionando rápidamente hacia un fondo rico y masculino en madera de sándalo y ámbar. Fresco, limpio y perfecto para el verano, como un viaje a la costa italiana.', 
-        prices: { sellado: 28000, decant10: 4500, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 45000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     // --- RESTO DE TUS PERFUMES ORIGINALES ---
     { 
