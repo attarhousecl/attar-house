@@ -3,6 +3,22 @@
 // ==========================================
 const perfumesDB = [
     // --- NUEVOS PERFUMES AGREGADOS ---
+    // --- NUEVOS PERFUMES DE DISEÑADOR (SOLO DECANTS) ---
+    { 
+        id: 'prada-lhomme', brand: 'Prada', name: "Prada L'Homme", gender: 'Masculino', imageUrl: 'prada-lhomme.png', bottleClass: 'bottle-club', notes: ['Iris', 'Neroli', 'Ámbar'], families: ['Fresco', 'Amaderado'], popularity: 95, inspiration: 'Diseñador Original', 
+        description: 'La definición absoluta de "oler a limpio". Una obra maestra del iris jabonoso, pulcro y sumamente elegante. Es el perfume definitivo para la oficina, reuniones o el día a día cuando quieres proyectar una imagen impecable, profesional y con muchísima clase.', 
+        prices: { sellado: 0, decant10: 13000, decant5: 7000, decant3: 5000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'swy-powerfully', brand: 'Giorgio Armani', name: 'Stronger With You Powerfully', gender: 'Masculino', imageUrl: 'swy-powerfully.png', bottleClass: 'bottle-brun', notes: ['Castaña', 'Lavanda', 'Vainilla'], families: ['Dulce', 'Especiado'], popularity: 94, inspiration: 'Diseñador Original', 
+        description: 'Una explosión dulce, cálida y envolvente. La nota icónica de castaña glaseada junto a una dosis extra de lavanda y extracto de vainilla crean un aura altamente adictiva y súper atractiva. Pensada para conquistar en el clima frío y brillar como nunca en salidas nocturnas.', 
+        prices: { sellado: 0, decant10: 13000, decant5: 7000, decant3: 5000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
+    },
+    { 
+        id: 'gentleman-edp', brand: 'Givenchy', name: 'Gentleman EDP', gender: 'Masculino', imageUrl: 'gentleman-edp.png', bottleClass: 'bottle-asad', notes: ['Iris', 'Pimienta Negra', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 93, inspiration: 'Diseñador Original', 
+        description: 'Un perfume oscuro, seductor y sumamente sofisticado. El iris se mezcla a la perfección con especias cálidas, vainilla y bálsamo de Tolú, creando un aura de misterio y elegancia. Es tu mejor carta para citas nocturnas, cenas formales y ocasiones donde vistes de traje o muy arreglado.', 
+        prices: { sellado: 0, decant10: 10000, decant5: 6000, decant3: 3000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
+    },
     { 
         id: 'eclaire', brand: 'Lattafa', name: 'Eclaire', gender: 'Femenino', imageUrl: 'eclaire.png', bottleClass: 'bottle-brun', notes: ['Caramelo', 'Leche', 'Vainilla'], families: ['Dulce'], popularity: 98, inspiration: 'Bianco Latte de Giardini di Toscana', 
         description: 'Un deleite absoluto. Huele a un postre cremoso de caramelo y vainilla, con un toque cálido de leche y miel. Es una fragancia súper acogedora, dulce y adictiva que deja una estela deliciosa por donde pasas. Ideal para el clima frío o cuando quieres oler literalmente a un postre irresistible.', 
@@ -30,14 +46,14 @@ const perfumesDB = [
     },
     // --- RESTO DE TUS PERFUMES ORIGINALES ---
     { 
-        id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Unisex', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', 
+        id: 'liquid-brun', brand: 'French Avenue', name: 'Liquid Brun', gender: 'Masculino', imageUrl: 'liquid-brun.png', bottleClass: 'bottle-brun', notes: ['Vainilla', 'Canela', 'Praliné'], families: ['Dulce', 'Especiado'], popularity: 98, inspiration: 'Althaïr de Parfums de Marly', 
         description: 'Un aroma cálido y sumamente acogedor donde la vainilla, la canela y el praliné se combinan para darte un aire de elegancia inconfundible. Es esa clase de perfume que deja una estela dulce pero madura por donde pasas. Perfecto para usar de noche, en citas o cuando simplemente quieres destacar sin parecer que te esforzaste demasiado.', 
         prices: { sellado: 31000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
-        id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Masculino', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', 
+        id: 'vulcan-feu', brand: 'French Avenue', name: 'Vulcan Feu', gender: 'Unisex', imageUrl: 'perfume_attar_house.png', bottleClass: 'bottle-club', notes: ['Mango', 'Jengibre', 'Limón'], families: ['Frutal', 'Cítrico'], popularity: 88, inspiration: 'God of Fire de S.H. Lucas', 
         description: 'Una explosión tropical dominada por un mango jugoso y realista, equilibrado con el toque picante y fresco del jengibre. No es el típico aroma frutal aburrido; tiene muchísima personalidad y un fondo amaderado que lo hace súper versátil. Es tu mejor aliado para llamar la atención en cualquier salida informal o durante el día a día.', 
-        prices: { sellado: 40000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 42000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'honor-glory', brand: 'Lattafa', name: 'Honor & Glory', gender: 'Unisex', imageUrl: 'honor-glory.png', bottleClass: 'bottle-brun', notes: ['Piña', 'Crème Brûlée'], families: ['Dulce', 'Frutal'], popularity: 96, inspiration: 'Tribeca de Bond No 9', 
@@ -45,9 +61,9 @@ const perfumesDB = [
         prices: { sellado: 26000, decant10: 4000, decant5: 2500, decant3: 1500 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
     },
     { 
-        id: 'amber-oud-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Unisex', imageUrl: 'amber-oud-dubai.png', bottleClass: 'bottle-club', notes: ['Bergamota', 'Oud', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 82, inspiration: 'Arabians Tonka de Montale', 
+        id: 'amber-oud-dubai', brand: 'Al Haramain', name: 'Amber Oud Dubai Night', gender: 'Masculino', imageUrl: 'amber-oud-dubai.png', bottleClass: 'bottle-club', notes: ['Bergamota', 'Oud', 'Vainilla'], families: ['Amaderado', 'Especiado'], popularity: 82, inspiration: 'Arabians Tonka de Montale', 
         description: 'Madera de oud, especias cálidas y vainilla en su versión más lujosa y potente. Es un perfume oscuro, imponente y con un rendimiento bestial que dura todo el día en tu piel. Está diseñado exclusivamente para ocasiones especiales, eventos formales o cuando quieres que tu presencia se note en el momento exacto en que entras a la habitación.', 
-        prices: { sellado: 50000, decant10: 7000, decant5: 5000, decant3: 4000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true } 
+        prices: { sellado: 50000, decant10: 7000, decant5: 5000, decant3: 4000 }, stock: { sellado: false, decant10: true, decant5: true, decant3: true } 
     },
     { 
         id: 'asad-bourbon', brand: 'Lattafa', name: 'Asad Bourbon', gender: 'Masculino', imageUrl: 'bourbon.png', bottleClass: 'bottle-asad', notes: ['Café', 'Vainilla'], families: ['Especiado', 'Dulce'], popularity: 95, inspiration: 'Azzaro The Most Wanted', 
@@ -120,7 +136,7 @@ const perfumesDB = [
         prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
-        id: 'hawas-malibu', brand: 'Rasasi', name: 'Hawas Malibu', gender: 'Unisex', imageUrl: 'hawas-malibu.png', bottleClass: 'bottle-asad', notes: ['Piña', 'Lavanda', 'Tonka'], families: ['Frutal', 'Fresco'], popularity: 88, inspiration: 'Le Beau Le Parfum de JPG',
+        id: 'hawas-malibu', brand: 'Rasasi', name: 'Hawas Malibu', gender: 'Masculino', imageUrl: 'hawas-malibu.png', bottleClass: 'bottle-asad', notes: ['Piña', 'Lavanda', 'Tonka'], families: ['Frutal', 'Fresco'], popularity: 88, inspiration: 'Le Beau Le Parfum de JPG',
         description: 'Huele exactamente como se siente el primer día de vacaciones. La piña, la naranja y el pomelo explotan con energía tropical en la salida, y la lavanda con el iris le dan una elegancia aromática que te distingue del montón. El fondo de haba tonka y cachemira lo convierte en algo más que un perfume de verano: es una experiencia. Para los días que simplemente quieres oler increíble.',
         prices: { sellado: 45000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
