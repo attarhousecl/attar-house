@@ -278,12 +278,10 @@ main { flex: 1; margin-top: 105px; }
 
 .real-img {
     width: 100%; height: 100%;
-    object-fit: contain;
-    object-position: center center;
-    padding: 10px;
+    object-fit: cover;
+    object-position: center 20%;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     transition: filter 0.4s;
-    display: block;
 }
 .product-card:hover .real-img { filter: drop-shadow(0 10px 30px rgba(212,175,55,0.15)); }
 
