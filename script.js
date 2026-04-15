@@ -98,7 +98,7 @@ const perfumesDB = [
         prices: { sellado: 38000, decant10: 6000, decant5: 4000, decant3: 3000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
     {
-        id: 'odyssey-aqua', brand: 'Armaf', name: 'Odyssey Aqua Edition', gender: 'Masculino', imageUrl: 'odyssey-aqua.png', bottleClass: 'bottle-club', notes: ['Pomelo', 'Menta', 'Ciprés'], families: ['Cítrico', 'Fresco'], popularity: 86, inspiration: 'Invictus Platinum de Paco Rabanne',
+        id: 'odyssey-aqua', brand: 'Armaf', name: 'Odyssey Aqua', gender: 'Masculino', imageUrl: 'odyssey-aqua.png', bottleClass: 'bottle-club', notes: ['Pomelo', 'Menta', 'Ciprés'], families: ['Cítrico', 'Fresco'], popularity: 86, inspiration: 'Invictus Platinum de Paco Rabanne',
         description: 'Un aroma ganador. Pomelo, naranja y artemisa se combinan en una salida fresca y energética que despierta los sentidos al instante. La menta y la lavanda del corazón le añaden un carácter aromático limpio y moderno. El ambroxán en el fondo le da esa firma que perdura. Perfecto para la oficina, el día a día o cualquier ocasión donde quieras proyectar confianza sin esfuerzo.',
         prices: { sellado: 30000, decant10: 5000, decant5: 3000, decant3: 2000 }, stock: { sellado: true, decant10: true, decant5: true, decant3: true }
     },
