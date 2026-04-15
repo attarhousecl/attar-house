@@ -665,7 +665,24 @@ footer { padding: 20px 0; background-color: var(--bg-surface); text-align: cente
 }
 
 @media (max-width: 480px) {
-    .product-grid { grid-template-columns: 1fr; }
+    /* Doble columna en celulares con un margen optimizado */
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    
+    /* Ajustes proporcionales para que las tarjetas no se vean amontonadas */
+    .product-image-container { height: 160px; }
+    .card-body { padding: 10px 10px 12px; }
+    .product-brand { font-size: 0.55rem; margin-bottom: 3px; }
+    .product-title { font-size: 0.85rem; margin-bottom: 5px; line-height: 1.2; }
+    .gender-tag { font-size: 0.55rem; padding: 2px 6px; margin-bottom: 8px; }
+    .note-tag { font-size: 0.5rem; padding: 2px 6px; }
+    .notes-tags { gap: 4px; margin-bottom: 12px; }
+    .popularity-badge { font-size: 0.5rem; padding: 2px 6px; top: 8px; left: 8px; }
+    .sold-out-badge { font-size: 0.55rem; padding: 3px 8px; top: 8px; right: 8px; }
+    .card-price { font-size: 0.75rem; margin-bottom: 10px; }
+    .card-price strong { font-size: 0.9rem; }
+    .btn-view-detail { padding: 8px 10px; font-size: 0.65rem; }
+
+    /* Mantenemos el resto del diseño móvil intacto */
     .decant-steps, .yield-grid { grid-template-columns: 1fr; }
     .detail-grid { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
     .detail-title { font-size: 1.8rem; }
