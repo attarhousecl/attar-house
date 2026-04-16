@@ -276,7 +276,30 @@ main { flex: 1; margin-top: 105px; }
 }
 .product-card:hover .product-image-container { transform: scale(1.07); }
 
-.product-card:hover .real-img { filter: drop-shadow(0 10px 30px rgba(212,175,55,0.15)); }
+/* Imagen en tarjeta del catálogo - cubre el área completa */
+.product-image-container .real-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    padding: 0;
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+    transition: filter 0.4s;
+    display: block;
+}
+.product-card:hover .product-image-container .real-img { filter: drop-shadow(0 10px 30px rgba(212,175,55,0.15)); }
+
+/* Imagen en vista de detalle - completa sin recortar */
+.detail-image-col .real-img {
+    width: auto; height: auto;
+    max-width: 100%; max-height: 480px;
+    object-fit: contain;
+    padding: 0;
+    border-radius: 16px;
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+    display: block;
+    margin: 0 auto;
+}
 
 /* Badge de popularidad - inline en card-body */
 .popularity-badge {
@@ -415,8 +438,8 @@ main { flex: 1; margin-top: 105px; }
     border-radius: 6px; text-transform: uppercase; font-size: 0.75rem; 
     letter-spacing: 1px; transition: all 0.3s; font-weight: 600; 
 }
-.btn-add-cart:hover { background: var(--gold-primary); color: var(--bg-base); } */
-.btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: none; border: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; font-family: 'Montserrat', sans-serif;}
+.btn-add-cart:hover { background: var(--gold-primary); color: var(--bg-base); }
+.btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); background: transparent !important; background-color: transparent !important; border: none; outline: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; cursor: pointer; transition: color 0.3s; font-family: 'Montserrat', sans-serif; -webkit-appearance: none; appearance: none; }
 .btn-back:hover { color: var(--gold-primary); }
 .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 40px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; align-items: start; }
 .detail-image-col { display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%); border-radius: 16px; min-height: 400px; padding: 30px; position: sticky; top: 120px; }
@@ -665,24 +688,7 @@ footer { padding: 20px 0; background-color: var(--bg-surface); text-align: cente
 }
 
 @media (max-width: 480px) {
-    /* Doble columna en celulares con un margen optimizado */
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    
-    /* Ajustes proporcionales para que las tarjetas no se vean amontonadas */
-    .product-image-container { height: 160px; }
-    .card-body { padding: 10px 10px 12px; }
-    .product-brand { font-size: 0.55rem; margin-bottom: 3px; }
-    .product-title { font-size: 0.85rem; margin-bottom: 5px; line-height: 1.2; }
-    .gender-tag { font-size: 0.55rem; padding: 2px 6px; margin-bottom: 8px; }
-    .note-tag { font-size: 0.5rem; padding: 2px 6px; }
-    .notes-tags { gap: 4px; margin-bottom: 12px; }
-    .popularity-badge { font-size: 0.5rem; padding: 2px 6px; top: 8px; left: 8px; }
-    .sold-out-badge { font-size: 0.55rem; padding: 3px 8px; top: 8px; right: 8px; }
-    .card-price { font-size: 0.75rem; margin-bottom: 10px; }
-    .card-price strong { font-size: 0.9rem; }
-    .btn-view-detail { padding: 8px 10px; font-size: 0.65rem; }
-
-    /* Mantenemos el resto del diseño móvil intacto */
+    .product-grid { grid-template-columns: 1fr; }
     .decant-steps, .yield-grid { grid-template-columns: 1fr; }
     .detail-grid { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
     .detail-title { font-size: 1.8rem; }
@@ -722,31 +728,70 @@ footer { padding: 20px 0; background-color: var(--bg-surface); text-align: cente
 }
 .sidebar-overlay.show { display: block; }
 
-/* 1. Imagen en la tarjeta del catálogo (Estirada, sin bordes y elegante) */
-.product-image-container .real-img {
-    width: 100%; 
-    height: 100%;
-    object-fit: cover;
-    object-position: center 20%;
-    padding: 0;
-    border-radius: var(--card-radius) var(--card-radius) 0 0;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
-    transition: filter 0.4s;
+/* ==========================================
+   SECCIÓN PERFUMES DE DISEÑADOR
+   ========================================== */
+.designer-section {
+    margin-bottom: 60px;
 }
-
-/* Efecto de brillo al pasar el mouse en el catálogo */
-.product-card:hover .product-image-container .real-img { 
-    filter: drop-shadow(0 10px 30px rgba(212,175,55,0.15)); 
+.designer-section-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 30px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-gold);
 }
-
-/* 2. Imagen en la vista de detalle (Completa, centrada y sin estirarse) */
-.detail-image-col .real-img {
-    width: auto;
-    height: auto;
-    max-width: 100%; 
-    max-height: 100%;
-    object-fit: contain;
-    padding: 0;
-    border-radius: 16px;
-    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+.designer-section-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--gold-primary);
+    margin: 0;
+}
+.designer-section-header p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+.designer-badge-card {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 10;
+}
+.designer-card {
+    border-color: rgba(212,175,55,0.35);
+    background: linear-gradient(145deg, #181818 0%, #111 100%);
+}
+.designer-card:hover {
+    border-color: var(--gold-primary);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.2), 0 0 50px rgba(212,175,55,0.08);
+}
+.arab-section-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 30px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-gold);
+}
+.arab-section-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--text-main);
+    margin: 0;
+}
+.arab-section-header p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+.section-divider {
+    width: 40px; height: 2px;
+    background: var(--gold-primary);
+    flex-shrink: 0;
 }
