@@ -178,6 +178,11 @@ const accesoriosDB = [
     { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 3000, icon: 'ph ph-codepen-logo' }
 ];
 
+// BASE DE DATOS DISEÑADOR (separada)
+const designerDB = perfumesDB.filter(p => p.inspiration === 'Diseñador Original');
+// Quitamos los de diseñador del catálogo árabe
+const arabDB = perfumesDB.filter(p => p.inspiration !== 'Diseñador Original');
+
 // MODIFICADO: Definimos un "mapa" global para convertir claves técnicas en nombres bonitos.
 const labelsFormatos = {
     'sellado': 'Sellado',
@@ -252,20 +257,20 @@ function handleDetailImageError(img, bc) {
 // INICIALIZACIÓN DEL SIDEBAR Y FILTROS
 // ==========================================
 function initSidebar() {
-    document.getElementById('count-all').innerText = perfumesDB.length;
-    document.getElementById('count-fem').innerText = perfumesDB.filter(p => p.gender === 'Femenino').length;
-    document.getElementById('count-masc').innerText = perfumesDB.filter(p => p.gender === 'Masculino').length;
-    document.getElementById('count-uni').innerText = perfumesDB.filter(p => p.gender === 'Unisex').length;
+    document.getElementById('count-all').innerText = arabDB.length;
+    document.getElementById('count-fem').innerText = arabDB.filter(p => p.gender === 'Femenino').length;
+    document.getElementById('count-masc').innerText = arabDB.filter(p => p.gender === 'Masculino').length;
+    document.getElementById('count-uni').innerText = arabDB.filter(p => p.gender === 'Unisex').length;
 
-    document.getElementById('count-aroma-all').innerText = perfumesDB.length;
-    document.getElementById('count-aroma-dulce').innerText = perfumesDB.filter(p => p.families.includes('Dulce')).length;
-    document.getElementById('count-aroma-fresco').innerText = perfumesDB.filter(p => p.families.includes('Fresco')).length;
-    document.getElementById('count-aroma-amaderado').innerText = perfumesDB.filter(p => p.families.includes('Amaderado')).length;
-    document.getElementById('count-aroma-especiado').innerText = perfumesDB.filter(p => p.families.includes('Especiado')).length;
-    document.getElementById('count-aroma-frutal').innerText = perfumesDB.filter(p => p.families.includes('Frutal')).length;
-    document.getElementById('count-aroma-citrico').innerText = perfumesDB.filter(p => p.families.includes('Cítrico')).length;
+    document.getElementById('count-aroma-all').innerText = arabDB.length;
+    document.getElementById('count-aroma-dulce').innerText = arabDB.filter(p => p.families.includes('Dulce')).length;
+    document.getElementById('count-aroma-fresco').innerText = arabDB.filter(p => p.families.includes('Fresco')).length;
+    document.getElementById('count-aroma-amaderado').innerText = arabDB.filter(p => p.families.includes('Amaderado')).length;
+    document.getElementById('count-aroma-especiado').innerText = arabDB.filter(p => p.families.includes('Especiado')).length;
+    document.getElementById('count-aroma-frutal').innerText = arabDB.filter(p => p.families.includes('Frutal')).length;
+    document.getElementById('count-aroma-citrico').innerText = arabDB.filter(p => p.families.includes('Cítrico')).length;
 
-    const brands = [...new Set(perfumesDB.map(p => p.brand))].sort();
+    const brands = [...new Set(arabDB.map(p => p.brand))].sort();
     const list = document.getElementById('brand-list');
     list.innerHTML = `<button class="brand-btn active" onclick="setBrand('all', this)">Todas</button>`;
     brands.forEach(b => list.innerHTML += `<button class="brand-btn" onclick="setBrand('${b}', this)">${b}</button>`);
@@ -296,6 +301,37 @@ function setGender(v, el) {
 
 function searchCatalog() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderCatalog(); }
 
+function renderDesigner() {
+    const grid = document.getElementById('designer-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    designerDB.forEach((p, index) => {
+        const card = document.createElement('div');
+        card.className = `product-card designer-card`;
+        card.style.animationDelay = `${index * 0.05}s`;
+        card.onclick = () => openDetail(p.id);
+        card.innerHTML = `
+            <div class="card-image-area">
+                <span class="designer-badge-card">✦ Diseñador</span>
+                <div class="product-image-container">
+                    ${p.imageUrl
+                        ? `<img src="${p.imageUrl}" alt="${p.name}" class="real-img" onerror="handleImageError(this, '${p.bottleClass}')">`
+                        : `<div class="arch-frame"><div class="bottle ${p.bottleClass}"></div></div>`
+                    }
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="product-brand">${p.brand}</div>
+                <h3 class="product-title serif">${p.name}</h3>
+                <span class="gender-tag">${p.gender}</span>
+                <div class="notes-tags">${p.notes.slice(0,3).map(n => `<span class="note-tag">${n}</span>`).join('')}</div>
+                <div class="card-price">Decant desde <strong>$${p.prices.decant3.toLocaleString('es-CL')}</strong></div>
+                <button class="btn-view-detail">Ver Detalles</button>
+            </div>`;
+        grid.appendChild(card);
+    });
+}
+
 // ==========================================
 // RENDERIZADO PRINCIPAL
 // ==========================================
@@ -303,7 +339,7 @@ function renderCatalog() {
     const grid = document.getElementById('catalogo-grid'); 
     grid.innerHTML = '';
     
-    let filtered = perfumesDB.filter(p => {
+    let filtered = arabDB.filter(p => {
         const matchBrand = currentBrand === 'all' || p.brand === currentBrand;
         const matchGender = currentGender === 'all' || p.gender === currentGender;
         const matchAroma = currentAroma === 'all' || p.families.includes(currentAroma);
@@ -656,6 +692,7 @@ const _origAddToCart = addToCart;
 
 window.onload = () => {
     initSidebar(); 
+    renderDesigner();
     renderCatalog(); 
     renderAccesorios();
     rotateAnnouncements(); 
@@ -665,7 +702,7 @@ window.onload = () => {
     history.replaceState({ page: 'inicio' }, '', '#inicio');
     
     const giftSelect = document.getElementById('free-gift-select');
-    perfumesDB.forEach(p => {
+    arabDB.forEach(p => {
         giftSelect.innerHTML += `<option value="${p.name} (Decant 3ml)">${p.name} - Decant 3ml</option>`;
     });
 
