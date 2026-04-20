@@ -545,7 +545,7 @@ function openDetail(id, origen = 'catalogo') {
                 <div class="purchase-box">
                     <h4 style="margin-bottom:15px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--gold-primary); border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">Elige tu formato</h4>
                     <select class="format-select" id="format-detail-${p.id}">${opts}</select>
-                    <button class="btn-add-cart-gold" onclick="addToCart('${p.name}', 'format-detail-${p.id}')">
+                    <button class="btn-add-cart-gold" onclick="addToCart('${p.id}', 'format-detail-${p.id}')">
                         <i class="ph ph-shopping-cart" style="font-size: 1.2rem;"></i> Añadir al Carrito
                     </button>
                     <div style="margin-top: 18px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.8;">
@@ -561,9 +561,14 @@ function openDetail(id, origen = 'catalogo') {
 // ==========================================
 // CONTROL DEL CARRITO Y PEDIDOS
 // ==========================================
-function addToCart(name, sid) {
-    const sel = document.getElementById(sid); 
+function addToCart(perfumeId, sid) {
+    const sel = document.getElementById(sid);
+    if(!sel || !sel.value) return;
     const [fmt, price] = sel.value.split('|');
+    if(!fmt || !price) return;
+    // Buscar nombre real desde la DB usando el id
+    const perfume = perfumesDB.find(p => p.id === perfumeId);
+    const name = perfume ? perfume.name : perfumeId;
     const exist = cart.find(i => i.name === name && i.format === fmt);
     const formatLabel = labelsFormatos[fmt] || fmt;
     if(exist) {
