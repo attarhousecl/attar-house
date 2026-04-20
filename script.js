@@ -610,11 +610,11 @@ function updateCartUI() {
         let giftMsg = '';
         let shipMsg = '';
 
-        if(dTotal >= 15000 || total >= 70000) {
+        if(dTotal >= 15000) {
             giftMsg = `<div class='shipping-success' style='color: var(--gold-primary); font-weight: 600;'><i class='ph ph-gift'></i> ¡Ganaste un decant de regalo!</div>`;
             giftBox.style.display = 'block';
         } else {
-            let dLeft = 15000 - dTotal; let tLeft = 70000 - total;
+            let dLeft = 15000 - dTotal;
             giftMsg = `<div>Agrega <strong style="color: var(--gold-primary);">$${dLeft.toLocaleString('es-CL')} en decants</strong> o <strong style="color: var(--gold-primary);">$${tLeft.toLocaleString('es-CL')} al total</strong> para tu 🎁.</div>`;
             giftBox.style.display = 'none';
         }
@@ -636,24 +636,32 @@ function updateCartUI() {
 // ENVIAR POR WHATSAPP
 function sendWhatsAppOrder() {
     if(cart.length === 0) return alert("Tu carrito está vacío.");
-    let t = "¡Hola Attar House! Me gustaría realizar el siguiente pedido:%0A%0A";
+    
+    // Cambiamos los %0A por saltos de línea reales (\n) para codificarlos después
+    let t = "¡Hola Attar House! Me gustaría realizar el siguiente pedido:\n\n";
     
     let total = 0;
     cart.forEach(i => { 
         let sub = i.price * i.quantity;
         total += sub;
         
-        // MODIFICADO: Usamos el mapa labelsFormatos para que el mensaje de WhatsApp diga 'Sellado', '10ml'
         const displayFormat = labelsFormatos[i.format] || i.format;
-        t += `▪ ${i.quantity}x ${i.name} (${displayFormat}) - $${sub.toLocaleString('es-CL')}%0A`;
+        t += `▪ ${i.quantity}x ${i.name} (${displayFormat}) - $${sub.toLocaleString('es-CL')}\n`;
     });
     
-    t += `%0A*Total Estimado: $${total.toLocaleString('es-CL')}*%0A`;
+    t += `\n*Total Estimado: $${total.toLocaleString('es-CL')}*\n`;
 
-    if(total >= 60000) t += `🚚 *¡Mi pedido califica para ENVÍO GRATIS!*%0A`;
+    if(total >= 60000) t += `🚚 *¡Mi pedido califica para ENVÍO GRATIS!*\n`;
     if(document.getElementById('free-gift-container').style.display === 'block') {
-        t += `🎁 *Mi pedido incluye un regalo: ${document.getElementById('free-gift-select').value}*%0A`;
+        t += `🎁 *Mi pedido incluye un regalo: ${document.getElementById('free-gift-select').value}*\n`;
     }
+    
+    t += `\nQuedo atento/a para coordinar el pago y la entrega.`;
+    
+    // AQUÍ ESTÁ LA MAGIA: encodeURIComponent() traduce los espacios y emojis a un formato web seguro
+    const urlSegura = `https://wa.me/56930679481?text=${encodeURIComponent(t)}`;
+    window.open(urlSegura, '_blank');
+}    
     
     t += `%0AQuedo atento/a para coordinar el pago y la entrega.`;
     window.open(`https://wa.me/56930679481?text=${t}`, '_blank');
