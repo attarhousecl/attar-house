@@ -219,8 +219,10 @@ window.addEventListener('popstate', (e) => {
     window.scrollTo(0,0);
 });
 
-document.getElementById('menuBtn').addEventListener('click', () => {
-    document.getElementById('navLinks').classList.toggle('show');
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('menuBtn').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('show');
+    });
 });
 
 // ROTACIÓN DE ANUNCIOS
