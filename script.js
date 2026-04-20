@@ -506,24 +506,29 @@ function submitReview(perfumeId) {
     localStorage.setItem('attar_reviews', JSON.stringify(reviews));
     selectedReviewRating = 0;
     showToast('✓ ¡Gracias por tu reseña!');
-    openDetail(perfumeId); // re-render
+    openDetail(perfumeId, perfumesDB.find(x=>x.id===perfumeId)?.inspiration === 'Diseñador Original' ? 'disenador' : 'catalogo');
 }
 
-function openDetail(id) {
-    const p = perfumesDB.find(x => x.id === id); const container = document.getElementById('detalle-container');
+function openDetail(id, origen = 'catalogo') {
+    const p = perfumesDB.find(x => x.id === id);
+    const container = document.getElementById('detalle-container');
     const tagsHTML = p.notes.map(n => `<span class="note-tag">${n}</span>`).join('');
     
     let opts = ''; 
     for(let k in p.prices) { 
         const nombreFormato = labelsFormatos[k] || k;
+        // Saltar opciones con precio 0 (ej. sellado de diseñador)
+        if(p.prices[k] === 0) continue;
         if(p.stock[k] !== false) opts += `<option value="${k}|${p.prices[k]}">${nombreFormato} - $${p.prices[k].toLocaleString('es-CL')}</option>`;
         else opts += `<option disabled>${nombreFormato} - AGOTADO</option>`;
     }
 
-    const isWished = false; // wishlist removed
+    const esDisenador = p.inspiration === 'Diseñador Original';
+    const seccionOrigen = esDisenador ? 'disenador' : origen;
+    const labelVolver = esDisenador ? 'Volver a Diseñador' : 'Volver al catálogo';
 
     container.innerHTML = `
-        <button class="btn-back" onclick="navigateTo('catalogo')"><i class="ph ph-arrow-left"></i> Volver al catálogo</button>
+        <button class="btn-back" onclick="navigateTo('${seccionOrigen}')"><i class="ph ph-arrow-left"></i> ${labelVolver}</button>
         <div class="detail-grid">
             <div class="detail-image-col">
                 ${p.imageUrl ? `<img src="${p.imageUrl}" class="real-img" onerror="handleDetailImageError(this, '${p.bottleClass}')">` : `<div class="detail-arch"><div class="bottle ${p.bottleClass}"></div></div>`}
@@ -557,16 +562,26 @@ function openDetail(id) {
 // CONTROL DEL CARRITO Y PEDIDOS
 // ==========================================
 function addToCart(name, sid) {
-    const sel = document.getElementById(sid); const [fmt, price] = sel.value.split('|');
+    const sel = document.getElementById(sid); 
+    const [fmt, price] = sel.value.split('|');
     const exist = cart.find(i => i.name === name && i.format === fmt);
-    if(exist) exist.quantity++; else cart.push({name, format: fmt, price: parseInt(price), quantity: 1});
-    updateCartUI(); document.getElementById('main-cart').classList.add('open');
+    const formatLabel = labelsFormatos[fmt] || fmt;
+    if(exist) {
+        exist.quantity++;
+        showToast(`<i class="ph ph-check-circle"></i> +1 ${name} (${formatLabel})`);
+    } else {
+        cart.push({name, format: fmt, price: parseInt(price), quantity: 1});
+        showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${name} (${formatLabel})`);
+    }
+    updateCartUI(); 
+    document.getElementById('main-cart').classList.add('open');
 }
 
 function addAccesorioToCart(id) {
     const acc = accesoriosDB.find(x => x.id === id);
     const exist = cart.find(i => i.name === acc.name);
     if(exist) exist.quantity++; else cart.push({ name: acc.name, format: 'Accesorio', price: acc.price, quantity: 1 });
+    showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${acc.name}`);
     updateCartUI();
     toggleCart();
 }
@@ -609,23 +624,24 @@ function updateCartUI() {
     
     if(cart.length > 0) {
         prog.style.display = 'block';
+        prog.style.cssText = 'display:block; background:rgba(212,175,55,0.05); padding:15px 20px; text-align:center; font-size:0.85rem; border-bottom:1px solid rgba(212,175,55,0.2); color:var(--text-muted); line-height:1.6;';
         let giftMsg = '';
         let shipMsg = '';
 
         if(dTotal >= 15000) {
-            giftMsg = `<div class='shipping-success' style='color: var(--gold-primary); font-weight: 600;'><i class='ph ph-gift'></i> ¡Ganaste un decant de regalo!</div>`;
+            giftMsg = `<div style='color: var(--gold-primary); font-weight: 600;'><i class='ph ph-gift'></i> ¡Ganaste un decant de regalo!</div>`;
             giftBox.style.display = 'block';
         } else {
             let dLeft = 15000 - dTotal;
-            giftMsg = `<div>Agrega <strong style="color: var(--gold-primary);">$${dLeft.toLocaleString('es-CL')} en decants</strong> o <strong style="color: var(--gold-primary);">$${tLeft.toLocaleString('es-CL')} al total</strong> para tu 🎁.</div>`;
+            giftMsg = `<div style="font-size:0.82rem;">Agrega <strong style="color: var(--gold-primary);">$${dLeft.toLocaleString('es-CL')} en decants</strong> y gana un 🎁 gratis.</div>`;
             giftBox.style.display = 'none';
         }
 
         if(total >= 60000) {
-            shipMsg = `<div class="shipping-success" style="margin-top: 8px; color: #25D366; font-weight: bold;"><i class="ph ph-check-circle" style="font-size: 1.1rem; vertical-align: middle;"></i> ¡Envío gratis alcanzado!</div>`;
+            shipMsg = `<div style="margin-top: 6px; color: #25D366; font-weight: bold;"><i class="ph ph-check-circle"></i> ¡Envío gratis alcanzado!</div>`;
         } else {
             let shipLeft = 60000 - total;
-            shipMsg = `<div style="margin-top: 8px; font-size: 0.85rem;">Faltan <strong style="color: var(--gold-primary);">$${shipLeft.toLocaleString('es-CL')}</strong> para envío gratis.</div>`;
+            shipMsg = `<div style="margin-top: 6px; font-size:0.82rem;">Faltan <strong style="color: var(--gold-primary);">$${shipLeft.toLocaleString('es-CL')}</strong> para envío gratis 🚚.</div>`;
         }
 
         prog.innerHTML = `${giftMsg}${shipMsg}`;
