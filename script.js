@@ -174,8 +174,8 @@ const perfumesDB = [
 
 // BASE DE DATOS DE ACCESORIOS
 const accesoriosDB = [
-    { id: 'porta-decant', name: 'Porta Decant', description: 'Estuche elegante para transporte seguro.', price: 5000, icon: 'ph ph-briefcase' },
-    { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 3000, icon: 'ph ph-codepen-logo' }
+    { id: 'llavero-porta-decant', name: 'Llavero porta decant', description: 'Estuche elegante para transporte seguro.', price: 1500, icon: 'ph ph-briefcase' },
+    { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 500, icon: 'ph ph-codepen-logo' }
 ];
 
 // BASE DE DATOS DISEÑADOR (separada)
