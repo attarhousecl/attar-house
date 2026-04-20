@@ -663,10 +663,6 @@ function sendWhatsAppOrder() {
     // AQUÍ ESTÁ LA MAGIA: encodeURIComponent() traduce los espacios y emojis a un formato web seguro
     const urlSegura = `https://wa.me/56930679481?text=${encodeURIComponent(t)}`;
     window.open(urlSegura, '_blank');
-}    
-    
-    t += `%0AQuedo atento/a para coordinar el pago y la entrega.`;
-    window.open(`https://wa.me/56930679481?text=${t}`, '_blank');
 }
 
 // ==========================================
