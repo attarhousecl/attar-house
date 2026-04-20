@@ -174,8 +174,8 @@ const perfumesDB = [
 
 // BASE DE DATOS DE ACCESORIOS
 const accesoriosDB = [
-    { id: 'porta-decant', name: 'Llavero Porta Decant', description: 'Estuche elegante para transporte seguro.', price: 1500, icon: 'ph ph-briefcase' },
-    { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 500, icon: 'ph ph-codepen-logo' }
+    { id: 'porta-decant', name: 'Porta Decant', description: 'Estuche elegante para transporte seguro.', price: 5000, icon: 'ph ph-briefcase' },
+    { id: 'soporte-individual', name: 'Soporte Individual', description: 'Base minimalista para lucir decants.', price: 3000, icon: 'ph ph-codepen-logo' }
 ];
 
 // BASE DE DATOS DISEÑADOR (separada)
@@ -310,7 +310,7 @@ function renderDesigner() {
         const card = document.createElement('div');
         card.className = `product-card designer-card`;
         card.style.animationDelay = `${index * 0.05}s`;
-        card.onclick = () => openDetail(p.id);
+        card.onclick = () => openDetail(p.id, 'disenador');
         card.innerHTML = `
             <div class="card-image-area">
                 <span class="designer-badge-card">✦ Diseñador</span>
@@ -574,7 +574,6 @@ function addToCart(name, sid) {
         showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${name} (${formatLabel})`);
     }
     updateCartUI(); 
-    document.getElementById('main-cart').classList.add('open');
 }
 
 function addAccesorioToCart(id) {
@@ -677,7 +676,7 @@ function sendWhatsAppOrder() {
     t += `\nQuedo atento/a para coordinar el pago y la entrega.`;
     
     // AQUÍ ESTÁ LA MAGIA: encodeURIComponent() traduce los espacios y emojis a un formato web seguro
-    const urlSegura = `https://wa.me/56632249728?text=${encodeURIComponent(t)}`;
+    const urlSegura = `https://wa.me/56930679481?text=${encodeURIComponent(t)}`;
     window.open(urlSegura, '_blank');
 }
 
