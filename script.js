@@ -681,7 +681,7 @@ function sendWhatsAppOrder() {
     t += `\nQuedo atento/a para coordinar el pago y la entrega.`;
     
     // AQUÍ ESTÁ LA MAGIA: encodeURIComponent() traduce los espacios y emojis a un formato web seguro
-    const urlSegura = `https://wa.me/56930679481?text=${encodeURIComponent(t)}`;
+    const urlSegura = `https://wa.me/5663229728?text=${encodeURIComponent(t)}`;
     window.open(urlSegura, '_blank');
 }
 
