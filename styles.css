@@ -812,3 +812,46 @@ footer { padding: 20px 0; background-color: var(--bg-surface); text-align: cente
     background: var(--gold-primary);
     flex-shrink: 0;
 }
+
+/* ==========================================
+   SECCIÓN DISEÑADOR
+   ========================================== */
+.designer-hero {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px 0;
+}
+.designer-hero-badge {
+    display: inline-block;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 18px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+.designer-card {
+    border-color: rgba(212,175,55,0.35);
+    background: linear-gradient(145deg, #181818 0%, #111 100%);
+}
+.designer-card:hover {
+    border-color: var(--gold-primary);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 50px rgba(212,175,55,0.08);
+}
+.designer-badge-card {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(3,3,3,0.85);
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 10;
+}
