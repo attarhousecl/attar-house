@@ -11,6 +11,9 @@
 const SUPABASE_URL  = 'https://lplegpsqsraqtumiqape.supabase.co';   // ← reemplaza
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbGVncHNxc3JhcXR1bWlxYXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMjEyNDAsImV4cCI6MjA5Njc5NzI0MH0.jQoXVDcw1HGwjSefGEg9T68aaBnxqlVHPqlJ_-NnB2A';    // ← reemplaza
 
+// Cliente de Supabase (requiere el script de supabase-js cargado antes en index.html)
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
 // ── Variables globales del catálogo ──────────────────────────
 // Se llenan automáticamente al cargar la página desde Supabase.
 let perfumesDB = [];
@@ -33,22 +36,12 @@ const accesoriosDB = [
 
 // ── Cargar catálogo desde Supabase ───────────────────────────
 async function loadPerfumes() {
-    const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/perfumes?order=popularity.desc`,
-        {
-            headers: {
-                'apikey':        SUPABASE_ANON,
-                'Authorization': `Bearer ${SUPABASE_ANON}`
-            }
-        }
-    );
+    const { data: rows, error } = await supabaseClient
+        .from('perfumes')
+        .select('*')
+        .order('popularity', { ascending: false });
 
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`Supabase error ${res.status}: ${err}`);
-    }
-
-    const rows = await res.json();
+    if (error) throw new Error(`Supabase error: ${error.message}`);
 
     // Convertir filas de Supabase al formato que usa la web
     perfumesDB = rows.map(r => ({
@@ -79,4 +72,14 @@ async function loadPerfumes() {
 
     designerDB = perfumesDB.filter(p => p.inspiration === 'Diseñador Original');
     arabDB     = perfumesDB.filter(p => p.inspiration !== 'Diseñador Original');
+}
+
+// ── Tiempo real: avisa cuando algo cambia en la tabla perfumes ──
+// onChange recibe el payload crudo de Supabase (no es necesario usarlo,
+// normalmente basta con volver a llamar loadPerfumes() y re-renderizar).
+function subscribeToPerfumeChanges(onChange) {
+    return supabaseClient
+        .channel('perfumes-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'perfumes' }, onChange)
+        .subscribe();
 }

@@ -364,7 +364,9 @@ function openDetail(id, origen = 'catalogo') {
                 </div>
             </div>
         </div>`;
-    navigateTo('detalle-perfume');
+    if (!document.getElementById('detalle-perfume').classList.contains('active')) {
+        navigateTo('detalle-perfume');
+    }
 }
 
 // ==========================================
@@ -564,16 +566,46 @@ window.onload = async () => {
     renderAccesorios();
     rotateAnnouncements();
     updateCartUI();
+    populateGiftSelect();
 
     history.replaceState({ page: 'inicio' }, '', '#inicio');
-
-    const giftSelect = document.getElementById('free-gift-select');
-    arabDB.forEach(p => {
-        giftSelect.innerHTML += `<option value="${p.name} (Decant 3ml)">${p.name} - Decant 3ml</option>`;
-    });
 
     document.getElementById('sidebar-overlay').addEventListener('click', () => {
         document.getElementById('catalog-sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('show');
     });
+
+    // ── Suscripción en tiempo real a cambios en Supabase ──────
+    subscribeToPerfumeChanges(async () => {
+        try {
+            await loadPerfumes();
+        } catch (e) {
+            console.error('Error al refrescar catálogo en tiempo real:', e);
+            return;
+        }
+        initSidebar();
+        renderDesigner();
+        renderCatalog();
+        populateGiftSelect();
+
+        // Si el usuario está viendo el detalle de un perfume, refrescarlo
+        const detalle = document.getElementById('detalle-perfume');
+        if (detalle.classList.contains('active')) {
+            const idMatch = document.querySelector('#detalle-container [id^="format-detail-"]');
+            if (idMatch) {
+                const perfumeId = idMatch.id.replace('format-detail-', '');
+                if (perfumesDB.find(p => p.id === perfumeId)) {
+                    openDetail(perfumeId);
+                }
+            }
+        }
+    });
 };
+
+function populateGiftSelect() {
+    const giftSelect = document.getElementById('free-gift-select');
+    giftSelect.innerHTML = '';
+    arabDB.forEach(p => {
+        giftSelect.innerHTML += `<option value="${p.name} (Decant 3ml)">${p.name} - Decant 3ml</option>`;
+    });
+}
