@@ -4,6 +4,9 @@ import Nav from "@/components/Nav";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import { ToastProvider } from "@/context/ToastContext";
+import { CatalogProvider } from "@/context/CatalogContext";
+import { CartProvider } from "@/context/CartContext";
 
 export const metadata = {
   metadataBase: new URL("https://attarhouse.cl"),
@@ -43,11 +46,17 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
-        <AnnouncementBar />
-        <Nav />
-        <main>{children}</main>
-        <CartDrawer />
-        <Footer />
+        <ToastProvider>
+          <CatalogProvider>
+            <CartProvider>
+              <AnnouncementBar />
+              <Nav />
+              <main>{children}</main>
+              <CartDrawer />
+              <Footer />
+            </CartProvider>
+          </CatalogProvider>
+        </ToastProvider>
       </body>
     </html>
   );

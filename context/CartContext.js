@@ -1,0 +1,102 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState } from "react";
+import { useToast } from "./ToastContext";
+import { labelsFormatos } from "./CatalogContext";
+
+const CartContext = createContext(null);
+
+const SHIPPING_THRESHOLD = 60000;
+const GIFT_THRESHOLD = 15000;
+
+export function CartProvider({ children }) {
+  const [cart, setCart] = useState([]);
+  const [hydrated, setHydrated] = useState(false);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("attar_cart"));
+      if (Array.isArray(stored)) setCart(stored);
+    } catch {
+      // ignore malformed localStorage data
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) localStorage.setItem("attar_cart", JSON.stringify(cart));
+  }, [cart, hydrated]);
+
+  const addToCart = (perfume, formatKey) => {
+    const price = perfume.prices[formatKey];
+    const formatLabel = labelsFormatos[formatKey] || formatKey;
+    const existing = cart.find((i) => i.name === perfume.name && i.format === formatKey);
+
+    setCart((prev) => {
+      const ex = prev.find((i) => i.name === perfume.name && i.format === formatKey);
+      if (ex) return prev.map((i) => (i === ex ? { ...i, quantity: i.quantity + 1 } : i));
+      return [...prev, { name: perfume.name, format: formatKey, price, quantity: 1 }];
+    });
+
+    if (existing) {
+      showToast(`<i class="ph ph-check-circle"></i> +1 ${perfume.name} (${formatLabel})`);
+    } else {
+      showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${perfume.name} (${formatLabel})`);
+    }
+  };
+
+  const addAccesorio = (accesorio) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.name === accesorio.name && i.format === "Accesorio");
+      if (existing) return prev.map((i) => (i === existing ? { ...i, quantity: i.quantity + 1 } : i));
+      return [...prev, { name: accesorio.name, format: "Accesorio", price: accesorio.price, quantity: 1 }];
+    });
+
+    showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${accesorio.name}`);
+  };
+
+  const updateQty = (idx, mod) => {
+    setCart((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], quantity: next[idx].quantity + mod };
+      if (next[idx].quantity <= 0) next.splice(idx, 1);
+      return next;
+    });
+  };
+
+  const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const decantTotal = cart.reduce(
+    (sum, i) => sum + (i.format.startsWith("decant") ? i.price * i.quantity : 0),
+    0
+  );
+  const itemCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const freeShippingEligible = total >= SHIPPING_THRESHOLD;
+  const freeGiftEligible = decantTotal >= GIFT_THRESHOLD;
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        addAccesorio,
+        updateQty,
+        total,
+        decantTotal,
+        itemCount,
+        freeShippingEligible,
+        freeGiftEligible,
+        SHIPPING_THRESHOLD,
+        GIFT_THRESHOLD,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within a CartProvider");
+  return ctx;
+}
