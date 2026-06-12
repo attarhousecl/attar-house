@@ -36,7 +36,7 @@ export function CartProvider({ children }) {
     setCart((prev) => {
       const ex = prev.find((i) => i.name === perfume.name && i.format === formatKey);
       if (ex) return prev.map((i) => (i === ex ? { ...i, quantity: i.quantity + 1 } : i));
-      return [...prev, { name: perfume.name, format: formatKey, price, quantity: 1 }];
+      return [...prev, { id: perfume.id, name: perfume.name, format: formatKey, price, quantity: 1 }];
     });
 
     if (existing) {
@@ -50,7 +50,7 @@ export function CartProvider({ children }) {
     setCart((prev) => {
       const existing = prev.find((i) => i.name === accesorio.name && i.format === "Accesorio");
       if (existing) return prev.map((i) => (i === existing ? { ...i, quantity: i.quantity + 1 } : i));
-      return [...prev, { name: accesorio.name, format: "Accesorio", price: accesorio.price, quantity: 1 }];
+      return [...prev, { id: accesorio.id, name: accesorio.name, format: "Accesorio", price: accesorio.price, quantity: 1 }];
     });
 
     showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${accesorio.name}`);

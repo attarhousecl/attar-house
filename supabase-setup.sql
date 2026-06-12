@@ -336,3 +336,25 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ── LISTO ────────────────────────────────────────────────────
 -- Si ves "Success. No rows returned" o similar, todo salió bien.
+
+
+-- ── 4. TABLA DE PEDIDOS (Pagos con Flow) ─────────────────────
+CREATE TABLE IF NOT EXISTS orders (
+  id                 BIGSERIAL PRIMARY KEY,
+  commerce_order     TEXT UNIQUE NOT NULL,   -- id que mandamos a Flow
+  flow_token         TEXT,
+  status             TEXT DEFAULT 'pending', -- pending | paid | rejected | expired
+  customer_name      TEXT,
+  customer_email     TEXT,
+  customer_phone     TEXT,
+  shipping           JSONB,                  -- {region, comuna, direccion, notas}
+  items              JSONB NOT NULL,         -- [{id, name, format, price, quantity}]
+  free_gift          TEXT,
+  subtotal           INTEGER,
+  total              INTEGER,
+  flow_payment_data  JSONB,                  -- respuesta completa de Flow al confirmar
+  created_at         TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+-- Sin policies públicas: solo accesible vía service_role (API routes / admin).

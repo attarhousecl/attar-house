@@ -498,6 +498,29 @@ main { flex: 1; margin-top: 105px; }
 .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
 .btn-whatsapp-final { width: 100%; padding: 18px; background: var(--whatsapp); color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
 
+/* --- CHECKOUT --- */
+.checkout-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start; }
+.checkout-summary { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 30px; position: sticky; top: 120px; }
+.checkout-summary h3 { color: var(--gold-primary); margin-bottom: 20px; }
+.checkout-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+.checkout-item-info p { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.checkout-total { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-gold); }
+.checkout-form { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 30px; }
+.checkout-form h3 { color: var(--gold-primary); margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.form-input, .form-textarea, .form-select {
+    width: 100%; padding: 12px 15px; margin-bottom: 15px; background: rgba(255,255,255,0.03);
+    color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+    font-family: 'Montserrat', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.3s;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold-primary); }
+.form-label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+@media (max-width: 950px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+    .checkout-summary { position: static; }
+    .form-row { grid-template-columns: 1fr; }
+}
+
 /* --- CONTACTO Y FAQ --- */
 .contact-box { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 16px; padding: 50px; text-align: center; max-width: 600px; margin: 0 auto; }
 .social-links-big { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
