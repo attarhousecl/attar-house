@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { createPayment } from "@/lib/flow";
+import { createPreference } from "@/lib/mercadopago";
 import { accesoriosDB } from "@/lib/catalogData";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
@@ -65,23 +65,22 @@ export async function POST(request) {
   }
 
   try {
-    const flowResponse = await createPayment({
+    const preference = await createPreference({
       commerceOrder,
-      subject: `Pedido Attar House ${commerceOrder}`,
-      amount: total,
-      email: customer.email,
-      urlConfirmation: `${SITE_URL}/api/flow/confirm`,
-      urlReturn: `${SITE_URL}/pedido/confirmacion?order=${commerceOrder}`,
+      items: verifiedItems,
+      payerEmail: customer.email,
+      backUrl: `${SITE_URL}/pedido/confirmacion?order=${commerceOrder}`,
+      notificationUrl: `${SITE_URL}/api/mercadopago/webhook`,
     });
 
     await supabaseAdmin
       .from("orders")
-      .update({ flow_token: flowResponse.token })
+      .update({ mp_preference_id: preference.id })
       .eq("commerce_order", commerceOrder);
 
-    return Response.json({ redirectUrl: `${flowResponse.url}?token=${flowResponse.token}` });
+    return Response.json({ redirectUrl: preference.init_point });
   } catch (e) {
     await supabaseAdmin.from("orders").update({ status: "error" }).eq("commerce_order", commerceOrder);
-    return Response.json({ error: "No se pudo iniciar el pago con Flow." }, { status: 502 });
+    return Response.json({ error: "No se pudo iniciar el pago con Mercado Pago." }, { status: 502 });
   }
 }

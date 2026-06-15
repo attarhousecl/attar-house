@@ -219,7 +219,7 @@ export default function CheckoutPage() {
             ></textarea>
 
             <button className="btn-add-cart-gold" type="submit" disabled={loading}>
-              {loading ? "Procesando..." : "Pagar con Flow"}
+              {loading ? "Procesando..." : "Pagar con Mercado Pago"}
             </button>
           </form>
         </div>

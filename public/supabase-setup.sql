@@ -338,11 +338,11 @@ ON CONFLICT (id) DO NOTHING;
 -- Si ves "Success. No rows returned" o similar, todo salió bien.
 
 
--- ── 4. TABLA DE PEDIDOS (Pagos con Flow) ─────────────────────
+-- ── 4. TABLA DE PEDIDOS (Pagos con Mercado Pago) ──────────────
 CREATE TABLE IF NOT EXISTS orders (
   id                 BIGSERIAL PRIMARY KEY,
-  commerce_order     TEXT UNIQUE NOT NULL,   -- id que mandamos a Flow
-  flow_token         TEXT,
+  commerce_order     TEXT UNIQUE NOT NULL,   -- external_reference que mandamos a Mercado Pago
+  mp_preference_id   TEXT,
   status             TEXT DEFAULT 'pending', -- pending | paid | rejected | expired
   customer_name      TEXT,
   customer_email     TEXT,
@@ -352,7 +352,7 @@ CREATE TABLE IF NOT EXISTS orders (
   free_gift          TEXT,
   subtotal           INTEGER,
   total              INTEGER,
-  flow_payment_data  JSONB,                  -- respuesta completa de Flow al confirmar
+  mp_payment_data    JSONB,                  -- respuesta completa de Mercado Pago al confirmar
   created_at         TIMESTAMPTZ DEFAULT NOW()
 );
 
