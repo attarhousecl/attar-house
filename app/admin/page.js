@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
 const SQL_SETUP_URL = "/supabase-setup.sql";
@@ -106,6 +107,7 @@ export default function AdminPage() {
   const [db, setDb] = useState([]);
   const [dbError, setDbError] = useState("");
   const [loadingDb, setLoadingDb] = useState(false);
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("stock");
   const [filtro, setFiltro] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
@@ -553,6 +555,9 @@ export default function AdminPage() {
           </div>
           <div className={`tab ${activeTab === "agregar" ? "active" : ""}`} onClick={() => setActiveTab("agregar")}>
             ➕ Agregar
+          </div>
+          <div className="tab" onClick={() => router.push("/admin/contabilidad")}>
+            💰 Contabilidad
           </div>
         </div>
 
