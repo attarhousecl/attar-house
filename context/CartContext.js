@@ -17,7 +17,10 @@ export function CartProvider({ children }) {
   useEffect(() => {
     try {
       const stored = JSON.parse(localStorage.getItem("attar_cart"));
-      if (Array.isArray(stored)) setCart(stored);
+      if (Array.isArray(stored)) {
+        // Filtra ítems con id inválido (datos viejos de localStorage)
+        setCart(stored.filter((i) => i.id != null));
+      }
     } catch {
       // ignore malformed localStorage data
     }
