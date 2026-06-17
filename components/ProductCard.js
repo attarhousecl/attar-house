@@ -9,6 +9,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
   const isOut = !isDesigner && !perfume.stock.decant3;
   const isPopular = !isDesigner && perfume.popularity >= 95;
 
+  const hasSellado = !isDesigner && perfume.prices.sellado > 0 && perfume.stock.sellado !== false;
   const cardClass = `product-card ${isDesigner ? "designer-card" : ""} ${isOut ? "card-disabled" : ""}`.trim();
 
   return (
@@ -20,6 +21,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
       <div className="card-image-area">
         {isDesigner && <span className="designer-badge-card">✦ Diseñador</span>}
         {isOut && <span className="sold-out-badge">Agotado</span>}
+        {hasSellado && <span className="sellado-badge">✦ Hay Sellado</span>}
         <div className="product-image-container">
           {perfume.imageUrl && !imgError ? (
             <img

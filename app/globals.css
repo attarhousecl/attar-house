@@ -345,6 +345,16 @@ main { flex: 1; margin-top: 105px; }
     padding: 4px 10px; border-radius: 20px;
     text-transform: uppercase; letter-spacing: 1px; z-index: 10;
 }
+.sellado-badge {
+    position: absolute; bottom: 12px; left: 12px;
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--gold-light);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    font-size: 0.6rem; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1px; z-index: 10;
+    backdrop-filter: blur(4px);
+}
 .card-disabled { opacity: 0.55; cursor: not-allowed; border-color: #222; }
 .card-disabled:hover { transform: none; border-color: #222; box-shadow: none; }
 
