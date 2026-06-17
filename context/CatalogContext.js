@@ -14,7 +14,11 @@ function mapPerfume(r) {
     brand: r.brand,
     name: r.name,
     gender: r.gender,
-    imageUrl: r.image_url || "",
+    imageUrl: r.image_url
+      ? (r.image_url.startsWith("http") || r.image_url.startsWith("/")
+          ? r.image_url
+          : `/images/${r.image_url}`)
+      : "",
     bottleClass: r.bottle_class || "bottle-asad",
     notes: r.notes || [],
     families: r.families || [],

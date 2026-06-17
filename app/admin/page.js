@@ -363,8 +363,8 @@ export default function AdminPage() {
 
   async function cargarDesdeFragrantica() {
     const url = form.fragUrl.trim();
-    if (!url || !url.includes("fragrantica.com")) {
-      showToast("⚠ Pega una URL de fragrantica.com", true);
+    if (!url || !/^https?:\/\/(www\.)?fragrantica\.[a-z]{2,}\//.test(url)) {
+      showToast("⚠ Pega una URL de fragrantica.com, .es, .de, etc.", true);
       return;
     }
     setFragStatus({ text: "⏳ Conectando con Fragrantica...", color: "#888" });
