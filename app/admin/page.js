@@ -371,14 +371,12 @@ export default function AdminPage() {
     setFragLoading(true);
 
     try {
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error(`Proxy error ${res.status}`);
-      const data = await res.json();
-      if (!data.contents) throw new Error("Página vacía");
+      const res = await fetch(`/api/fragrantica?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const html = await res.text();
 
       const parser = new DOMParser();
-      const doc = parser.parseFromString(data.contents, "text/html");
+      const doc = parser.parseFromString(html, "text/html");
 
       const name =
         doc.querySelector('h1[itemprop="name"]')?.textContent?.trim() ||
@@ -414,8 +412,8 @@ export default function AdminPage() {
       });
 
       let gender = "Unisex";
-      if (url.toLowerCase().includes("for-women") || data.contents.includes("for women")) gender = "Femenino";
-      if (url.toLowerCase().includes("for-men") || data.contents.includes("for men")) gender = "Masculino";
+      if (url.toLowerCase().includes("for-women") || html.includes("for women")) gender = "Femenino";
+      if (url.toLowerCase().includes("for-men") || html.includes("for men")) gender = "Masculino";
 
       const filled = [];
       const updates = {};
