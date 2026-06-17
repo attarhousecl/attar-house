@@ -61,7 +61,8 @@ export async function POST(request) {
   });
 
   if (insertError) {
-    return Response.json({ error: "No se pudo registrar el pedido." }, { status: 500 });
+    console.error("[checkout] orders insert error:", insertError);
+    return Response.json({ error: "No se pudo registrar el pedido.", detail: insertError.message }, { status: 500 });
   }
 
   try {
