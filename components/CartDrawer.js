@@ -166,8 +166,16 @@ export default function CartDrawer() {
             <span>Total:</span>
             <span style={{ color: "var(--gold-primary)" }}>${total.toLocaleString("es-CL")}</span>
           </div>
+          <a
+            href="/checkout"
+            className="btn-add-cart-gold"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none", marginBottom: "10px" }}
+            onClick={() => setOpen(false)}
+          >
+            <i className="ph ph-credit-card" style={{ fontSize: "1.2rem" }}></i> Pagar con Mercado Pago
+          </a>
           <button className="btn-whatsapp-final" onClick={sendWhatsAppOrder}>
-            <i className="ph ph-whatsapp-logo"></i> Enviar por WhatsApp
+            <i className="ph ph-whatsapp-logo"></i> Pedir por WhatsApp
           </button>
           <p
             style={{
