@@ -24,7 +24,6 @@ const initialForm = {
   sD10: true,
   sD5: true,
   sD3: true,
-  fragUrl: "",
 };
 
 function generarDescripcion({ name, brand, gender, inspiration, notes, families }) {
@@ -247,6 +246,11 @@ export default function AdminPage() {
     location.reload();
   }
 
+  async function cerrarSesion() {
+    await fetch("/api/admin-auth", { method: "DELETE" });
+    location.href = "/admin/login";
+  }
+
   async function toggleStock(id, campo) {
     const p = db.find((x) => x.id === id);
     if (!p) return;
@@ -361,105 +365,45 @@ export default function AdminPage() {
     setSelectedPreset(val);
   }
 
-  async function cargarDesdeFragrantica() {
-    const url = form.fragUrl.trim();
-    if (!url || !/^https?:\/\/(www\.)?fragrantica\.[a-z]{2,}\//.test(url)) {
-      showToast("⚠ Pega una URL de fragrantica.com, .es, .de, etc.", true);
+  async function buscarEnWeb() {
+    const name = form.name.trim();
+    const brand = form.brand.trim();
+    if (!name || !brand) {
+      showToast("⚠ Escribe primero el nombre y la marca", true);
       return;
     }
-    setFragStatus({ text: "⏳ Conectando con Fragrantica...", color: "#888" });
+    setFragStatus({ text: "⏳ Buscando información...", color: "#888" });
     setFragLoading(true);
 
     try {
-      const res = await fetch(`/api/fragrantica?url=${encodeURIComponent(url)}`);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const html = await res.text();
-
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-
-      const name =
-        doc.querySelector('h1[itemprop="name"]')?.textContent?.trim() ||
-        doc.querySelector("h1.fn")?.textContent?.trim() ||
-        doc.querySelector("h1")?.textContent?.trim() ||
-        "";
-
-      const brand =
-        doc.querySelector('[itemprop="brand"] [itemprop="name"]')?.textContent?.trim() ||
-        doc.querySelector(".breadcrumb a:nth-last-child(2)")?.textContent?.trim() ||
-        url.split("/perfume/")[1]?.split("/")[0]?.replace(/-/g, " ") ||
-        "";
-
-      const desc =
-        doc.querySelector('[itemprop="description"]')?.textContent?.trim() ||
-        doc.querySelector(".cell.text-left p")?.textContent?.trim() ||
-        doc.querySelector("p.mb1")?.textContent?.trim() ||
-        "";
-
-      const noteEls = doc.querySelectorAll('[itemprop="recipeIngredient"]');
-      const notes = [...noteEls].map((el) => el.textContent.trim()).filter(Boolean);
-      if (!notes.length) {
-        doc.querySelectorAll(".note-box span, .note-icon-cell span").forEach((el) => {
-          const t = el.textContent.trim();
-          if (t && !notes.includes(t)) notes.push(t);
-        });
-      }
-
-      const families = [];
-      doc.querySelectorAll(".accord-box").forEach((el) => {
-        const t = el.querySelector("div")?.textContent?.trim();
-        if (t && !families.includes(t)) families.push(t);
-      });
-
-      let gender = "Unisex";
-      if (url.toLowerCase().includes("for-women") || html.includes("for women")) gender = "Femenino";
-      if (url.toLowerCase().includes("for-men") || html.includes("for men")) gender = "Masculino";
+      const res = await fetch(`/api/perfume-data?name=${encodeURIComponent(name)}&brand=${encodeURIComponent(brand)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
       const filled = [];
       const updates = {};
-      if (name) {
-        updates.name = name;
-        filled.push("nombre");
-      }
-      if (brand) {
-        updates.brand = brand;
-        filled.push("marca");
-      }
-      if (desc) {
-        updates.desc = desc;
-        filled.push("descripción");
-      }
-      if (notes.length) {
-        updates.notes = notes.slice(0, 12).join(", ");
-        filled.push(`${notes.length} notas`);
-      }
-      if (families.length) {
-        updates.families = families.slice(0, 6).join(", ");
-        filled.push(`${families.length} familias`);
-      }
-      updates.gender = gender;
+      if (data.name) { updates.name = data.name; filled.push("nombre"); }
+      if (data.brand) { updates.brand = data.brand; filled.push("marca"); }
+      if (data.gender) { updates.gender = data.gender; filled.push("género"); }
+      if (data.description) { updates.desc = data.description; filled.push("descripción"); }
+      if (data.notes?.length) { updates.notes = data.notes.join(", "); filled.push(`${data.notes.length} notas`); }
+      if (data.families?.length) { updates.families = data.families.join(", "); filled.push(`${data.families.length} familias`); }
 
-      if (brand && name) {
-        const autoId = (brand + "-" + name)
+      if (updates.brand && updates.name) {
+        updates.id = (updates.brand + "-" + updates.name)
           .toLowerCase()
           .normalize("NFD")
           .replace(/[̀-ͯ]/g, "")
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-|-$/g, "");
-        updates.id = autoId;
       }
 
       setForm((f) => ({ ...f, ...updates }));
-
-      if (filled.length) {
-        setFragStatus({ text: `✓ Datos cargados: ${filled.join(", ")}. Revisa y completa precio y stock.`, color: "#27ae60" });
-        showToast("✓ Fragrantica cargado");
-      } else {
-        setFragStatus({ text: "⚠ La página cargó pero no se encontraron datos. Fragrantica puede haber bloqueado el acceso. Completa manualmente.", color: "#c0392b" });
-      }
+      setFragStatus({ text: `✓ Datos cargados: ${filled.join(", ")}. Revisa y completa precio y stock.`, color: "#27ae60" });
+      showToast("✓ Datos cargados");
     } catch (e) {
-      setFragStatus({ text: `✗ No se pudo conectar con Fragrantica (${e.message}). Completa los datos manualmente.`, color: "#c0392b" });
-      showToast("No se pudo cargar Fragrantica", true);
+      setFragStatus({ text: `✗ Error: ${e.message}`, color: "#c0392b" });
+      showToast("Error al buscar datos", true);
     } finally {
       setFragLoading(false);
     }
@@ -592,6 +536,9 @@ export default function AdminPage() {
             <button className="btn-disconnect" onClick={desconectar}>
               Cambiar proyecto
             </button>
+            <button className="btn-disconnect" onClick={cerrarSesion} style={{ borderColor: "#c0392b", color: "#c0392b" }}>
+              Cerrar sesión
+            </button>
           </div>
         </header>
 
@@ -718,18 +665,13 @@ export default function AdminPage() {
 
           <div className={`panel ${activeTab === "agregar" ? "active" : ""}`}>
             <div className="frag-box">
-              <label>🔗 Cargar datos desde Fragrantica (opcional)</label>
-              <div className="frag-row">
-                <input
-                  type="text"
-                  placeholder="https://www.fragrantica.com/perfume/Lattafa/Khamrah-..."
-                  value={form.fragUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, fragUrl: e.target.value }))}
-                />
-                <button className="btn-frag" onClick={cargarDesdeFragrantica} disabled={fragLoading}>
-                  ✦ Cargar datos
-                </button>
-              </div>
+              <label>🔍 Autocompletar datos desde la web</label>
+              <p style={{ fontSize: "0.78rem", color: "#8080c0", marginBottom: "10px", lineHeight: "1.5" }}>
+                Escribe el nombre y la marca abajo, luego haz clic en el botón para autocompletar notas, familias, género y descripción.
+              </p>
+              <button className="btn-frag" onClick={buscarEnWeb} disabled={fragLoading} style={{ width: "100%" }}>
+                {fragLoading ? "⏳ Buscando..." : "✦ Buscar en web"}
+              </button>
               {fragStatus.text && (
                 <p style={{ fontSize: "0.75rem", color: fragStatus.color, marginTop: "8px", lineHeight: "1.5" }}>{fragStatus.text}</p>
               )}

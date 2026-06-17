@@ -4,17 +4,10 @@ import { useState } from "react";
 import { useCatalog } from "@/context/CatalogContext";
 import FilterSidebar from "@/components/FilterSidebar";
 import ProductGrid from "@/components/ProductGrid";
+import SkeletonGrid from "@/components/SkeletonGrid";
 
-export default function CatalogoPage() {
-  const { designerDB, arabDB, loading } = useCatalog();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("default");
-  const [gender, setGender] = useState("all");
-  const [aroma, setAroma] = useState("all");
-  const [brand, setBrand] = useState("all");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  let filtered = arabDB.filter((p) => {
+function applyFilters(perfumes, { search, sort, gender, aroma, brand }) {
+  let filtered = perfumes.filter((p) => {
     const matchBrand = brand === "all" || p.brand === brand;
     const matchGender = gender === "all" || p.gender === gender;
     const matchAroma = aroma === "all" || p.families.includes(aroma);
@@ -34,6 +27,22 @@ export default function CatalogoPage() {
   } else if (sort === "popularity") {
     filtered = [...filtered].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
   }
+
+  return filtered;
+}
+
+export default function CatalogoPage() {
+  const { designerDB, arabDB, loading } = useCatalog();
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("default");
+  const [gender, setGender] = useState("all");
+  const [aroma, setAroma] = useState("all");
+  const [brand, setBrand] = useState("all");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const filterState = { search, sort, gender, aroma, brand };
+  const filteredDesigner = applyFilters(designerDB, filterState);
+  const filteredArab = applyFilters(arabDB, filterState);
 
   return (
     <section id="catalogo" className="page-section active catalog-bg">
@@ -70,7 +79,11 @@ export default function CatalogoPage() {
                   <p>Originales 100% · Solo decants disponibles</p>
                 </div>
               </div>
-              {!loading && <ProductGrid perfumes={designerDB} variant="designer" />}
+              {loading ? (
+                <SkeletonGrid count={4} />
+              ) : (
+                <ProductGrid perfumes={filteredDesigner} variant="designer" />
+              )}
             </div>
 
             <div id="arab-section">
@@ -81,7 +94,11 @@ export default function CatalogoPage() {
                   <p>Decants y frascos sellados disponibles</p>
                 </div>
               </div>
-              {!loading && <ProductGrid perfumes={filtered} variant="catalog" />}
+              {loading ? (
+                <SkeletonGrid count={8} />
+              ) : (
+                <ProductGrid perfumes={filteredArab} variant="catalog" />
+              )}
             </div>
           </div>
         </div>
