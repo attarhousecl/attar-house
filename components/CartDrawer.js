@@ -17,6 +17,11 @@ export default function CartDrawer() {
     }
   }, [arabDB, freeGift]);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   const sendWhatsAppOrder = () => {
     if (cart.length === 0) return;
 
@@ -44,6 +49,8 @@ export default function CartDrawer() {
         <i className="ph ph-shopping-cart"></i>
         <span className="cart-badge">{itemCount}</span>
       </div>
+
+      {open && <div className="cart-overlay" onClick={() => setOpen(false)} />}
 
       <div className={`cart-sidebar ${open ? "open" : ""}`}>
         <div className="cart-header">
