@@ -6,11 +6,12 @@ import FilterSidebar from "@/components/FilterSidebar";
 import ProductGrid from "@/components/ProductGrid";
 import SkeletonGrid from "@/components/SkeletonGrid";
 
-function applyFilters(perfumes, { search, sort, gender, aroma, brand }) {
+function applyFilters(perfumes, { search, sort, gender, aroma, brand, note }) {
   let filtered = perfumes.filter((p) => {
     const matchBrand = brand === "all" || p.brand === brand;
     const matchGender = gender === "all" || p.gender === gender;
     const matchAroma = aroma === "all" || p.families.includes(aroma);
+    const matchNote = !note || p.notes.includes(note);
     const matchSearch =
       search === "" ||
       p.name.toLowerCase().includes(search) ||
@@ -18,7 +19,7 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand }) {
       p.notes.some((n) => n.toLowerCase().includes(search)) ||
       p.families.some((f) => f.toLowerCase().includes(search)) ||
       (p.description && p.description.toLowerCase().includes(search));
-    return matchBrand && matchGender && matchAroma && matchSearch;
+    return matchBrand && matchGender && matchAroma && matchNote && matchSearch;
   });
 
   if (sort === "price-asc") {
@@ -47,9 +48,10 @@ export default function CatalogoPage() {
   const [gender, setGender] = useState("all");
   const [aroma, setAroma] = useState("all");
   const [brand, setBrand] = useState("all");
+  const [note, setNote] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const filterState = { search, sort, gender, aroma, brand };
+  const filterState = { search, sort, gender, aroma, brand, note };
   const filteredArab     = applyFilters(arabDB, filterState);
   const filteredNicho    = applyFilters(nichoDB, filterState);
   const filteredDesigner = applyFilters(designerDB, filterState);
@@ -97,6 +99,8 @@ export default function CatalogoPage() {
             setAroma={setAroma}
             brand={brand}
             setBrand={setBrand}
+            note={note}
+            setNote={setNote}
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
           />

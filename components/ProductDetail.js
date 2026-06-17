@@ -61,8 +61,12 @@ export default function ProductDetail({ id }) {
   }
 
   const esDisenador = perfume.inspiration === "Diseñador Original";
+  const esNicho = perfume.inspiration === "Nicho";
   const backHref = esDisenador ? "/disenador" : "/catalogo";
   const labelVolver = esDisenador ? "Volver a Diseñador" : "Volver al catálogo";
+
+  const stockCount = Object.values(perfume.stock).filter(Boolean).length;
+  const showUrgency = !esDisenador && !esNicho && stockCount <= 2;
 
   const handleAddToCart = () => {
     if (!selectedFormat) return;
@@ -143,12 +147,21 @@ export default function ProductDetail({ id }) {
                   )
                 )}
               </select>
+              {showUrgency && (
+                <div style={{ background: "rgba(220,60,30,0.08)", border: "1px solid rgba(220,60,30,0.25)", borderRadius: "8px", padding: "8px 12px", marginBottom: "12px", fontSize: "0.75rem", color: "#e07060" }}>
+                  ⚠ Últimas unidades disponibles
+                </div>
+              )}
               <button className="btn-add-cart-gold" onClick={handleAddToCart}>
                 <i className="ph ph-shopping-cart" style={{ fontSize: "1.2rem" }}></i> Añadir al Carrito
               </button>
-              <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.8" }}>
+              <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.9" }}>
                 <p>✓ Autenticidad Garantizada</p>
                 <p>✓ Envíos a todo Chile por Starken</p>
+                <p>✓ Retiro gratis en Valdivia</p>
+                <p style={{ marginTop: "6px", color: "rgba(212,175,55,0.7)" }}>
+                  🚚 Envío gratis en pedidos sobre $60.000
+                </p>
               </div>
             </div>
           </div>
