@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 
 const SQL_SETUP_URL = "/supabase-setup.sql";
 
@@ -247,7 +248,11 @@ export default function AdminPage() {
   }
 
   async function cerrarSesion() {
-    await fetch("/api/admin-auth", { method: "DELETE" });
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    await supabase.auth.signOut();
     location.href = "/admin/login";
   }
 

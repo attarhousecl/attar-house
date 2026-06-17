@@ -1,16 +1,40 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 
-export function proxy(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/admin")) return NextResponse.next();
   if (pathname === "/admin/login") return NextResponse.next();
 
-  const session = request.cookies.get("ah_admin")?.value;
-  if (session && session === process.env.ADMIN_SECRET) return NextResponse.next();
+  let response = NextResponse.next({ request });
 
-  const loginUrl = new URL("/admin/login", request.url);
-  return NextResponse.redirect(loginUrl);
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  return response;
 }
 
 export const config = {
