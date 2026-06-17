@@ -82,11 +82,12 @@ export function CatalogProvider({ children }) {
   }, [loadPerfumes]);
 
   const designerDB = perfumes.filter((p) => p.inspiration === "Diseñador Original");
-  const arabDB = perfumes.filter((p) => p.inspiration !== "Diseñador Original");
+  const nichoDB = perfumes.filter((p) => p.inspiration === "Nicho");
+  const arabDB = perfumes.filter((p) => p.inspiration !== "Diseñador Original" && p.inspiration !== "Nicho");
 
   return (
     <CatalogContext.Provider
-      value={{ perfumes, designerDB, arabDB, accesoriosDB, loading, error }}
+      value={{ perfumes, designerDB, nichoDB, arabDB, accesoriosDB, loading, error }}
     >
       {children}
     </CatalogContext.Provider>

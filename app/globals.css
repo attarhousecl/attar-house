@@ -550,6 +550,21 @@ main { flex: 1; margin-top: 105px; }
 .search-input:focus { border-color: var(--gold-primary); }
 
 .trust-badges { display: flex; justify-content: center; gap: 50px; padding: 40px 20px; background: var(--bg-surface); border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold); flex-wrap: wrap; margin-top: auto; }
+/* --- CATALOG TABS --- */
+.catalog-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.catalog-tab { background: transparent; border: 1px solid rgba(212,175,55,0.2); color: var(--text-muted); padding: 7px 18px; border-radius: 20px; font-size: 0.8rem; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; }
+.catalog-tab:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
+.catalog-tab.active { background: var(--gold-primary); border-color: var(--gold-primary); color: #000; font-weight: 700; }
+
+/* --- NICHO BADGE & CARD --- */
+.nicho-badge-card { position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #0d0d1a, #1a1a2e); border: 1px solid rgba(120,100,220,0.6); color: #a090f0; font-size: 0.55rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; z-index: 10; }
+.nicho-card { border-color: rgba(120,100,220,0.25); }
+.nicho-card:hover { border-color: rgba(120,100,220,0.55); box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 50px rgba(120,100,220,0.08); }
+
+/* --- WISHLIST BUTTON --- */
+.wishlist-btn { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; z-index: 10; backdrop-filter: blur(4px); line-height: 1; }
+.wishlist-btn:hover, .wishlist-btn.active { color: #e05; border-color: rgba(220,0,80,0.4); background: rgba(220,0,80,0.1); }
+
 .trust-badge { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px;}
 .trust-badge i { font-size: 2.2rem; color: var(--gold-primary); }
 footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }

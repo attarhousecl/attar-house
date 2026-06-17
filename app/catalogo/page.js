@@ -16,7 +16,8 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand }) {
       p.name.toLowerCase().includes(search) ||
       p.brand.toLowerCase().includes(search) ||
       p.notes.some((n) => n.toLowerCase().includes(search)) ||
-      p.families.some((f) => f.toLowerCase().includes(search));
+      p.families.some((f) => f.toLowerCase().includes(search)) ||
+      (p.description && p.description.toLowerCase().includes(search));
     return matchBrand && matchGender && matchAroma && matchSearch;
   });
 
@@ -31,8 +32,16 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand }) {
   return filtered;
 }
 
+const TABS = [
+  { id: "todos",     label: "Todos" },
+  { id: "arabe",     label: "🌙 Árabe" },
+  { id: "nicho",     label: "◆ Nicho" },
+  { id: "disenador", label: "✦ Diseñador" },
+];
+
 export default function CatalogoPage() {
-  const { designerDB, arabDB, loading } = useCatalog();
+  const { designerDB, nichoDB, arabDB, loading } = useCatalog();
+  const [activeTab, setActiveTab] = useState("todos");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("default");
   const [gender, setGender] = useState("all");
@@ -41,21 +50,43 @@ export default function CatalogoPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const filterState = { search, sort, gender, aroma, brand };
+  const filteredArab     = applyFilters(arabDB, filterState);
+  const filteredNicho    = applyFilters(nichoDB, filterState);
   const filteredDesigner = applyFilters(designerDB, filterState);
-  const filteredArab = applyFilters(arabDB, filterState);
+
+  const showArab     = activeTab === "todos" || activeTab === "arabe";
+  const showNicho    = activeTab === "todos" || activeTab === "nicho";
+  const showDesigner = activeTab === "todos" || activeTab === "disenador";
+
+  const allDB = [...arabDB, ...nichoDB, ...designerDB];
 
   return (
     <section id="catalogo" className="page-section active catalog-bg">
       <div className="container">
-        <h2 className="section-title serif" style={{ marginBottom: "40px" }}>
+        <h2 className="section-title serif" style={{ marginBottom: "24px" }}>
           Nuestro Catálogo
         </h2>
+
+        {/* Category tabs */}
+        <div className="catalog-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`catalog-tab ${activeTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <button className="btn-mobile-filters" onClick={() => setSidebarOpen(true)}>
           <i className="ph ph-sliders-horizontal"></i> Mostrar Filtros
         </button>
+
         <div className="catalog-layout">
           <FilterSidebar
-            arabDB={arabDB}
+            arabDB={allDB}
             search={search}
             setSearch={setSearch}
             sort={sort}
@@ -71,44 +102,50 @@ export default function CatalogoPage() {
           />
 
           <div className="catalog-main">
-            <div className="designer-section" id="designer-section">
-              <div className="designer-section-header">
-                <div className="section-divider"></div>
-                <div>
-                  <h3 className="serif">Perfumes de Diseñador</h3>
-                  <p>Originales 100% · Solo decants disponibles</p>
+            {showArab && (arabDB.length > 0 || loading) && (
+              <div id="arab-section" style={{ marginBottom: "48px" }}>
+                <div className="arab-section-header">
+                  <div className="section-divider"></div>
+                  <div>
+                    <h3 className="serif">Perfumería Árabe</h3>
+                    <p>Decants y frascos sellados disponibles</p>
+                  </div>
                 </div>
+                {loading ? <SkeletonGrid count={8} /> : <ProductGrid perfumes={filteredArab} variant="catalog" />}
               </div>
-              {loading ? (
-                <SkeletonGrid count={4} />
-              ) : (
-                <ProductGrid perfumes={filteredDesigner} variant="designer" />
-              )}
-            </div>
+            )}
 
-            <div id="arab-section">
-              <div className="arab-section-header">
-                <div className="section-divider"></div>
-                <div>
-                  <h3 className="serif">Perfumería Árabe</h3>
-                  <p>Decants y frascos sellados disponibles</p>
+            {showNicho && (nichoDB.length > 0 || loading) && (
+              <div id="nicho-section" style={{ marginBottom: "48px" }}>
+                <div className="arab-section-header">
+                  <div className="section-divider"></div>
+                  <div>
+                    <h3 className="serif">Perfumería de Nicho</h3>
+                    <p>Alta perfumería · Solo decants disponibles</p>
+                  </div>
                 </div>
+                {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredNicho} variant="nicho" />}
               </div>
-              {loading ? (
-                <SkeletonGrid count={8} />
-              ) : (
-                <ProductGrid perfumes={filteredArab} variant="catalog" />
-              )}
-            </div>
+            )}
+
+            {showDesigner && (designerDB.length > 0 || loading) && (
+              <div className="designer-section" id="designer-section">
+                <div className="designer-section-header">
+                  <div className="section-divider"></div>
+                  <div>
+                    <h3 className="serif">Perfumes de Diseñador</h3>
+                    <p>Originales 100% · Solo decants disponibles</p>
+                  </div>
+                </div>
+                {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredDesigner} variant="designer" />}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {sidebarOpen && (
-        <div
-          className="sidebar-overlay show"
-          onClick={() => setSidebarOpen(false)}
-        ></div>
+        <div className="sidebar-overlay show" onClick={() => setSidebarOpen(false)} />
       )}
     </section>
   );

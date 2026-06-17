@@ -5,12 +5,29 @@ import Link from "next/link";
 
 export default function ProductCard({ perfume, variant = "catalog", index = 0 }) {
   const [imgError, setImgError] = useState(false);
-  const isDesigner = variant === "designer";
-  const isOut = !isDesigner && !perfume.stock.decant3;
-  const isPopular = !isDesigner && perfume.popularity >= 95;
+  const [wished, setWished] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return JSON.parse(localStorage.getItem("ah_wishlist") || "[]").includes(perfume.id); } catch { return false; }
+  });
 
-  const hasSellado = !isDesigner && perfume.prices.sellado > 0 && perfume.stock.sellado !== false;
-  const cardClass = `product-card ${isDesigner ? "designer-card" : ""} ${isOut ? "card-disabled" : ""}`.trim();
+  const isDesigner = variant === "designer";
+  const isNicho = variant === "nicho";
+  const isOut = !isDesigner && !isNicho && !perfume.stock.decant3;
+  const isPopular = !isDesigner && !isNicho && perfume.popularity >= 95;
+
+  const hasSellado = !isDesigner && !isNicho && perfume.prices.sellado > 0 && perfume.stock.sellado !== false;
+  const cardClass = `product-card ${isDesigner ? "designer-card" : ""} ${isNicho ? "nicho-card" : ""} ${isOut ? "card-disabled" : ""}`.trim();
+
+  function toggleWishlist(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const list = JSON.parse(localStorage.getItem("ah_wishlist") || "[]");
+      const next = wished ? list.filter((id) => id !== perfume.id) : [...list, perfume.id];
+      localStorage.setItem("ah_wishlist", JSON.stringify(next));
+      setWished(!wished);
+    } catch {}
+  }
 
   return (
     <Link
@@ -20,8 +37,12 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
     >
       <div className="card-image-area">
         {isDesigner && <span className="designer-badge-card">✦ Diseñador</span>}
+        {isNicho && <span className="nicho-badge-card">◆ Nicho</span>}
         {isOut && <span className="sold-out-badge">Agotado</span>}
         {hasSellado && <span className="sellado-badge">✦ Hay Sellado</span>}
+        <button className={`wishlist-btn ${wished ? "active" : ""}`} onClick={toggleWishlist} aria-label="Guardar en favoritos">
+          {wished ? "♥" : "♡"}
+        </button>
         <div className="product-image-container">
           {perfume.imageUrl && !imgError ? (
             <img
