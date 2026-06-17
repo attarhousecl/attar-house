@@ -542,7 +542,33 @@ main { flex: 1; margin-top: 105px; }
 .trust-badges { display: flex; justify-content: center; gap: 50px; padding: 40px 20px; background: var(--bg-surface); border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold); flex-wrap: wrap; margin-top: auto; }
 .trust-badge { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px;}
 .trust-badge i { font-size: 2.2rem; color: var(--gold-primary); }
-footer { padding: 20px 0; background-color: var(--bg-surface); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }
+footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding: 50px 20px 30px; }
+.footer-brand { display: flex; flex-direction: column; gap: 10px; }
+.footer-monogram { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold-primary); letter-spacing: 2px; }
+.footer-monogram span { color: var(--gold-light); }
+.footer-tagline { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+.footer-nav { display: flex; flex-direction: column; gap: 10px; }
+.footer-nav-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold-primary); margin-bottom: 4px; font-family: 'Montserrat', sans-serif; }
+.footer-nav a { font-size: 0.85rem; color: var(--text-muted); transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+.footer-nav a:hover { color: var(--gold-light); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.05); padding: 16px 20px; text-align: center; font-size: 0.75rem; color: #555; }
+
+/* Testimonios */
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+.testimonial-card { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: var(--card-radius); padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.testimonial-stars { color: var(--gold-primary); font-size: 1rem; letter-spacing: 2px; }
+.testimonial-text { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; font-style: italic; flex: 1; }
+.testimonial-author { font-size: 0.8rem; color: var(--gold-primary); font-weight: 500; }
+
+/* WhatsApp destacado */
+.social-link-whatsapp { background: var(--whatsapp) !important; border-color: var(--whatsapp) !important; color: #fff !important; font-size: 1rem !important; padding: 16px 32px !important; }
+.social-link-whatsapp:hover { opacity: 0.9; transform: translateY(-2px); }
+
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
 
 /* MEDIA QUERIES (Móviles) */
 @media (max-width: 950px) {
@@ -704,7 +730,10 @@ footer { padding: 20px 0; background-color: var(--bg-surface); text-align: cente
 
     /* Cart toggle bien posicionado en móvil */
     .cart-toggle { bottom: 20px; right: 20px; width: 56px; height: 56px; font-size: 1.4rem; }
-    
+
+    /* Espacio para que el FAB del carrito no tape la última fila del catálogo */
+    .catalog-bg .container { padding-bottom: 96px; }
+
     /* Trust badges en móvil */
     .trust-badges { gap: 20px; }
     .trust-badge { font-size: 0.8rem; }

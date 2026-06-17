@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <>
@@ -14,12 +16,39 @@ export default function Footer() {
       </div>
 
       <footer>
-        <div className="container" style={{ textAlign: "center" }}>
-          <p>&copy; 2026 Attar House. Valdivia, Chile.</p>
-          <p style={{ fontSize: "0.75rem", color: "#555", marginTop: "6px" }}>
-            Perfumería árabe y decants en Valdivia · Envíos a todo Chile por
-            Starken y Chilexpress · Retiro presencial disponible
-          </p>
+        <div className="container footer-grid">
+          <div className="footer-brand">
+            <div className="footer-monogram">A<span>H</span></div>
+            <p className="footer-tagline">No son perfumes, es presencia.</p>
+          </div>
+
+          <div className="footer-nav">
+            <h5 className="footer-nav-title">Tienda</h5>
+            <Link href="/catalogo">Catálogo</Link>
+            <Link href="/disenador">Diseñador</Link>
+            <Link href="/accesorios">Accesorios</Link>
+          </div>
+
+          <div className="footer-nav">
+            <h5 className="footer-nav-title">Información</h5>
+            <Link href="/#decants">¿Qué es un Decant?</Link>
+            <Link href="/#faq">Preguntas Frecuentes</Link>
+            <Link href="/#contacto">Contacto</Link>
+          </div>
+
+          <div className="footer-nav">
+            <h5 className="footer-nav-title">Síguenos</h5>
+            <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer">
+              <i className="ph ph-instagram-logo"></i> Instagram
+            </a>
+            <a href="https://wa.me/56930679481" target="_blank" rel="noreferrer">
+              <i className="ph ph-whatsapp-logo"></i> WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>&copy; 2026 Attar House · Valdivia, Chile · Starken y Chilexpress · Retiro presencial disponible</p>
         </div>
       </footer>
     </>

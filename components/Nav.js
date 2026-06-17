@@ -6,12 +6,9 @@ import { useState } from "react";
 
 const LINKS = [
   { href: "/", label: "Inicio" },
-  { href: "/#decants", label: "¿Qué es un Decant?" },
   { href: "/catalogo", label: "Catálogo" },
   { href: "/disenador", label: "Diseñador" },
   { href: "/accesorios", label: "Accesorios" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/#contacto", label: "Contacto" },
 ];
 
 export default function Nav() {

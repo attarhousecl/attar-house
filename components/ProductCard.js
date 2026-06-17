@@ -52,8 +52,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
           ))}
         </div>
         <div className="card-price">
-          {isDesigner ? "Decant desde " : "Desde "}
-          <strong>${perfume.prices.decant3.toLocaleString("es-CL")}</strong>
+          Decant 3ml desde <strong>${perfume.prices.decant3.toLocaleString("es-CL")}</strong>
         </div>
         <button className="btn-view-detail">
           {isOut ? "No Disponible" : "Ver Detalles"}
