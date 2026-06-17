@@ -559,6 +559,9 @@ export default function AdminPage() {
           <div className="tab" onClick={() => router.push("/admin/contabilidad")}>
             💰 Contabilidad
           </div>
+          <div className="tab" onClick={() => router.push("/admin/objetivos")}>
+            🎯 Objetivos
+          </div>
         </div>
 
         <div className="content">
