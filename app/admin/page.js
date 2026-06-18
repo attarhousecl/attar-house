@@ -549,28 +549,36 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <div className="tabs">
-          <div className={`tab ${activeTab === "stock" ? "active" : ""}`} onClick={() => setActiveTab("stock")}>
-            📦 Stock
-          </div>
-          <div className={`tab ${activeTab === "agregar" ? "active" : ""}`} onClick={() => setActiveTab("agregar")}>
-            ➕ Agregar
-          </div>
-          <div className="tab" onClick={() => router.push("/admin/pedidos")}>
-            📋 Pedidos
-          </div>
-          <div className="tab" onClick={() => router.push("/admin/contabilidad")}>
-            💰 Contabilidad
-          </div>
-          <div className="tab" onClick={() => router.push("/admin/objetivos")}>
-            🎯 Objetivos
-          </div>
-          <div className="tab" onClick={() => router.push("/admin/etiquetas")}>
-            🏷️ Etiquetas
-          </div>
-          <div className="tab" onClick={() => router.push("/admin/estudio")}>
-            📸 Estudio IA
-          </div>
+        <div style={{ display: "flex", flexWrap: "wrap", borderBottom: "1px solid #2a2a2a", background: "#111", padding: "0 24px" }}>
+          {[
+            { label: "📦 Stock", action: () => setActiveTab("stock"), active: activeTab === "stock" },
+            { label: "➕ Agregar", action: () => setActiveTab("agregar"), active: activeTab === "agregar" },
+            { label: "📋 Pedidos", action: () => router.push("/admin/pedidos"), active: false },
+            { label: "💰 Contabilidad", action: () => router.push("/admin/contabilidad"), active: false },
+            { label: "🎯 Objetivos", action: () => router.push("/admin/objetivos"), active: false },
+            { label: "🏷️ Etiquetas", action: () => router.push("/admin/etiquetas"), active: false },
+            { label: "📸 Estudio IA", action: () => router.push("/admin/estudio"), active: false },
+          ].map(({ label, action, active }) => (
+            <div
+              key={label}
+              onClick={action}
+              style={{
+                padding: "13px 14px",
+                cursor: "pointer",
+                fontSize: "0.78rem",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+                color: active ? "#d4af37" : "#666",
+                borderBottom: active ? "2px solid #d4af37" : "2px solid transparent",
+                whiteSpace: "nowrap",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = "#d4af37"; }}
+              onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "#666"; }}
+            >
+              {label}
+            </div>
+          ))}
         </div>
 
         <div className="content">
