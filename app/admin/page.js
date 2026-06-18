@@ -565,6 +565,12 @@ export default function AdminPage() {
           <div className="tab" onClick={() => router.push("/admin/objetivos")}>
             🎯 Objetivos
           </div>
+          <div className="tab" onClick={() => router.push("/admin/etiquetas")}>
+            🏷️ Etiquetas
+          </div>
+          <div className="tab" onClick={() => router.push("/admin/estudio")}>
+            📸 Estudio IA
+          </div>
         </div>
 
         <div className="content">
@@ -878,8 +884,8 @@ function AdminStyles() {
       .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #27ae60; display: inline-block; }
       .conn-label { font-size: 0.75rem; color: #27ae60; }
 
-      .tabs { display: flex; border-bottom: 1px solid #2a2a2a; background: #111; padding: 0 24px; }
-      .tab { padding: 13px 20px; cursor: pointer; font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+      .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid #2a2a2a; background: #111; padding: 0 24px; }
+      .tab { padding: 13px 14px; cursor: pointer; font-size: 0.78rem; letter-spacing: 0.5px; text-transform: uppercase; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
       .tab.active { color: #d4af37; border-bottom-color: #d4af37; }
       .tab:hover { color: #d4af37; }
 
