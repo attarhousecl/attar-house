@@ -6,6 +6,12 @@ import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
 import ReviewSection from "./ReviewSection";
 
+const ATOMIZACIONES = {
+  decant3:  { sprays: 30,  dias: "7–10 días" },
+  decant5:  { sprays: 50,  dias: "2–3 semanas" },
+  decant10: { sprays: 100, dias: "1–2 meses" },
+};
+
 export default function ProductDetail({ id }) {
   const { perfumes, loading } = useCatalog();
   const { addToCart } = useCart();
@@ -142,11 +148,17 @@ export default function ProductDetail({ id }) {
                     </option>
                   ) : (
                     <option key={o.key} value={o.key}>
-                      {o.label} - ${o.price.toLocaleString("es-CL")}
+                      {o.label}{ATOMIZACIONES[o.key] ? ` · ~${ATOMIZACIONES[o.key].sprays} atomizaciones` : ""} · ${o.price.toLocaleString("es-CL")}
                     </option>
                   )
                 )}
               </select>
+              {selectedFormat && ATOMIZACIONES[selectedFormat] && (
+                <div style={{ display: "flex", gap: "16px", margin: "10px 0 14px", padding: "10px 14px", background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.15)", borderRadius: "8px", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                  <span>💨 <strong style={{ color: "var(--gold-primary)" }}>~{ATOMIZACIONES[selectedFormat].sprays}</strong> atomizaciones</span>
+                  <span>📅 Rinde aprox. <strong style={{ color: "var(--gold-primary)" }}>{ATOMIZACIONES[selectedFormat].dias}</strong></span>
+                </div>
+              )}
               {showUrgency && (
                 <div style={{ background: "rgba(220,60,30,0.08)", border: "1px solid rgba(220,60,30,0.25)", borderRadius: "8px", padding: "8px 12px", marginBottom: "12px", fontSize: "0.75rem", color: "#e07060" }}>
                   ⚠ Últimas unidades disponibles
