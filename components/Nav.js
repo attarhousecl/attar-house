@@ -7,7 +7,10 @@ import { useState } from "react";
 const LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/catalogo", label: "Catálogo" },
+  { href: "/quiz", label: "🔮 Quiz" },
+  { href: "/pack", label: "🎁 Pack" },
   { href: "/accesorios", label: "Accesorios" },
+  { href: "/mis-pedidos", label: "Mis Pedidos" },
 ];
 
 export default function Nav() {

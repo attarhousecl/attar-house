@@ -346,6 +346,16 @@ main { flex: 1; margin-top: 105px; }
     padding: 4px 10px; border-radius: 20px;
     text-transform: uppercase; letter-spacing: 1px; z-index: 10;
 }
+.low-stock-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(230, 126, 34, 0.15);
+    color: #e67e22;
+    border: 1px solid rgba(230, 126, 34, 0.4);
+    font-size: 0.6rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1px; z-index: 10;
+    backdrop-filter: blur(4px);
+}
 .sellado-badge {
     position: absolute; bottom: 12px; left: 12px;
     background: rgba(212, 175, 55, 0.15);

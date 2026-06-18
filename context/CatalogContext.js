@@ -37,6 +37,7 @@ function mapPerfume(r) {
       decant5: r.stock_decant5,
       decant3: r.stock_decant3,
     },
+    stockLow: r.stock_low || false,
   };
 }
 

@@ -49,6 +49,15 @@ export function CartProvider({ children }) {
     }
   };
 
+  const addItem = ({ id, name, format, price, quantity = 1 }) => {
+    setCart((prev) => {
+      const ex = prev.find((i) => i.id === id && i.format === format && i.price === price);
+      if (ex) return prev.map((i) => (i === ex ? { ...i, quantity: i.quantity + quantity } : i));
+      return [...prev, { id, name, format, price, quantity }];
+    });
+    showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${name}`);
+  };
+
   const addAccesorio = (accesorio) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.name === accesorio.name && i.format === "Accesorio");
@@ -82,6 +91,7 @@ export function CartProvider({ children }) {
       value={{
         cart,
         addToCart,
+        addItem,
         addAccesorio,
         updateQty,
         total,

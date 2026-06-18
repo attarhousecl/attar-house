@@ -14,6 +14,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
   const isNicho = variant === "nicho";
   const isOut = !isDesigner && !isNicho && !perfume.stock.decant3;
   const isPopular = !isDesigner && !isNicho && perfume.popularity >= 95;
+  const isLowStock = !isOut && perfume.stockLow;
 
   const hasSellado = !isDesigner && !isNicho && perfume.prices.sellado > 0 && perfume.stock.sellado !== false;
   const cardClass = `product-card ${isDesigner ? "designer-card" : ""} ${isNicho ? "nicho-card" : ""} ${isOut ? "card-disabled" : ""}`.trim();
@@ -39,6 +40,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
         {isDesigner && <span className="designer-badge-card">✦ Diseñador</span>}
         {isNicho && <span className="nicho-badge-card">◆ Nicho</span>}
         {isOut && <span className="sold-out-badge">Agotado</span>}
+        {isLowStock && <span className="low-stock-badge">⚡ Últimas unidades</span>}
         {hasSellado && <span className="sellado-badge">✦ Hay Sellado</span>}
         <button className={`wishlist-btn ${wished ? "active" : ""}`} onClick={toggleWishlist} aria-label="Guardar en favoritos">
           {wished ? "♥" : "♡"}

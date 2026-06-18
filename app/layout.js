@@ -4,6 +4,7 @@ import Nav from "@/components/Nav";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { ToastProvider } from "@/context/ToastContext";
 import { CatalogProvider } from "@/context/CatalogContext";
 import { CartProvider } from "@/context/CartContext";
@@ -53,6 +54,7 @@ export default function RootLayout({ children }) {
               <Nav />
               <main>{children}</main>
               <CartDrawer />
+              <WhatsAppFloat />
               <Footer />
             </CartProvider>
           </CatalogProvider>

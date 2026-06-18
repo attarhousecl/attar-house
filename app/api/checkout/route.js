@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { createPreference } from "@/lib/mercadopago";
 import { accesoriosDB } from "@/lib/catalogData";
+import { sendOrderConfirmation } from "@/lib/email";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -78,6 +79,15 @@ export async function POST(request) {
       .from("orders")
       .update({ mp_preference_id: preference.id })
       .eq("commerce_order", commerceOrder);
+
+    sendOrderConfirmation({
+      to: customer.email,
+      name: customer.name,
+      order: commerceOrder,
+      items: verifiedItems,
+      total,
+      shipping,
+    }).catch(() => {});
 
     return Response.json({ redirectUrl: preference.init_point });
   } catch (e) {

@@ -61,46 +61,33 @@ export default function CartDrawer() {
         </div>
 
         {cart.length > 0 && (
-          <div
-            className="shipping-progress"
-            style={{
-              display: "block",
-              background: "rgba(212,175,55,0.05)",
-              padding: "15px 20px",
-              textAlign: "center",
-              fontSize: "0.85rem",
-              borderBottom: "1px solid rgba(212,175,55,0.2)",
-              color: "var(--text-muted)",
-              lineHeight: "1.6",
-            }}
-          >
-            {freeGiftEligible ? (
-              <div style={{ color: "var(--gold-primary)", fontWeight: 600 }}>
-                <i className="ph ph-gift"></i> ¡Ganaste un decant de regalo!
+          <div style={{ background: "rgba(212,175,55,0.04)", padding: "14px 18px", borderBottom: "1px solid rgba(212,175,55,0.15)", fontSize: "0.8rem" }}>
+            {/* Barra envío gratis */}
+            <div style={{ marginBottom: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "var(--text-muted)" }}>
+                <span>🚚 Envío gratis</span>
+                {freeShippingEligible
+                  ? <span style={{ color: "#25D366", fontWeight: 700 }}>¡Alcanzado!</span>
+                  : <span>Faltan <strong style={{ color: "#d4af37" }}>${(SHIPPING_THRESHOLD - total).toLocaleString("es-CL")}</strong></span>
+                }
               </div>
-            ) : (
-              <div style={{ fontSize: "0.82rem" }}>
-                Agrega{" "}
-                <strong style={{ color: "var(--gold-primary)" }}>
-                  ${(GIFT_THRESHOLD - decantTotal).toLocaleString("es-CL")} en decants
-                </strong>{" "}
-                y gana un 🎁 gratis.
+              <div style={{ height: "5px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (total / SHIPPING_THRESHOLD) * 100)}%`, background: freeShippingEligible ? "#25D366" : "#d4af37", borderRadius: "3px", transition: "width 0.4s ease" }} />
               </div>
-            )}
-
-            {freeShippingEligible ? (
-              <div style={{ marginTop: "6px", color: "#25D366", fontWeight: "bold" }}>
-                <i className="ph ph-check-circle"></i> ¡Envío gratis alcanzado!
+            </div>
+            {/* Barra regalo */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "var(--text-muted)" }}>
+                <span>🎁 Decant de regalo</span>
+                {freeGiftEligible
+                  ? <span style={{ color: "#d4af37", fontWeight: 700 }}>¡Ganaste!</span>
+                  : <span>Faltan <strong style={{ color: "#d4af37" }}>${(GIFT_THRESHOLD - decantTotal).toLocaleString("es-CL")}</strong></span>
+                }
               </div>
-            ) : (
-              <div style={{ marginTop: "6px", fontSize: "0.82rem" }}>
-                Faltan{" "}
-                <strong style={{ color: "var(--gold-primary)" }}>
-                  ${(SHIPPING_THRESHOLD - total).toLocaleString("es-CL")}
-                </strong>{" "}
-                para envío gratis 🚚.
+              <div style={{ height: "5px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (decantTotal / GIFT_THRESHOLD) * 100)}%`, background: freeGiftEligible ? "#d4af37" : "rgba(212,175,55,0.5)", borderRadius: "3px", transition: "width 0.4s ease" }} />
               </div>
-            )}
+            </div>
           </div>
         )}
 
