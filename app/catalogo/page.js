@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCatalog } from "@/context/CatalogContext";
-import FilterSidebar from "@/components/FilterSidebar";
+import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
 import SkeletonGrid from "@/components/SkeletonGrid";
 
@@ -49,7 +49,6 @@ export default function CatalogoPage() {
   const [aroma, setAroma] = useState("all");
   const [brand, setBrand] = useState("all");
   const [note, setNote] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const filterState = { search, sort, gender, aroma, brand, note };
   const filteredArab     = applyFilters(arabDB, filterState);
@@ -61,6 +60,7 @@ export default function CatalogoPage() {
   const showDesigner = activeTab === "todos" || activeTab === "disenador";
 
   const allDB = [...arabDB, ...nichoDB, ...designerDB];
+  const totalResults = (showArab ? filteredArab.length : 0) + (showNicho ? filteredNicho.length : 0) + (showDesigner ? filteredDesigner.length : 0);
 
   return (
     <section id="catalogo" className="page-section active catalog-bg">
@@ -82,75 +82,57 @@ export default function CatalogoPage() {
           ))}
         </div>
 
-        <button className="btn-mobile-filters" onClick={() => setSidebarOpen(true)}>
-          <i className="ph ph-sliders-horizontal"></i> Mostrar Filtros
-        </button>
+        {/* Filter bar */}
+        <FilterBar
+          allDB={allDB}
+          search={search} setSearch={setSearch}
+          sort={sort} setSort={setSort}
+          gender={gender} setGender={setGender}
+          aroma={aroma} setAroma={setAroma}
+          brand={brand} setBrand={setBrand}
+          note={note} setNote={setNote}
+          totalResults={totalResults}
+        />
 
-        <div className="catalog-layout">
-          <FilterSidebar
-            arabDB={allDB}
-            search={search}
-            setSearch={setSearch}
-            sort={sort}
-            setSort={setSort}
-            gender={gender}
-            setGender={setGender}
-            aroma={aroma}
-            setAroma={setAroma}
-            brand={brand}
-            setBrand={setBrand}
-            note={note}
-            setNote={setNote}
-            open={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
-
-          <div className="catalog-main">
-            {showArab && (arabDB.length > 0 || loading) && (
-              <div id="arab-section" style={{ marginBottom: "48px" }}>
-                <div className="arab-section-header">
-                  <div className="section-divider"></div>
-                  <div>
-                    <h3 className="serif">Perfumería Árabe</h3>
-                    <p>Decants y frascos sellados disponibles</p>
-                  </div>
-                </div>
-                {loading ? <SkeletonGrid count={8} /> : <ProductGrid perfumes={filteredArab} variant="catalog" />}
+        {showArab && (arabDB.length > 0 || loading) && (
+          <div id="arab-section" style={{ marginBottom: "48px" }}>
+            <div className="arab-section-header">
+              <div className="section-divider"></div>
+              <div>
+                <h3 className="serif">Perfumería Árabe</h3>
+                <p>Decants y frascos sellados disponibles</p>
               </div>
-            )}
-
-            {showNicho && (nichoDB.length > 0 || loading) && (
-              <div id="nicho-section" style={{ marginBottom: "48px" }}>
-                <div className="arab-section-header">
-                  <div className="section-divider"></div>
-                  <div>
-                    <h3 className="serif">Perfumería de Nicho</h3>
-                    <p>Alta perfumería · Solo decants disponibles</p>
-                  </div>
-                </div>
-                {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredNicho} variant="nicho" />}
-              </div>
-            )}
-
-            {showDesigner && (designerDB.length > 0 || loading) && (
-              <div className="designer-section" id="designer-section">
-                <div className="designer-section-header">
-                  <div className="section-divider"></div>
-                  <div>
-                    <h3 className="serif">Perfumes de Diseñador</h3>
-                    <p>Originales 100% · Solo decants disponibles</p>
-                  </div>
-                </div>
-                {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredDesigner} variant="designer" />}
-              </div>
-            )}
+            </div>
+            {loading ? <SkeletonGrid count={8} /> : <ProductGrid perfumes={filteredArab} variant="catalog" />}
           </div>
-        </div>
-      </div>
+        )}
 
-      {sidebarOpen && (
-        <div className="sidebar-overlay show" onClick={() => setSidebarOpen(false)} />
-      )}
+        {showNicho && (nichoDB.length > 0 || loading) && (
+          <div id="nicho-section" style={{ marginBottom: "48px" }}>
+            <div className="arab-section-header">
+              <div className="section-divider"></div>
+              <div>
+                <h3 className="serif">Perfumería de Nicho</h3>
+                <p>Alta perfumería · Solo decants disponibles</p>
+              </div>
+            </div>
+            {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredNicho} variant="nicho" />}
+          </div>
+        )}
+
+        {showDesigner && (designerDB.length > 0 || loading) && (
+          <div className="designer-section" id="designer-section">
+            <div className="designer-section-header">
+              <div className="section-divider"></div>
+              <div>
+                <h3 className="serif">Perfumes de Diseñador</h3>
+                <p>Originales 100% · Solo decants disponibles</p>
+              </div>
+            </div>
+            {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredDesigner} variant="designer" />}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
