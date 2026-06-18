@@ -556,6 +556,9 @@ export default function AdminPage() {
           <div className={`tab ${activeTab === "agregar" ? "active" : ""}`} onClick={() => setActiveTab("agregar")}>
             ➕ Agregar
           </div>
+          <div className="tab" onClick={() => router.push("/admin/pedidos")}>
+            📋 Pedidos
+          </div>
           <div className="tab" onClick={() => router.push("/admin/contabilidad")}>
             💰 Contabilidad
           </div>

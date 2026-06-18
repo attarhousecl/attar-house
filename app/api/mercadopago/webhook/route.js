@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getPayment } from "@/lib/mercadopago";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 const STATUS_MAP = {
   approved: "paid",
@@ -49,14 +50,28 @@ async function handleNotification(request) {
 
   try {
     const payment = await getPayment(paymentId);
+    const newStatus = STATUS_MAP[payment.status] || "unknown";
 
-    await supabaseAdmin
+    const { data: order } = await supabaseAdmin
       .from("orders")
-      .update({
-        status: STATUS_MAP[payment.status] || "unknown",
-        mp_payment_data: payment,
-      })
-      .eq("commerce_order", payment.external_reference);
+      .update({ status: newStatus, mp_payment_data: payment })
+      .eq("commerce_order", payment.external_reference)
+      .select()
+      .single();
+
+    if (newStatus === "paid" && order) {
+      const items = (order.items || [])
+        .map((i) => `• ${i.name} (${i.format}) ×${i.quantity} — $${(i.price * i.quantity).toLocaleString("es-CL")}`)
+        .join("\n");
+      await sendTelegramAlert(
+        `🛒 <b>Nuevo pedido pagado</b>\n` +
+        `📋 <code>${order.commerce_order}</code>\n` +
+        `👤 ${order.customer_name} · ${order.customer_phone}\n` +
+        `📧 ${order.customer_email}\n\n` +
+        `${items}\n\n` +
+        `💰 <b>Total: $${(order.total || 0).toLocaleString("es-CL")}</b>`
+      );
+    }
 
     return new Response("OK", { status: 200 });
   } catch {
