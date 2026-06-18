@@ -536,7 +536,7 @@ export default function AdminClient() {
     <div className="admin-page">
       <div id="app">
         <header>
-          <h1>⚗ Attar House Admin</h1>
+          <h1>⚗ Attar House Admin <span style={{fontSize:"0.55rem",background:"#d4af37",color:"#000",borderRadius:"4px",padding:"2px 6px",verticalAlign:"middle",fontWeight:"700"}}>v7</span></h1>
           <div className="header-right">
             <span className="conn-dot"></span>
             <span className="conn-label">{(() => { try { return new URL(creds.url).hostname.split(".")[0]; } catch { return "Conectado"; } })()}</span>
