@@ -67,13 +67,6 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
         <div className="product-brand">{perfume.brand}</div>
         <h3 className="product-title serif">{perfume.name}</h3>
         <span className="gender-tag">{perfume.gender}</span>
-        <div className="notes-tags">
-          {perfume.notes.slice(0, 3).map((n) => (
-            <span className="note-tag" key={n}>
-              {n}
-            </span>
-          ))}
-        </div>
         <div className="card-price">
           Decant 3ml desde <strong>${perfume.prices.decant3.toLocaleString("es-CL")}</strong>
         </div>
