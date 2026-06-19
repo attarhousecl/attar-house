@@ -26,6 +26,7 @@ const initialForm = {
   sD10: true,
   sD5: true,
   sD3: true,
+  sLow: false,
 };
 
 function generarDescripcion({ name, brand, gender, inspiration, notes, families }) {
@@ -332,6 +333,7 @@ export default function AdminClient() {
       stock_decant10: form.sD10,
       stock_decant5: form.sD5,
       stock_decant3: form.sD3,
+      stock_low: form.sLow,
     };
 
     setFormStatus("⏳ Guardando en Supabase...");
@@ -677,6 +679,12 @@ export default function AdminClient() {
                             </span>
                           )}
                         </div>
+                        <div className="stock-row" style={{ marginTop: "6px" }}>
+                          <span className="stock-label">Urgencia:</span>
+                          <button className={`toggle-btn ${p.stock_low ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_low")} disabled={saving === "saving"} title="Muestra el badge ⚡ Últimas unidades en la tienda">
+                            ⚡ Últimas unidades
+                          </button>
+                        </div>
                       </div>
                       <div className="p-actions">
                         <div className="price-hint">
@@ -829,6 +837,9 @@ export default function AdminClient() {
               </label>
               <label>
                 <input type="checkbox" checked={form.sD3} onChange={(e) => setForm((f) => ({ ...f, sD3: e.target.checked }))} /> 3ml
+              </label>
+              <label title="Muestra el badge ⚡ Últimas unidades en la tienda">
+                <input type="checkbox" checked={form.sLow} onChange={(e) => setForm((f) => ({ ...f, sLow: e.target.checked }))} /> ⚡ Últimas unidades
               </label>
             </div>
 

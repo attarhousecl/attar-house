@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FaqItem from "@/components/FaqItem";
 import FeaturedProducts from "@/components/FeaturedProducts";
+import Reveal from "@/components/Reveal";
 
 export default function Home() {
   return (
@@ -71,7 +72,7 @@ export default function Home() {
           <p className="section-subtitle">
             ¿No sabes por dónde empezar? Te ayudamos a elegir y a probar sin arriesgar.
           </p>
-          <div className="home-highlights">
+          <Reveal className="home-highlights">
             <Link href="/quiz" className="highlight-panel">
               <span className="hp-watermark">🔮</span>
               <span className="hp-icon">🔮</span>
@@ -97,7 +98,7 @@ export default function Home() {
                 Armar mi pack <i className="ph ph-arrow-right"></i>
               </span>
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -113,7 +114,7 @@ export default function Home() {
               sellado de fábrica con nosotros.
             </strong>
           </p>
-          <div className="decant-steps">
+          <Reveal className="decant-steps">
             <div className="step-card">
               <i className="ph ph-flask step-icon"></i>
               <h3 className="serif">1. Perfume Original</h3>
@@ -138,7 +139,7 @@ export default function Home() {
                 10ml, perfectamente etiquetados.
               </p>
             </div>
-          </div>
+          </Reveal>
 
           <div className="yield-guide">
             <h2 className="section-title serif" style={{ fontSize: "2.2rem" }}>
@@ -234,7 +235,7 @@ export default function Home() {
         <div className="container">
           <h2 className="section-title serif">Lo que dicen nuestros clientes</h2>
           <p className="section-subtitle">Experiencias reales de personas que ya encontraron su aroma.</p>
-          <div className="testimonials-grid">
+          <Reveal className="testimonials-grid">
             <div className="testimonial-card">
               <div className="testimonial-stars">★★★★★</div>
               <p className="testimonial-text">&ldquo;Pedí un decant de 5ml para probar y quedé tan enamorada que compré la botella completa. La atención fue increíble, respondieron todas mis dudas al tiro.&rdquo;</p>
@@ -250,7 +251,7 @@ export default function Home() {
               <p className="testimonial-text">&ldquo;Los decants son la mejor forma de probar fragancias caras sin arriesgarse. Calidad 100% original, lo comprobé. Ya les compré tres veces.&rdquo;</p>
               <div className="testimonial-author">— Felipe M., Concepción</div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 

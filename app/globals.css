@@ -622,6 +622,33 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255
 .social-link-whatsapp:hover { opacity: 0.9; transform: translateY(-2px); }
 
 /* ==========================================
+   REVEAL — fade-up al hacer scroll
+   ========================================== */
+.reveal-hidden { opacity: 0; transform: translateY(28px); }
+.reveal-shown {
+    opacity: 1; transform: translateY(0);
+    transition: opacity 0.7s var(--transition-smooth), transform 0.7s var(--transition-smooth);
+}
+@media (prefers-reduced-motion: reduce) {
+    .reveal-hidden, .reveal-shown { opacity: 1; transform: none; transition: none; }
+}
+
+/* ==========================================
+   ACCESORIOS
+   ========================================== */
+.accesorio-card { cursor: default; }
+.accesorio-icon-area { height: 180px; display: flex; align-items: center; justify-content: center; }
+.accesorio-icon-area i {
+    font-size: 3.4rem; color: var(--gold-primary);
+    filter: drop-shadow(0 6px 16px rgba(212,175,55,0.25));
+    transition: transform 0.4s var(--transition-smooth);
+}
+.accesorio-card:hover .accesorio-icon-area i { transform: scale(1.12) translateY(-2px); }
+.accesorio-desc { color: var(--text-muted); font-size: 0.82rem; line-height: 1.55; margin-bottom: 12px; flex: 1; }
+.accesorio-price { color: var(--gold-primary); font-weight: 700; font-size: 1.15rem; margin-bottom: 14px; }
+.accesorio-card .btn-view-detail { display: inline-flex; align-items: center; justify-content: center; }
+
+/* ==========================================
    HERO — acciones y confianza
    ========================================== */
 .hero-actions {

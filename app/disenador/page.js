@@ -2,6 +2,7 @@
 
 import { useCatalog } from "@/context/CatalogContext";
 import ProductGrid from "@/components/ProductGrid";
+import SkeletonGrid from "@/components/SkeletonGrid";
 
 export default function DisenadorPage() {
   const { designerDB, loading } = useCatalog();
@@ -17,7 +18,15 @@ export default function DisenadorPage() {
             Cada gota es 100% original, extraída directamente de la botella sellada de fábrica.
           </p>
         </div>
-        {!loading && <ProductGrid perfumes={designerDB} variant="designer" />}
+        {loading ? (
+          <SkeletonGrid count={4} />
+        ) : (
+          <ProductGrid
+            perfumes={designerDB}
+            variant="designer"
+            emptyMessage="Pronto sumaremos más perfumes de diseñador. Mientras tanto, explora el catálogo árabe y de nicho."
+          />
+        )}
       </div>
     </section>
   );

@@ -10,22 +10,28 @@ export default function AccesoriosPage() {
     <section id="accesorios" className="page-section active">
       <div className="container">
         <h2 className="section-title serif">Accesorios</h2>
+        <p className="section-subtitle">
+          Detalles pensados para cuidar, transportar y lucir tus decants como se merecen.
+        </p>
         <div className="product-grid">
-          {accesoriosDB.map((acc) => (
-            <div className="product-card" style={{ cursor: "default" }} key={acc.id}>
-              <div className="product-image-container">
-                <i className={acc.icon} style={{ fontSize: "3rem", color: "var(--gold-primary)" }}></i>
+          {accesoriosDB.map((acc, index) => (
+            <div
+              className="product-card accesorio-card"
+              key={acc.id}
+              style={{ animationDelay: `${Math.min(index, 10) * 0.05}s` }}
+            >
+              <div className="card-image-area accesorio-icon-area">
+                <i className={acc.icon}></i>
               </div>
-              <h3 className="product-title">{acc.name}</h3>
-              <p style={{ fontSize: "0.8rem", color: "#888", marginBottom: "10px" }}>
-                {acc.description}
-              </p>
-              <div style={{ fontWeight: "bold", color: "var(--gold-primary)", marginBottom: "15px" }}>
-                ${acc.price.toLocaleString("es-CL")}
+              <div className="card-body">
+                <h3 className="product-title serif">{acc.name}</h3>
+                <p className="accesorio-desc">{acc.description}</p>
+                <div className="accesorio-price">${acc.price.toLocaleString("es-CL")}</div>
+                <button className="btn-view-detail" onClick={() => addAccesorio(acc)}>
+                  <i className="ph ph-shopping-cart" style={{ marginRight: "6px" }}></i>
+                  Añadir al carrito
+                </button>
               </div>
-              <button className="btn-add-cart" onClick={() => addAccesorio(acc)}>
-                Añadir al Carrito
-              </button>
             </div>
           ))}
         </div>
