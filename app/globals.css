@@ -603,6 +603,90 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255
 .social-link-whatsapp { background: var(--whatsapp) !important; border-color: var(--whatsapp) !important; color: #fff !important; font-size: 1rem !important; padding: 16px 32px !important; }
 .social-link-whatsapp:hover { opacity: 0.9; transform: translateY(-2px); }
 
+/* ==========================================
+   HERO — acciones y confianza
+   ========================================== */
+.hero-actions {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 30px;
+    animation: hero-enter 1s var(--transition-smooth) 0.35s both;
+}
+.btn-gold-solid {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 55%, var(--gold-dark) 100%);
+    color: var(--bg-base);
+    text-transform: uppercase; letter-spacing: 2px;
+    font-size: 0.9rem; font-weight: 700;
+    border-radius: 4px; border: 1px solid var(--gold-primary);
+    transition: transform 0.35s var(--transition-smooth), box-shadow 0.35s var(--transition-smooth);
+}
+.btn-gold-solid:hover { transform: translateY(-2px); box-shadow: 0 10px 34px rgba(212,175,55,0.32); }
+
+.hero-trust {
+    display: flex; gap: 22px; justify-content: center; flex-wrap: wrap;
+    color: var(--text-muted); font-size: 0.82rem; letter-spacing: 0.4px;
+    animation: hero-enter 1s var(--transition-smooth) 0.5s both;
+}
+.hero-trust span { display: inline-flex; align-items: center; gap: 7px; }
+.hero-trust i { color: var(--gold-primary); font-size: 1rem; }
+
+/* ==========================================
+   HOME — bloques destacados (favoritos + ganchos)
+   ========================================== */
+.home-block { padding: 90px 0; }
+.home-block .section-subtitle { margin-bottom: 48px; }
+.home-cta-center { text-align: center; margin-top: 48px; }
+
+.home-highlights {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px; margin-top: 10px;
+}
+.highlight-panel {
+    position: relative; overflow: hidden;
+    background:
+        radial-gradient(120% 120% at 100% 0%, rgba(212,175,55,0.07) 0%, transparent 55%),
+        var(--bg-surface);
+    border: 1px solid var(--border-gold); border-radius: 18px;
+    padding: 44px 38px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+    transition: transform 0.35s var(--transition-smooth), border-color 0.35s, box-shadow 0.35s;
+}
+.highlight-panel:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-gold-hover);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.45);
+}
+.highlight-panel .hp-icon { font-size: 2.5rem; line-height: 1; }
+.highlight-panel h3 {
+    font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--gold-primary);
+    line-height: 1.15; text-wrap: balance;
+}
+.highlight-panel p { color: var(--text-muted); font-size: 0.96rem; line-height: 1.65; max-width: 42ch; }
+.highlight-panel .hp-link {
+    margin-top: auto; padding-top: 6px;
+    color: var(--gold-light); font-weight: 600; letter-spacing: 1.5px;
+    display: inline-flex; align-items: center; gap: 9px;
+    text-transform: uppercase; font-size: 0.8rem;
+}
+.highlight-panel .hp-link i { transition: transform 0.3s var(--transition-smooth); }
+.highlight-panel:hover .hp-link i { transform: translateX(5px); }
+.highlight-panel .hp-watermark {
+    position: absolute; right: -10px; bottom: -22px;
+    font-size: 7rem; line-height: 1; opacity: 0.06; pointer-events: none;
+    filter: grayscale(0.2);
+}
+
+@media (max-width: 768px) {
+    .home-block { padding: 60px 0; }
+    .highlight-panel { padding: 34px 28px; }
+    .hero-trust { gap: 14px; font-size: 0.76rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-actions, .hero-trust { animation: none; }
+    .highlight-panel, .btn-gold-solid, .highlight-panel .hp-link i { transition: none; }
+}
+
 @media (max-width: 900px) {
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
   .testimonials-grid { grid-template-columns: 1fr; }

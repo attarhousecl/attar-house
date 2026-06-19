@@ -1,5 +1,6 @@
 import Link from "next/link";
 import FaqItem from "@/components/FaqItem";
+import FeaturedProducts from "@/components/FeaturedProducts";
 
 export default function Home() {
   return (
@@ -31,7 +32,7 @@ export default function Home() {
             style={{
               fontSize: "1.7rem",
               color: "var(--gold-primary)",
-              marginBottom: "20px",
+              marginBottom: "18px",
               fontWeight: 400,
               fontStyle: "italic",
               opacity: 0.85,
@@ -41,14 +42,62 @@ export default function Home() {
           </h2>
 
           <p>
-            Nuestra principal misión es brindarte una experiencia excepcional. Queremos que
-            te sientas absolutamente cómodo y seguro de tu elección. Por ello, contamos con{" "}
-            <strong>testers de todo nuestro catálogo</strong>, además de frascos sellados
-            100% originales y decants para que descubras tu aroma ideal.
+            Perfumería árabe y de nicho <strong>100% original</strong>. Pruébala en decant
+            desde 3ml y descubre tu firma antes de invertir en el frasco completo.
           </p>
-          <Link href="/catalogo" className="btn-primary">
-            <span>Ver Catálogo</span>
-          </Link>
+
+          <div className="hero-actions">
+            <Link href="/catalogo" className="btn-gold-solid">
+              Ver Catálogo
+            </Link>
+            <Link href="/quiz" className="btn-primary">
+              <span>🔮 Hacer el Quiz</span>
+            </Link>
+          </div>
+
+          <div className="hero-trust">
+            <span><i className="ph ph-seal-check"></i> 100% Originales</span>
+            <span><i className="ph ph-truck"></i> Envío a todo Chile</span>
+            <span><i className="ph ph-hand-heart"></i> Testers disponibles</span>
+          </div>
+        </div>
+      </section>
+
+      <FeaturedProducts />
+
+      <section className="home-block">
+        <div className="container">
+          <h2 className="section-title serif">Encuentra tu aroma ideal</h2>
+          <p className="section-subtitle">
+            ¿No sabes por dónde empezar? Te ayudamos a elegir y a probar sin arriesgar.
+          </p>
+          <div className="home-highlights">
+            <Link href="/quiz" className="highlight-panel">
+              <span className="hp-watermark">🔮</span>
+              <span className="hp-icon">🔮</span>
+              <h3>Quiz de Fragancias</h3>
+              <p>
+                Responde 5 preguntas rápidas sobre tu estilo y ocasión, y te recomendamos
+                las fragancias que más van contigo.
+              </p>
+              <span className="hp-link">
+                Hacer el quiz <i className="ph ph-arrow-right"></i>
+              </span>
+            </Link>
+
+            <Link href="/pack" className="highlight-panel">
+              <span className="hp-watermark">🎁</span>
+              <span className="hp-icon">🎁</span>
+              <h3>Pack Descubrimiento</h3>
+              <p>
+                Arma tu propio set eligiendo de 3 a 5 decants de 10ml y llévate un{" "}
+                <strong style={{ color: "var(--gold-light)" }}>10% de descuento</strong> en todo el pack.
+              </p>
+              <span className="hp-link">
+                Armar mi pack <i className="ph ph-arrow-right"></i>
+              </span>
+            </Link>
+          </div>
         </div>
       </section>
 
