@@ -34,7 +34,7 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
     <Link
       href={`/producto/${perfume.id}`}
       className={cardClass}
-      style={{ animationDelay: `${index * 0.05}s` }}
+      style={{ animationDelay: `${Math.min(index, 10) * 0.05}s` }}
     >
       <div className="card-image-area">
         {isDesigner && <span className="designer-badge-card">✦ Diseñador</span>}

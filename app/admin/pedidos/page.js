@@ -104,9 +104,10 @@ export default function PedidosPage() {
                       <div style={S.detailGrid}>
                         <Detail label="Teléfono" value={order.customer_phone} />
                         <Detail label="Email" value={order.customer_email} />
-                        {order.shipping?.address && <Detail label="Dirección" value={order.shipping.address} />}
-                        {order.shipping?.commune && <Detail label="Comuna" value={order.shipping.commune} />}
+                        {order.shipping?.direccion && <Detail label="Dirección" value={order.shipping.direccion} />}
+                        {order.shipping?.comuna && <Detail label="Comuna" value={order.shipping.comuna} />}
                         {order.shipping?.region && <Detail label="Región" value={order.shipping.region} />}
+                        {order.shipping?.notas && <Detail label="Notas" value={order.shipping.notas} />}
                         {order.free_gift && <Detail label="Regalo" value={order.free_gift} />}
                       </div>
 

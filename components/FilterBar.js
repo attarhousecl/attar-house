@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 
 const AROMA_FAMILIES = [
-  "Dulce", "Fresco", "Amaderado", "Especiado",
-  "Frutal", "Cítrico", "Oriental", "Almizcle",
+  "Dulce", "Gourmand", "Fresco", "Cítrico",
+  "Amaderado", "Especiado", "Oriental", "Frutal",
+  "Floral", "Aromático", "Almizcle",
 ];
 
 const GENDERS = ["Femenino", "Masculino", "Unisex"];

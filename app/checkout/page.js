@@ -221,6 +221,12 @@ export default function CheckoutPage() {
             <button className="btn-add-cart-gold" type="submit" disabled={loading}>
               {loading ? "Procesando..." : "Pagar con Mercado Pago"}
             </button>
+            <p style={{ marginTop: "14px", textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.7 }}>
+              <i className="ph ph-lock-key" style={{ color: "var(--gold-primary)" }}></i>{" "}
+              Pago 100% seguro vía Mercado Pago · Débito, crédito o transferencia
+              <br />
+              ¿Prefieres coordinar por WhatsApp? Vuelve al carrito y elige esa opción.
+            </p>
           </form>
         </div>
       </div>

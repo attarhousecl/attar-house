@@ -136,23 +136,28 @@ export default function ProductDetail({ id }) {
               >
                 Elige tu formato
               </h4>
-              <select
-                className="format-select"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-              >
-                {options.map((o) =>
-                  o.disabled ? (
-                    <option key={o.key} disabled>
-                      {o.label} - AGOTADO
-                    </option>
-                  ) : (
-                    <option key={o.key} value={o.key}>
-                      {o.label}{ATOMIZACIONES[o.key] ? ` · ~${ATOMIZACIONES[o.key].sprays} atomizaciones` : ""} · ${o.price.toLocaleString("es-CL")}
-                    </option>
-                  )
-                )}
-              </select>
+              <div className="format-options">
+                {options.map((o) => (
+                  <button
+                    type="button"
+                    key={o.key}
+                    className={`format-option ${selectedFormat === o.key ? "selected" : ""}`}
+                    disabled={o.disabled}
+                    onClick={() => setSelectedFormat(o.key)}
+                    aria-pressed={selectedFormat === o.key}
+                  >
+                    <span className="fo-main">
+                      <span className="fo-label">{o.label}</span>
+                      {ATOMIZACIONES[o.key] && (
+                        <span className="fo-sub">~{ATOMIZACIONES[o.key].sprays} atomizaciones</span>
+                      )}
+                    </span>
+                    <span className="fo-price">
+                      {o.disabled ? "Agotado" : `$${o.price.toLocaleString("es-CL")}`}
+                    </span>
+                  </button>
+                ))}
+              </div>
               {selectedFormat && ATOMIZACIONES[selectedFormat] && (
                 <div style={{ display: "flex", gap: "16px", margin: "10px 0 14px", padding: "10px 14px", background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.15)", borderRadius: "8px", fontSize: "0.78rem", color: "var(--text-muted)" }}>
                   <span>💨 <strong style={{ color: "var(--gold-primary)" }}>~{ATOMIZACIONES[selectedFormat].sprays}</strong> atomizaciones</span>
