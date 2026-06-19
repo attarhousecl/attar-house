@@ -30,10 +30,12 @@ const PREGUNTAS = [
     id: "familia",
     pregunta: "¿Qué tipo de aroma prefieres?",
     opciones: [
-      { label: "Maderoso / Oud", emoji: "🌳", value: "Maderoso" },
-      { label: "Floral / Romántico", emoji: "🌹", value: "Floral" },
-      { label: "Ambarado / Dulce", emoji: "🍯", value: "Oriental" },
-      { label: "Fresco / Acuático", emoji: "💧", value: "Fresco" },
+      { label: "Amaderado / Oud", emoji: "🌳", value: ["Amaderado"] },
+      { label: "Dulce / Gourmand", emoji: "🍯", value: ["Dulce", "Gourmand", "Vainilla"] },
+      { label: "Cítrico / Fresco", emoji: "🍋", value: ["Cítrico", "Fresco", "Aromático"] },
+      { label: "Especiado / Oriental", emoji: "🌶️", value: ["Especiado", "Oriental"] },
+      { label: "Frutal", emoji: "🍓", value: ["Frutal"] },
+      { label: "Floral / Romántico", emoji: "🌹", value: ["Floral", "Almizcle"] },
     ],
   },
   {
@@ -61,9 +63,14 @@ const PREGUNTAS = [
 function scoreMatch(perfume, respuestas) {
   let score = 0;
 
-  const familia = respuestas.familia;
-  if (familia && perfume.families.some(f => f.toLowerCase().includes(familia.toLowerCase()))) score += 3;
-  if (familia === "Maderoso" && perfume.notes.some(n => ["oud","madera","sándalo","cedro"].some(k => n.toLowerCase().includes(k)))) score += 2;
+  const familias = respuestas.familia; // array de familias seleccionadas
+  if (Array.isArray(familias)) {
+    const sel = familias.map(s => s.toLowerCase());
+    if (perfume.families.some(f => sel.includes(f.toLowerCase()))) score += 3;
+    if (familias.includes("Amaderado") && perfume.notes.some(n => ["oud","madera","sándalo","sandalo","cedro"].some(k => n.toLowerCase().includes(k)))) score += 2;
+    if ((familias.includes("Dulce") || familias.includes("Gourmand")) && perfume.notes.some(n => ["vainilla","caramelo","chocolate","café","cafe","miel","azúcar","azucar"].some(k => n.toLowerCase().includes(k)))) score += 2;
+    if (familias.includes("Cítrico") && perfume.notes.some(n => ["limón","limon","bergamota","naranja","mandarina","cítrico","citrico"].some(k => n.toLowerCase().includes(k)))) score += 2;
+  }
 
   const genero = respuestas.genero;
   if (genero && genero !== "regalo") {
@@ -76,10 +83,10 @@ function scoreMatch(perfume, respuestas) {
   const intensidad = respuestas.intensidad;
   if (intensidad === "brutal" || intensidad === "intenso") {
     if (perfume.popularity >= 90) score += 1;
-    if (perfume.families.some(f => f.toLowerCase().includes("oriental") || f.toLowerCase().includes("maderoso"))) score += 1;
+    if (perfume.families.some(f => { const x = f.toLowerCase(); return x.includes("oriental") || x.includes("amaderado") || x.includes("especiado") || x.includes("dulce"); })) score += 1;
   }
   if (intensidad === "suave") {
-    if (perfume.families.some(f => f.toLowerCase().includes("fresco") || f.toLowerCase().includes("floral"))) score += 1;
+    if (perfume.families.some(f => { const x = f.toLowerCase(); return x.includes("fresco") || x.includes("cítrico") || x.includes("citrico") || x.includes("floral") || x.includes("aromático") || x.includes("aromatico"); })) score += 1;
   }
 
   const ppto = respuestas.presupuesto;
@@ -168,7 +175,7 @@ export default function QuizPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {pregunta.opciones.map(op => (
             <button
-              key={op.value}
+              key={op.label}
               onClick={() => elegir(op.value)}
               style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: "12px", padding: "18px 22px", display: "flex", alignItems: "center", gap: "16px", cursor: "pointer", textAlign: "left", transition: "border-color 0.2s, background 0.2s", color: "#e0e0e0", fontSize: "0.95rem" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "#d4af37"; e.currentTarget.style.background = "rgba(212,175,55,0.06)"; }}

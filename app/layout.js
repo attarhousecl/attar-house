@@ -5,6 +5,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import SocialProof from "@/components/SocialProof";
 import { ToastProvider } from "@/context/ToastContext";
 import { CatalogProvider } from "@/context/CatalogContext";
 import { CartProvider } from "@/context/CartContext";
@@ -55,6 +56,7 @@ export default function RootLayout({ children }) {
               <main>{children}</main>
               <CartDrawer />
               <WhatsAppFloat />
+              <SocialProof />
               <Footer />
             </CartProvider>
           </CatalogProvider>
