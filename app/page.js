@@ -217,7 +217,7 @@ export default function Home() {
             Retiro presencial disponible en Valdivia
           </p>
           <div className="social-links-big">
-            <a href="https://wa.me/56930679481" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
+            <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
               <i className="ph ph-whatsapp-logo"></i>
               <span>Escríbenos por WhatsApp</span>
             </a>

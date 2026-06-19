@@ -42,7 +42,7 @@ export default function Footer() {
             <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer">
               <i className="ph ph-instagram-logo"></i> Instagram
             </a>
-            <a href="https://wa.me/56930679481" target="_blank" rel="noreferrer">
+            <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer">
               <i className="ph ph-whatsapp-logo"></i> WhatsApp
             </a>
           </div>
