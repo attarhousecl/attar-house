@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Footer() {
   return (
@@ -45,6 +46,8 @@ export default function Footer() {
               <i className="ph ph-whatsapp-logo"></i> WhatsApp
             </a>
           </div>
+
+          <NewsletterSignup />
         </div>
 
         <div className="footer-bottom">
