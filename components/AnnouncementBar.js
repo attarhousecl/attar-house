@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 
 const ANNOUNCEMENTS = [
-  "✨ Envío gratis a todo Chile sobre $60.000 ✨",
-  "🎁 ¡Llévate un DECANT DE REGALO por compras sobre $15.000 en decants! 🎁",
-  "💯 Testers 100% originales · Prueba antes de comprar tu frasco",
-  "🚚 Despachamos a todo Chile · Retiro gratis en Valdivia",
-  "🔒 Paga seguro con Mercado Pago · Débito, crédito y transferencia",
-  "🔮 ¿No sabes cuál elegir? Haz nuestro Quiz de Fragancias",
+  "✨ Envío gratis sobre $60.000",
+  "🎁 Decant de regalo sobre $15.000",
+  "💯 Testers 100% originales",
+  "🚚 Envíos a todo Chile · Retiro en Valdivia",
+  "🔒 Pago seguro con Mercado Pago",
+  "🔮 Haz nuestro Quiz de Fragancias",
 ];
 
 export default function AnnouncementBar() {

@@ -55,7 +55,10 @@ button { cursor: pointer; font-family: 'Montserrat', sans-serif; }
 
 /* --- CINTA DE ANUNCIOS --- */
 .announcement-bar { position: fixed; top: 0; width: 100%; background-color: var(--gold-primary); color: var(--bg-base); text-align: center; padding: 8px 10px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; z-index: 1001; text-transform: uppercase; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.announcement-text { transition: opacity 0.4s ease-in-out; opacity: 1; width: 100%; position: absolute;}
+.announcement-text { transition: opacity 0.4s ease-in-out; opacity: 1; width: 100%; position: absolute; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
+@media (max-width: 480px) {
+    .announcement-bar { font-size: 0.58rem; letter-spacing: 0.3px; padding: 8px 6px; }
+}
 .announcement-text.fade-out { opacity: 0; }
 
 /* --- NAVEGACIÓN --- */

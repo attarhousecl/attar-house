@@ -31,12 +31,17 @@ function Dropdown({ label, active, children, onClose }) {
   const ref = useRef(null);
 
   useEffect(() => {
+    // Solo el dropdown ABIERTO escucha clics afuera. Si todos escucharan,
+    // al hacer clic (mouse real) en una opción los demás lo detectan como
+    // "clic afuera" y cierran el menú en el mousedown, antes de que el click
+    // aplique el filtro — haciendo que los filtros parezcan "de adorno".
+    if (!active) return;
     function handler(e) {
       if (ref.current && !ref.current.contains(e.target)) onClose();
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
+  }, [active, onClose]);
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
