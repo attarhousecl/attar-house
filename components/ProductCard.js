@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ProductCard({ perfume, variant = "catalog", index = 0 }) {
   const [imgError, setImgError] = useState(false);
@@ -47,13 +48,16 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
         </button>
         <div className="product-image-container">
           {perfume.imageUrl && !imgError ? (
-            <img
+            <Image
               src={perfume.imageUrl}
               alt={
                 isDesigner
                   ? perfume.name
                   : `Decant de perfume árabe ${perfume.name} en Valdivia`
               }
+              fill
+              sizes="(max-width: 768px) 50vw, 260px"
+              priority={index < 4}
               className="real-img"
               onError={() => setImgError(true)}
             />

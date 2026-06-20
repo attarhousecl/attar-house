@@ -1,0 +1,151 @@
+"use client";
+
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCatalog } from "@/context/CatalogContext";
+
+export default function SearchBox() {
+  const { perfumes } = useCatalog();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      setTimeout(() => inputRef.current?.focus(), 40);
+    } else {
+      document.body.style.overflow = "";
+      setQ("");
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    if (open) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const results = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return [];
+    return perfumes
+      .filter((p) => {
+        return (
+          p.name.toLowerCase().includes(term) ||
+          p.brand.toLowerCase().includes(term) ||
+          (p.notes || []).some((n) => n.toLowerCase().includes(term)) ||
+          (p.families || []).some((f) => f.toLowerCase().includes(term)) ||
+          (p.inspiration || "").toLowerCase().includes(term)
+        );
+      })
+      .slice(0, 8);
+  }, [q, perfumes]);
+
+  const go = (id) => {
+    setOpen(false);
+    router.push(`/producto/${id}`);
+  };
+
+  return (
+    <>
+      <button
+        className="nav-search-btn"
+        onClick={() => setOpen(true)}
+        aria-label="Buscar perfumes"
+      >
+        <i className="ph ph-magnifying-glass"></i>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "fixed", inset: 0, zIndex: 1100,
+            background: "rgba(3,3,3,0.8)", backdropFilter: "blur(6px)",
+            display: "flex", justifyContent: "center", alignItems: "flex-start",
+            padding: "80px 20px 20px",
+          }}
+          onClick={() => setOpen(false)}
+        >
+          <div
+            style={{
+              width: "100%", maxWidth: "620px",
+              background: "#0e0e0e", border: "1px solid rgba(212,175,55,0.25)",
+              borderRadius: "16px", overflow: "hidden",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <i className="ph ph-magnifying-glass" style={{ color: "var(--gold-primary)", fontSize: "1.3rem" }}></i>
+              <input
+                ref={inputRef}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Busca por nombre, marca, nota o inspiración..."
+                style={{
+                  flex: 1, background: "transparent", border: "none", outline: "none",
+                  color: "#e0e0e0", fontSize: "1rem", fontFamily: "inherit",
+                }}
+              />
+              <button
+                onClick={() => setOpen(false)}
+                style={{ background: "transparent", border: "none", color: "#777", fontSize: "1.4rem", cursor: "pointer", lineHeight: 1 }}
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+              {q.trim().length < 2 ? (
+                <p style={{ padding: "28px 20px", color: "#555", fontSize: "0.85rem", textAlign: "center" }}>
+                  Escribe al menos 2 letras para buscar
+                </p>
+              ) : results.length === 0 ? (
+                <p style={{ padding: "28px 20px", color: "#555", fontSize: "0.85rem", textAlign: "center" }}>
+                  No encontramos nada para &ldquo;{q}&rdquo;. Prueba otra palabra.
+                </p>
+              ) : (
+                results.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => go(p.id)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "14px", width: "100%",
+                      padding: "12px 20px", background: "transparent", border: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      textAlign: "left", fontFamily: "inherit",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.06)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <div style={{ width: "44px", height: "44px", flexShrink: 0, borderRadius: "8px", overflow: "hidden", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {p.imageUrl ? (
+                        <Image src={p.imageUrl} alt={p.name} width={44} height={44} style={{ width: "44px", height: "44px", objectFit: "cover" }} />
+                      ) : (
+                        <i className="ph ph-drop" style={{ color: "var(--gold-primary)" }}></i>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.7rem", color: "#777", textTransform: "uppercase", letterSpacing: "0.5px" }}>{p.brand}</div>
+                      <div style={{ fontSize: "0.92rem", color: "#e8e8e8", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                    </div>
+                    {p.prices?.decant3 > 0 && (
+                      <div style={{ color: "var(--gold-primary)", fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+                        ${p.prices.decant3.toLocaleString("es-CL")}
+                      </div>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

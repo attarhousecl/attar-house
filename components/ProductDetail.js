@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
 import ReviewSection from "./ReviewSection";
+import RelatedProducts from "./RelatedProducts";
 
 const ATOMIZACIONES = {
   decant3:  { sprays: 30,  dias: "7–10 días" },
@@ -88,9 +90,12 @@ export default function ProductDetail({ id }) {
         <div className="detail-grid">
           <div className="detail-image-col">
             {perfume.imageUrl && !imgError ? (
-              <img
+              <Image
                 src={perfume.imageUrl}
                 alt={perfume.name}
+                fill
+                priority
+                sizes="(max-width: 950px) 90vw, 460px"
                 className="real-img"
                 onError={() => setImgError(true)}
               />
@@ -183,6 +188,8 @@ export default function ProductDetail({ id }) {
             </div>
           </div>
         </div>
+
+        <RelatedProducts perfume={perfume} />
       </div>
     </section>
   );

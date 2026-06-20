@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCatalog } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
@@ -88,7 +89,9 @@ export default function PackPage() {
                     }}
                   >
                     {p.imageUrl && (
-                      <img src={p.imageUrl} alt={p.name} style={{ width: "100%", height: "80px", objectFit: "contain", marginBottom: "8px" }} />
+                      <div style={{ position: "relative", width: "100%", height: "80px", marginBottom: "8px" }}>
+                        <Image src={p.imageUrl} alt={p.name} fill sizes="180px" style={{ objectFit: "contain" }} />
+                      </div>
                     )}
                     <div style={{ fontSize: "0.65rem", color: "#555", marginBottom: "2px" }}>{p.brand}</div>
                     <div style={{ fontSize: "0.82rem", color: isSelected ? "#d4af37" : "#ccc", fontWeight: 600, marginBottom: "4px", lineHeight: 1.3 }}>{p.name}</div>
