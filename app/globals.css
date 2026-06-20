@@ -557,6 +557,10 @@ main { flex: 1; margin-top: 105px; }
     font-family: 'Montserrat', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.3s;
 }
 .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold-primary); }
+/* El desplegable nativo del select debe verse en tema oscuro (si no, queda
+   texto blanco sobre fondo blanco = invisible). */
+.form-select { color-scheme: dark; }
+.form-select option { background-color: #1a1a1a; color: var(--text-main); }
 .form-label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
 @media (max-width: 950px) {
     .checkout-grid { grid-template-columns: 1fr; }

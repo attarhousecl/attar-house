@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-
-const SQL_SETUP_URL = "/supabase-setup.sql";
 
 const initialForm = {
   id: "",
@@ -97,13 +95,14 @@ function generarDescripcion({ name, brand, gender, inspiration, notes, families 
 }
 
 export default function AdminClient() {
+  // Cliente Supabase ligado a la SESIÓN del admin logueado (rol `authenticated`).
+  // Ya NO se usa la service_role en el navegador: todas las operaciones pasan
+  // por las políticas RLS atadas a tu usuario.
+  const supabase = useMemo(
+    () => createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    []
+  );
   const [checking, setChecking] = useState(true);
-  const [connected, setConnected] = useState(false);
-  const [creds, setCreds] = useState({ url: "", anon: "", service: "" });
-  const [setupInputs, setSetupInputs] = useState({ url: "", anon: "", service: "" });
-  const [setupError, setSetupError] = useState("");
-  const [sqlPreview, setSqlPreview] = useState("Cargando SQL...");
-  const sqlFullRef = useRef("");
 
   const [db, setDb] = useState([]);
   const [dbError, setDbError] = useState("");
@@ -126,23 +125,21 @@ export default function AdminClient() {
   const [formStatus, setFormStatus] = useState("");
 
   useEffect(() => {
-    fetch(SQL_SETUP_URL)
-      .then((r) => r.text())
-      .then((txt) => {
-        sqlFullRef.current = txt;
-        setSqlPreview(txt.slice(0, 800) + "\n... (continúa)");
-      })
-      .catch(() => setSqlPreview("(No se pudo cargar el archivo supabase-setup.sql)"));
-
-    const url = localStorage.getItem("ah_sb_url");
-    const anon = localStorage.getItem("ah_sb_anon");
-    const service = localStorage.getItem("ah_sb_service");
-    if (url && anon && service) {
-      setCreds({ url, anon, service });
-      setConnected(true);
-    }
-    setChecking(false);
-  }, []);
+    let active = true;
+    // Verifica la sesión. El middleware (proxy.js) ya protege /admin en el
+    // servidor; esto es defensa en profundidad en el cliente.
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!active) return;
+      if (!user) {
+        router.replace("/admin/login");
+        return;
+      }
+      setChecking(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [supabase, router]);
 
   const showToast = useCallback((text, error = false) => {
     setToastMsg({ text, error });
@@ -150,111 +147,29 @@ export default function AdminClient() {
     toastTimer.current = setTimeout(() => setToastMsg(null), 3000);
   }, []);
 
-  const sbHeaders = useCallback(
-    (write = false) => {
-      const key = write ? creds.service : creds.anon;
-      return { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" };
-    },
-    [creds]
-  );
-
-  const sbGet = useCallback(
-    async (path) => {
-      const r = await fetch(`${creds.url}/rest/v1/${path}`, { headers: sbHeaders(false) });
-      if (!r.ok) throw new Error(await r.text());
-      return r.json();
-    },
-    [creds, sbHeaders]
-  );
-
-  const sbPatch = useCallback(
-    async (path, body) => {
-      const r = await fetch(`${creds.url}/rest/v1/${path}`, { method: "PATCH", headers: sbHeaders(true), body: JSON.stringify(body) });
-      if (!r.ok) throw new Error(await r.text());
-    },
-    [creds, sbHeaders]
-  );
-
-  const sbPost = useCallback(
-    async (path, body) => {
-      const r = await fetch(`${creds.url}/rest/v1/${path}`, { method: "POST", headers: sbHeaders(true), body: JSON.stringify(body) });
-      if (!r.ok) throw new Error(await r.text());
-    },
-    [creds, sbHeaders]
-  );
-
-  const sbDelete = useCallback(
-    async (path) => {
-      const r = await fetch(`${creds.url}/rest/v1/${path}`, { method: "DELETE", headers: sbHeaders(true) });
-      if (!r.ok) throw new Error(await r.text());
-    },
-    [creds, sbHeaders]
-  );
-
   const cargarCatalogo = useCallback(async () => {
     setLoadingDb(true);
     setDbError("");
     try {
-      const rows = await sbGet("perfumes?order=popularity.desc");
-      setDb(rows);
+      const { data, error } = await supabase
+        .from("perfumes")
+        .select("*")
+        .order("popularity", { ascending: false });
+      if (error) throw error;
+      setDb(data || []);
     } catch (e) {
       setDbError(e.message);
       showToast("Error al cargar", true);
     } finally {
       setLoadingDb(false);
     }
-  }, [sbGet, showToast]);
+  }, [supabase, showToast]);
 
   useEffect(() => {
-    if (connected) cargarCatalogo();
-  }, [connected, cargarCatalogo]);
-
-  function copiarSQL() {
-    const txt = sqlFullRef.current || sqlPreview;
-    navigator.clipboard.writeText(txt).then(() => showToast("✓ SQL copiado"));
-  }
-
-  async function conectar() {
-    const url = setupInputs.url.trim().replace(/\/$/, "");
-    const anon = setupInputs.anon.trim();
-    const service = setupInputs.service.trim();
-    setSetupError("");
-
-    if (!url || !anon || !service) {
-      setSetupError("Completa los tres campos.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${url}/rest/v1/perfumes?limit=1`, {
-        headers: { apikey: anon, Authorization: `Bearer ${anon}` },
-      });
-      if (!res.ok) throw new Error(`${res.status}`);
-    } catch (e) {
-      setSetupError(`No se pudo conectar: ${e.message}. Verifica la URL y que hayas corrido el SQL.`);
-      return;
-    }
-
-    localStorage.setItem("ah_sb_url", url);
-    localStorage.setItem("ah_sb_anon", anon);
-    localStorage.setItem("ah_sb_service", service);
-    setCreds({ url, anon, service });
-    setConnected(true);
-  }
-
-  function desconectar() {
-    if (!confirm("¿Desconectar este proyecto?")) return;
-    localStorage.removeItem("ah_sb_url");
-    localStorage.removeItem("ah_sb_anon");
-    localStorage.removeItem("ah_sb_service");
-    location.reload();
-  }
+    if (!checking) cargarCatalogo();
+  }, [checking, cargarCatalogo]);
 
   async function cerrarSesion() {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
     await supabase.auth.signOut();
     location.href = "/admin/login";
   }
@@ -265,7 +180,8 @@ export default function AdminClient() {
     const nuevoValor = !p[campo];
     setSavingIds((s) => ({ ...s, [id]: "saving" }));
     try {
-      await sbPatch(`perfumes?id=eq.${id}`, { [campo]: nuevoValor });
+      const { error } = await supabase.from("perfumes").update({ [campo]: nuevoValor }).eq("id", id);
+      if (error) throw error;
       setDb((prev) => prev.map((x) => (x.id === id ? { ...x, [campo]: nuevoValor } : x)));
       setSavingIds((s) => ({ ...s, [id]: "ok" }));
       showToast(`✓ ${p.name} actualizado`);
@@ -280,7 +196,8 @@ export default function AdminClient() {
   async function eliminarPerfume(id, nombre) {
     if (!confirm(`¿Eliminar "${nombre}" del catálogo?\nEsta acción no se puede deshacer.`)) return;
     try {
-      await sbDelete(`perfumes?id=eq.${id}`);
+      const { error } = await supabase.from("perfumes").delete().eq("id", id);
+      if (error) throw error;
       setDb((prev) => prev.filter((x) => x.id !== id));
       showToast(`🗑 ${nombre} eliminado`);
     } catch (e) {
@@ -338,7 +255,8 @@ export default function AdminClient() {
 
     setFormStatus("⏳ Guardando en Supabase...");
     try {
-      await sbPost("perfumes", nuevo);
+      const { error } = await supabase.from("perfumes").insert(nuevo);
+      if (error) throw error;
       setDb((prev) => [...prev, nuevo]);
       showToast(`✓ "${name}" guardado en Supabase`);
       limpiarForm();
@@ -447,93 +365,6 @@ export default function AdminClient() {
 
   if (checking) return null;
 
-  if (!connected) {
-    return (
-      <div className="admin-page">
-        <div id="setup-screen">
-          <div className="setup-card">
-            <div className="setup-logo">⚗ Attar House</div>
-            <div className="setup-subtitle">Configuración de la base de datos — solo se hace una vez</div>
-
-            <div className="setup-step">
-              <div className="step-num">1</div>
-              <div className="step-body">
-                <p>
-                  Crea una cuenta gratuita en{" "}
-                  <a href="https://supabase.com" target="_blank" rel="noreferrer">
-                    supabase.com
-                  </a>{" "}
-                  y luego crea un nuevo proyecto.
-                </p>
-              </div>
-            </div>
-
-            <div className="setup-step">
-              <div className="step-num">2</div>
-              <div className="step-body">
-                <p>
-                  Dentro de tu proyecto, ve a <strong>SQL Editor → New query</strong>. Copia el SQL de abajo y presiona <strong>Run</strong>.
-                </p>
-                <div className="sql-box">{sqlPreview}</div>
-                <button className="btn-copy" onClick={copiarSQL}>
-                  📋 Copiar SQL
-                </button>
-              </div>
-            </div>
-
-            <div className="setup-step">
-              <div className="step-num">3</div>
-              <div className="step-body">
-                <p>
-                  Ve a <strong>Settings → API</strong> en tu proyecto. Copia el <code>Project URL</code> y las dos claves.
-                </p>
-              </div>
-            </div>
-
-            <div className="setup-step">
-              <div className="step-num">4</div>
-              <div className="step-body">
-                <p>Pega los valores aquí:</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
-                  <input
-                    className="setup-input"
-                    placeholder="Project URL  (ej. https://abcxyz.supabase.co)"
-                    value={setupInputs.url}
-                    onChange={(e) => setSetupInputs((s) => ({ ...s, url: e.target.value }))}
-                  />
-                  <input
-                    className="setup-input"
-                    placeholder="anon public  (eyJ...)  — va en perfumes.js también"
-                    value={setupInputs.anon}
-                    onChange={(e) => setSetupInputs((s) => ({ ...s, anon: e.target.value }))}
-                  />
-                  <input
-                    className="setup-input"
-                    placeholder="service_role  (eyJ...)  — SOLO para este admin, nunca publicar"
-                    value={setupInputs.service}
-                    onChange={(e) => setSetupInputs((s) => ({ ...s, service: e.target.value }))}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {setupError && <p className="setup-error show">{setupError}</p>}
-            <button className="btn-connect" onClick={conectar}>
-              Conectar y guardar →
-            </button>
-            <p style={{ textAlign: "center", fontSize: "0.72rem", color: "#444", marginTop: "14px" }}>
-              Tus claves se guardan solo en este navegador (localStorage). Nunca se envían a ningún servidor externo.
-            </p>
-          </div>
-        </div>
-
-        {toastMsg && <div className={`toast show ${toastMsg.error ? "error" : ""}`}>{toastMsg.text}</div>}
-
-        <AdminStyles />
-      </div>
-    );
-  }
-
   return (
     <div className="admin-page">
       <div id="app">
@@ -541,10 +372,7 @@ export default function AdminClient() {
           <h1>⚗ Attar House Admin <span style={{fontSize:"0.55rem",background:"#d4af37",color:"#000",borderRadius:"4px",padding:"2px 6px",verticalAlign:"middle",fontWeight:"700"}}>v7</span></h1>
           <div className="header-right">
             <span className="conn-dot"></span>
-            <span className="conn-label">{(() => { try { return new URL(creds.url).hostname.split(".")[0]; } catch { return "Conectado"; } })()}</span>
-            <button className="btn-disconnect" onClick={desconectar}>
-              Cambiar proyecto
-            </button>
+            <span className="conn-label">Conectado</span>
             <button className="btn-disconnect" onClick={cerrarSesion} style={{ borderColor: "#c0392b", color: "#c0392b" }}>
               Cerrar sesión
             </button>

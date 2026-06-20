@@ -1,11 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { getAdminUser } from "@/lib/adminAuth";
 
 const client = new Anthropic();
 
 export async function GET(request) {
+  // Endpoint caro (llama a la API de Anthropic). Solo para el admin autenticado:
+  // evita que terceros gasten tu cuota de API.
+  const admin = await getAdminUser();
+  if (!admin) {
+    return Response.json({ error: "No autorizado." }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
-  const name = searchParams.get("name")?.trim();
-  const brand = searchParams.get("brand")?.trim();
+  const name = searchParams.get("name")?.trim()?.slice(0, 120);
+  const brand = searchParams.get("brand")?.trim()?.slice(0, 120);
 
   if (!name || !brand) {
     return Response.json({ error: "Falta nombre o marca" }, { status: 400 });

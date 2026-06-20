@@ -6,12 +6,15 @@ export const dynamic = "force-dynamic";
 // Recordatorio de carrito abandonado.
 // Lo dispara Vercel Cron (ver vercel.json). Protegido con CRON_SECRET.
 export async function GET(request) {
+  // Fail-closed: exige CRON_SECRET. Vercel Cron lo envía como Bearer token.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return Response.json({ error: "No autorizado." }, { status: 401 });
-    }
+  if (!secret) {
+    console.error("[cron/abandoned-cart] CRON_SECRET no configurado — petición rechazada.");
+    return Response.json({ error: "No autorizado." }, { status: 401 });
+  }
+  const auth = request.headers.get("authorization");
+  if (auth !== `Bearer ${secret}`) {
+    return Response.json({ error: "No autorizado." }, { status: 401 });
   }
 
   const now = Date.now();

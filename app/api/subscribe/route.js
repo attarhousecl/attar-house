@@ -1,9 +1,16 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { sendWelcomeEmail } from "@/lib/email";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request) {
+  // Limita intentos por IP para frenar spam de suscripciones / email-bombing.
+  const rl = rateLimit(`subscribe:${clientIp(request)}`, { limit: 5, windowMs: 60_000 });
+  if (!rl.ok) {
+    return Response.json({ error: "Demasiados intentos. Intenta más tarde." }, { status: 429 });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -11,7 +18,7 @@ export async function POST(request) {
     return Response.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
-  const email = (body?.email || "").trim().toLowerCase();
+  const email = (body?.email || "").trim().toLowerCase().slice(0, 254);
   const source = (body?.source || "footer").slice(0, 40);
 
   if (!EMAIL_RE.test(email)) {
