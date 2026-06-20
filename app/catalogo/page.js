@@ -6,12 +6,13 @@ import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
 import SkeletonGrid from "@/components/SkeletonGrid";
 
-function applyFilters(perfumes, { search, sort, gender, aroma, brand, note }) {
+function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, sealed }) {
   let filtered = perfumes.filter((p) => {
     const matchBrand = brand === "all" || p.brand === brand;
     const matchGender = gender === "all" || p.gender === gender;
     const matchAroma = aroma === "all" || p.families.includes(aroma);
     const matchNote = !note || p.notes.includes(note);
+    const matchSealed = !sealed || (p.prices.sellado > 0 && p.stock.sellado !== false);
     const matchSearch =
       search === "" ||
       p.name.toLowerCase().includes(search) ||
@@ -19,7 +20,7 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand, note }) {
       p.notes.some((n) => n.toLowerCase().includes(search)) ||
       p.families.some((f) => f.toLowerCase().includes(search)) ||
       (p.description && p.description.toLowerCase().includes(search));
-    return matchBrand && matchGender && matchAroma && matchNote && matchSearch;
+    return matchBrand && matchGender && matchAroma && matchNote && matchSealed && matchSearch;
   });
 
   if (sort === "price-asc") {
@@ -49,8 +50,9 @@ export default function CatalogoPage() {
   const [aroma, setAroma] = useState("all");
   const [brand, setBrand] = useState("all");
   const [note, setNote] = useState("");
+  const [sealed, setSealed] = useState(false);
 
-  const filterState = { search, sort, gender, aroma, brand, note };
+  const filterState = { search, sort, gender, aroma, brand, note, sealed };
   const filteredArab     = applyFilters(arabDB, filterState);
   const filteredNicho    = applyFilters(nichoDB, filterState);
   const filteredDesigner = applyFilters(designerDB, filterState);
@@ -91,6 +93,7 @@ export default function CatalogoPage() {
           aroma={aroma} setAroma={setAroma}
           brand={brand} setBrand={setBrand}
           note={note} setNote={setNote}
+          sealed={sealed} setSealed={setSealed}
           totalResults={totalResults}
         />
 

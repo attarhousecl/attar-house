@@ -47,6 +47,7 @@ export default function FilterBar({
   aroma, setAroma,
   brand, setBrand,
   note, setNote,
+  sealed, setSealed,
   totalResults,
 }) {
   const [open, setOpen] = useState(null);
@@ -61,6 +62,7 @@ export default function FilterBar({
     aroma !== "all",
     brand !== "all",
     !!note,
+    !!sealed,
   ].filter(Boolean).length;
 
   function clearAll() {
@@ -70,6 +72,7 @@ export default function FilterBar({
     setBrand("all");
     setNote("");
     setSearch("");
+    setSealed(false);
     close();
   }
 
@@ -205,6 +208,16 @@ export default function FilterBar({
             </div>
           )}
         </Dropdown>
+
+        {/* Toggle: solo con frasco sellado */}
+        <button
+          style={btnStyle(sealed)}
+          onClick={() => setSealed((v) => !v)}
+          aria-pressed={sealed}
+          title="Mostrar solo perfumes con frasco sellado disponible"
+        >
+          {sealed ? "✓ " : "✦ "}Con sellado
+        </button>
 
         {/* Separador + resultados + limpiar */}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>

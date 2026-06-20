@@ -14,7 +14,7 @@ export const metadata = {
   metadataBase: new URL("https://attarhouse.cl"),
   title: "Attar House | Perfumería Árabe y Decants en Valdivia",
   description:
-    "Descubre la mejor alta perfumería árabe y decants en Valdivia. Fragancias exclusivas, testers originales y envíos a todo Chile. Attar House: No son perfumes, es presencia.",
+    "Descubre alta perfumería árabe, de nicho y diseñador en decants y frascos sellados, en Valdivia. Fragancias 100% originales, testers y envíos a todo Chile. Attar House: No son perfumes, es presencia.",
   icons: {
     icon: "/favicon.svg",
   },

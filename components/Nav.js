@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/quiz", label: "🔮 Quiz" },
   { href: "/pack", label: "🎁 Pack" },
   { href: "/accesorios", label: "Accesorios" },
+  { href: "/faq", label: "FAQ" },
   { href: "/mis-pedidos", label: "Mis Pedidos" },
 ];
 

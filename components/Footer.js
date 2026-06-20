@@ -33,7 +33,7 @@ export default function Footer() {
           <div className="footer-nav">
             <h5 className="footer-nav-title">Información</h5>
             <Link href="/#decants">¿Qué es un Decant?</Link>
-            <Link href="/#faq">Preguntas Frecuentes</Link>
+            <Link href="/faq">Preguntas Frecuentes</Link>
             <Link href="/#contacto">Contacto</Link>
           </div>
 
