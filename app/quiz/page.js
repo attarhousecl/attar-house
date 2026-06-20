@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCatalog } from "@/context/CatalogContext";
-import ProductCard from "@/components/ProductCard";
+import ProductGrid from "@/components/ProductGrid";
 
 const PREGUNTAS = [
   {
@@ -137,8 +137,8 @@ export default function QuizPage() {
             <p style={{ color: "#666", fontSize: "0.88rem" }}>Basado en tus preferencias, estos perfumes son para ti</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "20px", marginBottom: "40px" }}>
-            {resultados.map((p, i) => <ProductCard key={p.id} perfume={p} variant="catalog" index={i} />)}
+          <div style={{ marginBottom: "40px" }}>
+            <ProductGrid perfumes={resultados} variant="catalog" />
           </div>
 
           <div style={{ textAlign: "center", display: "flex", gap: "16px", justifyContent: "center" }}>
