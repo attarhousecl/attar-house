@@ -6,13 +6,14 @@ import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
 import SkeletonGrid from "@/components/SkeletonGrid";
 
-function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, sealed }) {
+function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, formato }) {
   let filtered = perfumes.filter((p) => {
+    const hasSellado = p.prices.sellado > 0 && p.stock.sellado !== false;
     const matchBrand = brand === "all" || p.brand === brand;
     const matchGender = gender === "all" || p.gender === gender;
     const matchAroma = aroma === "all" || p.families.includes(aroma);
     const matchNote = !note || p.notes.includes(note);
-    const matchSealed = !sealed || (p.prices.sellado > 0 && p.stock.sellado !== false);
+    const matchFormato = formato === "all" || (formato === "sealed" ? hasSellado : !hasSellado);
     const matchSearch =
       search === "" ||
       p.name.toLowerCase().includes(search) ||
@@ -20,7 +21,7 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, seal
       p.notes.some((n) => n.toLowerCase().includes(search)) ||
       p.families.some((f) => f.toLowerCase().includes(search)) ||
       (p.description && p.description.toLowerCase().includes(search));
-    return matchBrand && matchGender && matchAroma && matchNote && matchSealed && matchSearch;
+    return matchBrand && matchGender && matchAroma && matchNote && matchFormato && matchSearch;
   });
 
   if (sort === "price-asc") {
@@ -50,9 +51,9 @@ export default function CatalogoPage() {
   const [aroma, setAroma] = useState("all");
   const [brand, setBrand] = useState("all");
   const [note, setNote] = useState("");
-  const [sealed, setSealed] = useState(false);
+  const [formato, setFormato] = useState("all");
 
-  const filterState = { search, sort, gender, aroma, brand, note, sealed };
+  const filterState = { search, sort, gender, aroma, brand, note, formato };
   const filteredArab     = applyFilters(arabDB, filterState);
   const filteredNicho    = applyFilters(nichoDB, filterState);
   const filteredDesigner = applyFilters(designerDB, filterState);
@@ -93,7 +94,7 @@ export default function CatalogoPage() {
           aroma={aroma} setAroma={setAroma}
           brand={brand} setBrand={setBrand}
           note={note} setNote={setNote}
-          sealed={sealed} setSealed={setSealed}
+          formato={formato} setFormato={setFormato}
           totalResults={totalResults}
         />
 

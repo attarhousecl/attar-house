@@ -17,6 +17,12 @@ const SORTS = [
   { value: "price-desc", label: "Mayor precio" },
 ];
 
+const FORMATOS = [
+  { value: "all",    label: "Todos los formatos" },
+  { value: "sealed", label: "Con frasco sellado" },
+  { value: "decant", label: "Solo decants" },
+];
+
 function getTopBrands(db) {
   return [...new Set(db.map((p) => p.brand))].sort();
 }
@@ -47,7 +53,7 @@ export default function FilterBar({
   aroma, setAroma,
   brand, setBrand,
   note, setNote,
-  sealed, setSealed,
+  formato, setFormato,
   totalResults,
 }) {
   const [open, setOpen] = useState(null);
@@ -62,7 +68,7 @@ export default function FilterBar({
     aroma !== "all",
     brand !== "all",
     !!note,
-    !!sealed,
+    formato !== "all",
   ].filter(Boolean).length;
 
   function clearAll() {
@@ -72,7 +78,7 @@ export default function FilterBar({
     setBrand("all");
     setNote("");
     setSearch("");
-    setSealed(false);
+    setFormato("all");
     close();
   }
 
@@ -209,15 +215,21 @@ export default function FilterBar({
           )}
         </Dropdown>
 
-        {/* Toggle: solo con frasco sellado */}
-        <button
-          style={btnStyle(sealed)}
-          onClick={() => setSealed((v) => !v)}
-          aria-pressed={sealed}
-          title="Mostrar solo perfumes con frasco sellado disponible"
-        >
-          {sealed ? "✓ " : "✦ "}Con sellado
-        </button>
+        {/* Formato */}
+        <Dropdown label="Formato" active={open === "formato"} onClose={close}>
+          <button style={btnStyle(formato !== "all")} onClick={() => toggle("formato")}>
+            {formato !== "all" ? FORMATOS.find((f) => f.value === formato)?.label : "Formato"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+          </button>
+          {open === "formato" && (
+            <div style={dropStyle}>
+              {FORMATOS.map((f) => (
+                <button key={f.value} style={optStyle(formato === f.value)} onClick={() => { setFormato(f.value); close(); }}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </Dropdown>
 
         {/* Separador + resultados + limpiar */}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
