@@ -60,7 +60,7 @@ export default function PackPage() {
 
         <div style={{ textAlign: "center", margin: "24px 0 40px" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🎁</div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Pack Descubrimiento</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Pack Descubrimiento</h1>
           <p style={{ color: "#888", fontSize: "0.9rem", margin: 0 }}>Elige {MIN_ITEMS}–{MAX_ITEMS} decants de 10ml y obtén <strong style={{ color: "#d4af37" }}>10% de descuento</strong></p>
         </div>
 

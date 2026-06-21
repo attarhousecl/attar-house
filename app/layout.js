@@ -1,6 +1,23 @@
 import "./globals.css";
+import { Montserrat, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import Nav from "@/components/Nav";
+
+// Fuentes self-hosted vía next/font: sin request externo render-blocking ni
+// layout shift. Se exponen como variables CSS usadas en globals.css y estilos inline.
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-montserrat",
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-playfair",
+});
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -39,17 +56,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${montserrat.variable} ${playfair.variable}`}>
       <head>
-        {/* Preconnect a los orígenes de recursos render-blocking (fuentes + iconos)
-            para adelantar el handshake DNS/TLS y acelerar el primer render. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Preconnect al CDN de iconos (Phosphor) para adelantar su handshake.
+            Las fuentes ya no son render-blocking: se sirven self-hosted vía next/font. */}
         <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />

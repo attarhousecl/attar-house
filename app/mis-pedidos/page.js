@@ -42,7 +42,7 @@ export default function MisPedidosPage() {
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
         <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver al inicio</Link>
 
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", color: "#d4af37", margin: "20px 0 8px" }}>Mis Pedidos</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "2rem", color: "#d4af37", margin: "20px 0 8px" }}>Mis Pedidos</h1>
         <p style={{ color: "#666", fontSize: "0.88rem", marginBottom: "32px" }}>Ingresa tu número de pedido (ej: AH1234567890) o tu email para ver el estado.</p>
 
         <form onSubmit={buscar} style={{ display: "flex", gap: "10px", marginBottom: "32px" }}>

@@ -186,7 +186,7 @@ export default function QuizPage() {
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>✨</div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Tus fragancias recomendadas</h1>
+            <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Tus fragancias recomendadas</h1>
             <p style={{ color: "#666", fontSize: "0.88rem" }}>Basado en tus preferencias, estos perfumes son para ti</p>
           </div>
 
@@ -213,7 +213,7 @@ export default function QuizPage() {
       <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>✨</div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Preparando tus recomendaciones…</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Preparando tus recomendaciones…</h1>
           <p style={{ color: "#666", fontSize: "0.88rem" }}>Estamos analizando tus respuestas.</p>
         </div>
       </div>
@@ -229,7 +229,7 @@ export default function QuizPage() {
 
         <div style={{ textAlign: "center", margin: "24px 0 32px" }}>
           <p style={{ color: "#888", fontSize: "0.75rem", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "4px" }}>Pregunta {paso + 1} de {PREGUNTAS.length}</p>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Quiz de Fragancias</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Quiz de Fragancias</h1>
           <p style={{ color: "#e0e0e0", fontSize: "1rem", margin: 0 }}>{pregunta.pregunta}</p>
         </div>
 
