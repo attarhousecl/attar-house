@@ -113,8 +113,9 @@ export default function CheckoutPage() {
             ))}
             {freeGiftEligible && (
               <div className="form-group">
-                <label className="form-label">🎁 Elige tu regalo (Decant 3ml)</label>
+                <label className="form-label" htmlFor="free-gift-select">🎁 Elige tu regalo (Decant 3ml)</label>
                 <select
+                  id="free-gift-select"
                   className="form-select"
                   value={freeGift}
                   onChange={(e) => setFreeGift(e.target.value)}

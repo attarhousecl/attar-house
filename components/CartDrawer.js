@@ -59,8 +59,8 @@ export default function CartDrawer() {
       <div className={`cart-sidebar ${open ? "open" : ""}`}>
         <div className="cart-header">
           <h3 className="serif">Tu Pedido</h3>
-          <button className="close-cart" onClick={() => setOpen(false)}>
-            <i className="ph ph-x"></i>
+          <button className="close-cart" onClick={() => setOpen(false)} aria-label="Cerrar carrito">
+            <i className="ph ph-x" aria-hidden="true"></i>
           </button>
         </div>
 
@@ -112,15 +112,15 @@ export default function CartDrawer() {
                     <b>${sub.toLocaleString("es-CL")}</b>
                   </div>
                   <div className="cart-item-actions">
-                    <button className="qty-btn" onClick={() => updateQty(idx, -1)}>
+                    <button className="qty-btn" onClick={() => updateQty(idx, -1)} aria-label={`Quitar uno de ${i.name}`}>
                       -
                     </button>
                     <span>{i.quantity}</span>
-                    <button className="qty-btn" onClick={() => updateQty(idx, 1)}>
+                    <button className="qty-btn" onClick={() => updateQty(idx, 1)} aria-label={`Agregar uno de ${i.name}`}>
                       +
                     </button>
-                    <button className="remove-btn" onClick={() => updateQty(idx, -999)}>
-                      <i className="ph ph-trash"></i>
+                    <button className="remove-btn" onClick={() => updateQty(idx, -999)} aria-label={`Eliminar ${i.name} del carrito`}>
+                      <i className="ph ph-trash" aria-hidden="true"></i>
                     </button>
                   </div>
                 </div>
@@ -139,6 +139,7 @@ export default function CartDrawer() {
             </h4>
             <select
               className="free-gift-select"
+              aria-label="Elige tu decant de regalo"
               style={{ width: "100%", padding: "10px", background: "#000", color: "#fff", border: "1px solid #333", borderRadius: "6px" }}
               value={freeGift}
               onChange={(e) => setFreeGift(e.target.value)}
