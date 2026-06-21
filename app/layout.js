@@ -54,6 +54,11 @@ export const metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#030303",
+  colorScheme: "dark",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${montserrat.variable} ${playfair.variable}`}>
