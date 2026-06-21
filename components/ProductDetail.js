@@ -39,6 +39,12 @@ export default function ProductDetail({ id }) {
     setSelectedFormat(firstAvailable ? firstAvailable.key : options[0].key);
   }, [perfume?.id]);
 
+  // Señala que esta página tiene barra de compra fija (mobile) para subir los FABs.
+  useEffect(() => {
+    document.body.classList.add("has-buy-bar");
+    return () => document.body.classList.remove("has-buy-bar");
+  }, []);
+
   if (loading) {
     return (
       <section id="detalle-perfume" className="page-section active">
@@ -197,6 +203,18 @@ export default function ProductDetail({ id }) {
         <ReviewSection perfumeId={perfume.id} />
 
         <RelatedProducts perfume={perfume} />
+      </div>
+
+      {/* Barra de compra fija (solo mobile): "añadir al carrito" siempre a un toque. */}
+      <div className="mobile-buy-bar">
+        <div className="mbb-info">
+          <span className="mbb-label">{selectedOpt ? selectedOpt.label : "Formato"}</span>
+          <span className="mbb-price">{selectedOpt ? `$${selectedOpt.price.toLocaleString("es-CL")}` : ""}</span>
+        </div>
+        <button className="mbb-btn" onClick={handleAddToCart} disabled={!canAddToCart}>
+          <i className="ph ph-shopping-cart" aria-hidden="true"></i>
+          {canAddToCart ? "Añadir" : "Agotado"}
+        </button>
       </div>
     </section>
   );

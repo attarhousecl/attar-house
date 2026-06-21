@@ -554,6 +554,36 @@ main { flex: 1; margin-top: 105px; }
 .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
 .btn-whatsapp-final { width: 100%; padding: 18px; background: var(--whatsapp); color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
 
+/* --- BARRA DE COMPRA FIJA (mobile, ficha de producto) --- */
+.mobile-buy-bar { display: none; }
+@media (max-width: 768px) {
+  .mobile-buy-bar {
+    display: flex; align-items: center; gap: 12px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+    padding: 10px 14px;
+    background: rgba(8,8,8,0.97);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border-gold);
+    box-shadow: 0 -6px 24px rgba(0,0,0,0.5);
+  }
+  .mbb-info { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; }
+  .mbb-label { font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .mbb-price { font-size: 1.05rem; color: var(--gold-primary); font-weight: 700; }
+  .mbb-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--gold-primary); color: var(--bg-base);
+    border: none; border-radius: 8px; padding: 13px;
+    font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer; font-family: var(--font-montserrat), sans-serif;
+  }
+  .mbb-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
+  /* Sube los botones flotantes para que no choquen con la barra de compra */
+  body.has-buy-bar .cart-toggle { bottom: 84px; }
+  body.has-buy-bar .whatsapp-float { bottom: 150px !important; }
+  /* Reserva espacio para que el footer no quede tapado por la barra fija */
+  body.has-buy-bar { padding-bottom: 66px; }
+}
+
 /* --- CHECKOUT --- */
 .checkout-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start; }
 .checkout-summary { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 30px; position: sticky; top: 120px; }

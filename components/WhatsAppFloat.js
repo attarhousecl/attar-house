@@ -7,6 +7,7 @@ export default function WhatsAppFloat() {
       target="_blank"
       rel="noreferrer"
       aria-label="Contactar por WhatsApp"
+      className="whatsapp-float"
       style={{
         position: "fixed",
         bottom: "108px",
