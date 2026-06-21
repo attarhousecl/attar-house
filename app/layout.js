@@ -64,7 +64,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <a href="#main-content" className="skip-link">Saltar al contenido</a>
-        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
+        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="afterInteractive" />
         <ToastProvider>
           <CatalogProvider>
             <CartProvider>
