@@ -10,6 +10,7 @@ export default function SearchBox() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [active, setActive] = useState(0);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -45,9 +46,27 @@ export default function SearchBox() {
       .slice(0, 8);
   }, [q, perfumes]);
 
+  // Resetea el resaltado al cambiar la búsqueda.
+  useEffect(() => { setActive(0); }, [q]);
+
   const go = (id) => {
     setOpen(false);
     router.push(`/producto/${id}`);
+  };
+
+  const onInputKeyDown = (e) => {
+    if (!results.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((a) => Math.min(a + 1, results.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((a) => Math.max(a - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const sel = results[active] || results[0];
+      if (sel) go(sel.id);
+    }
   };
 
   return (
@@ -71,6 +90,9 @@ export default function SearchBox() {
           onClick={() => setOpen(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buscar perfumes"
             style={{
               width: "100%", maxWidth: "620px",
               background: "#0e0e0e", border: "1px solid rgba(212,175,55,0.25)",
@@ -85,6 +107,8 @@ export default function SearchBox() {
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
+                onKeyDown={onInputKeyDown}
+                aria-label="Buscar perfumes"
                 placeholder="Busca por nombre, marca, nota o inspiración..."
                 style={{
                   flex: 1, background: "transparent", border: "none", outline: "none",
@@ -110,18 +134,18 @@ export default function SearchBox() {
                   No encontramos nada para &ldquo;{q}&rdquo;. Prueba otra palabra.
                 </p>
               ) : (
-                results.map((p) => (
+                results.map((p, idx) => (
                   <button
                     key={p.id}
                     onClick={() => go(p.id)}
+                    onMouseEnter={() => setActive(idx)}
+                    aria-selected={active === idx}
                     style={{
                       display: "flex", alignItems: "center", gap: "14px", width: "100%",
-                      padding: "12px 20px", background: "transparent", border: "none",
+                      padding: "12px 20px", background: active === idx ? "rgba(212,175,55,0.1)" : "transparent", border: "none",
                       borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
                       textAlign: "left", fontFamily: "inherit",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.06)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <div style={{ width: "44px", height: "44px", flexShrink: 0, borderRadius: "8px", overflow: "hidden", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {p.imageUrl ? (
@@ -134,11 +158,14 @@ export default function SearchBox() {
                       <div style={{ fontSize: "0.7rem", color: "#777", textTransform: "uppercase", letterSpacing: "0.5px" }}>{p.brand}</div>
                       <div style={{ fontSize: "0.92rem", color: "#e8e8e8", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                     </div>
-                    {p.prices?.decant3 > 0 && (
-                      <div style={{ color: "var(--gold-primary)", fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap" }}>
-                        ${p.prices.decant3.toLocaleString("es-CL")}
-                      </div>
-                    )}
+                    {(() => {
+                      const pr = [p.prices?.decant3, p.prices?.decant5, p.prices?.decant10, p.prices?.sellado].find((v) => v > 0);
+                      return pr ? (
+                        <div style={{ color: "var(--gold-primary)", fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+                          ${pr.toLocaleString("es-CL")}
+                        </div>
+                      ) : null;
+                    })()}
                   </button>
                 ))
               )}

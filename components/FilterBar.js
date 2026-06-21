@@ -39,8 +39,15 @@ function Dropdown({ label, active, children, onClose }) {
     function handler(e) {
       if (ref.current && !ref.current.contains(e.target)) onClose();
     }
+    function onKey(e) {
+      if (e.key === "Escape") onClose();
+    }
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [active, onClose]);
 
   return (
@@ -141,6 +148,7 @@ export default function FilterBar({
           placeholder="🔍  Buscar perfume, marca, nota..."
           value={search}
           onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          aria-label="Buscar en el catálogo"
           style={{
             width: "100%",
             background: "rgba(255,255,255,0.04)",
@@ -149,7 +157,6 @@ export default function FilterBar({
             padding: "10px 16px",
             color: "#e0e0e0",
             fontSize: "0.88rem",
-            outline: "none",
             fontFamily: "inherit",
             boxSizing: "border-box",
           }}
@@ -161,7 +168,7 @@ export default function FilterBar({
 
         {/* Ordenar */}
         <Dropdown label="Ordenar" active={open === "sort"} onClose={close}>
-          <button style={btnStyle(sort !== "default")} onClick={() => toggle("sort")}>
+          <button style={btnStyle(sort !== "default")} onClick={() => toggle("sort")} aria-haspopup="listbox" aria-expanded={open === "sort"}>
             {SORTS.find(s => s.value === sort)?.label || "Ordenar"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
           </button>
           {open === "sort" && (
@@ -177,7 +184,7 @@ export default function FilterBar({
 
         {/* Género */}
         <Dropdown label="Género" active={open === "gender"} onClose={close}>
-          <button style={btnStyle(gender !== "all")} onClick={() => toggle("gender")}>
+          <button style={btnStyle(gender !== "all")} onClick={() => toggle("gender")} aria-haspopup="listbox" aria-expanded={open === "gender"}>
             {gender !== "all" ? gender : "Género"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
           </button>
           {open === "gender" && (
@@ -192,7 +199,7 @@ export default function FilterBar({
 
         {/* Familia Olfativa */}
         <Dropdown label="Familia" active={open === "aroma"} onClose={close}>
-          <button style={btnStyle(aroma !== "all")} onClick={() => toggle("aroma")}>
+          <button style={btnStyle(aroma !== "all")} onClick={() => toggle("aroma")} aria-haspopup="listbox" aria-expanded={open === "aroma"}>
             {aroma !== "all" ? aroma : "Familia olfativa"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
           </button>
           {open === "aroma" && (
@@ -207,7 +214,7 @@ export default function FilterBar({
 
         {/* Marca */}
         <Dropdown label="Marca" active={open === "brand"} onClose={close}>
-          <button style={btnStyle(brand !== "all")} onClick={() => toggle("brand")}>
+          <button style={btnStyle(brand !== "all")} onClick={() => toggle("brand")} aria-haspopup="listbox" aria-expanded={open === "brand"}>
             {brand !== "all" ? brand : "Marca"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
           </button>
           {open === "brand" && (
@@ -222,7 +229,7 @@ export default function FilterBar({
 
         {/* Formato */}
         <Dropdown label="Formato" active={open === "formato"} onClose={close}>
-          <button style={btnStyle(formato !== "all")} onClick={() => toggle("formato")}>
+          <button style={btnStyle(formato !== "all")} onClick={() => toggle("formato")} aria-haspopup="listbox" aria-expanded={open === "formato"}>
             {formato !== "all" ? FORMATOS.find((f) => f.value === formato)?.label : "Formato"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
           </button>
           {open === "formato" && (

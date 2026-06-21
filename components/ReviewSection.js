@@ -17,6 +17,26 @@ function Stars({ rating }) {
   );
 }
 
+// Carga reseñas validando la forma (evita ratings fuera de rango / objetos corruptos).
+function loadReviews(perfumeId) {
+  let all = {};
+  try {
+    all = JSON.parse(localStorage.getItem("attar_reviews")) || {};
+  } catch {
+    // ignore malformed localStorage data
+  }
+  const list = Array.isArray(all[perfumeId]) ? all[perfumeId] : [];
+  return list.filter(
+    (r) =>
+      r &&
+      typeof r.author === "string" &&
+      typeof r.text === "string" &&
+      Number.isFinite(r.rating) &&
+      r.rating >= 1 &&
+      r.rating <= 5
+  );
+}
+
 export default function ReviewSection({ perfumeId }) {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
@@ -25,13 +45,7 @@ export default function ReviewSection({ perfumeId }) {
   const { showToast } = useToast();
 
   useEffect(() => {
-    let all = {};
-    try {
-      all = JSON.parse(localStorage.getItem("attar_reviews")) || {};
-    } catch {
-      // ignore malformed localStorage data
-    }
-    setReviews(all[perfumeId] || []);
+    setReviews(loadReviews(perfumeId));
   }, [perfumeId]);
 
   const avg = reviews.length > 0 ? reviews.reduce((a, b) => a + b.rating, 0) / reviews.length : 0;
@@ -102,16 +116,20 @@ export default function ReviewSection({ perfumeId }) {
 
       <div className="review-form">
         <h5>Deja tu opinión</h5>
-        <div className="review-form-stars">
+        <div className="review-form-stars" role="radiogroup" aria-label="Puntuación">
           {[1, 2, 3, 4, 5].map((i) => (
-            <span
+            <button
+              type="button"
               key={i}
               className="review-form-star"
-              style={{ color: i <= rating ? "var(--gold-primary)" : "var(--gold-dark)" }}
+              role="radio"
+              aria-checked={rating === i}
+              aria-label={`${i} estrella${i > 1 ? "s" : ""}`}
+              style={{ color: i <= rating ? "var(--gold-primary)" : "var(--gold-dark)", background: "none", border: "none", padding: 0, fontSize: "1.4rem", lineHeight: 1, cursor: "pointer" }}
               onClick={() => setRating(i)}
             >
               ★
-            </span>
+            </button>
           ))}
         </div>
         <input

@@ -71,7 +71,8 @@ export default function PackPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar perfume..."
-              style={{ width: "100%", background: "#111", border: "1px solid #222", borderRadius: "8px", padding: "10px 16px", color: "#e0e0e0", fontSize: "0.88rem", marginBottom: "16px", boxSizing: "border-box", outline: "none", fontFamily: "inherit" }}
+              aria-label="Buscar perfume para el pack"
+              style={{ width: "100%", background: "#111", border: "1px solid #222", borderRadius: "8px", padding: "10px 16px", color: "#e0e0e0", fontSize: "0.88rem", marginBottom: "16px", boxSizing: "border-box", fontFamily: "inherit" }}
             />
             {filtrados.length === 0 && (
               <p style={{ color: "#666", fontSize: "0.85rem", textAlign: "center", padding: "32px 0" }}>

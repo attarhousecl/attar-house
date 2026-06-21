@@ -52,6 +52,7 @@ export default function NewsletterSignup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="tu@email.com"
+            aria-label="Tu correo electrónico"
             style={{
               background: "rgba(255,255,255,0.05)",
               border: "1px solid rgba(212,175,55,0.25)",
@@ -59,7 +60,6 @@ export default function NewsletterSignup() {
               padding: "10px 12px",
               color: "#e0e0e0",
               fontSize: "0.85rem",
-              outline: "none",
               fontFamily: "inherit",
             }}
           />

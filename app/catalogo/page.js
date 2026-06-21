@@ -89,6 +89,7 @@ export default function CatalogoPage() {
             <button
               key={tab.id}
               className={`catalog-tab ${activeTab === tab.id ? "active" : ""}`}
+              aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}

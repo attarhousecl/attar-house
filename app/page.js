@@ -73,8 +73,8 @@ export default function Home() {
           </p>
           <Reveal className="home-highlights">
             <Link href="/quiz" className="highlight-panel">
-              <span className="hp-watermark">🔮</span>
-              <span className="hp-icon">🔮</span>
+              <span className="hp-watermark" aria-hidden="true">🔮</span>
+              <span className="hp-icon" aria-hidden="true">🔮</span>
               <h3>Quiz de Fragancias</h3>
               <p>
                 Responde 5 preguntas rápidas sobre tu estilo y ocasión, y te recomendamos
@@ -86,8 +86,8 @@ export default function Home() {
             </Link>
 
             <Link href="/pack" className="highlight-panel">
-              <span className="hp-watermark">🎁</span>
-              <span className="hp-icon">🎁</span>
+              <span className="hp-watermark" aria-hidden="true">🎁</span>
+              <span className="hp-icon" aria-hidden="true">🎁</span>
               <h3>Pack Descubrimiento</h3>
               <p>
                 Arma tu propio set eligiendo de 3 a 5 decants de 10ml y llévate un{" "}
