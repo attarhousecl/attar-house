@@ -292,7 +292,7 @@ const S = {
   errorMsg: { color: "#c0392b", background: "#1a0a0a", border: "1px solid #3a1a1a", borderRadius: "8px", padding: "12px 16px", fontSize: "0.85rem" },
   empty:   { color: "#444", padding: "32px 0" },
   linkBtn: { background: "none", border: "none", color: "#d4af37", cursor: "pointer", fontSize: "inherit", textDecoration: "underline" },
-  kpiGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" },
+  kpiGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "12px" },
   kpi:     { background: "#111", border: "1px solid #1a1a1a", borderRadius: "10px", padding: "16px 18px" },
   chartBox: { background: "#111", border: "1px solid #1a1a1a", borderRadius: "10px", padding: "20px 16px 12px", display: "flex", alignItems: "flex-end", gap: "6px", height: "160px", position: "relative" },
   chartCol: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", height: "100%" },

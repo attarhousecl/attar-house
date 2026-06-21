@@ -178,7 +178,9 @@ export default function ProductDetail({ id }) {
               )}
               <button className="btn-add-cart-gold" onClick={handleAddToCart} disabled={!canAddToCart}>
                 <i className="ph ph-shopping-cart" style={{ fontSize: "1.2rem" }}></i>{" "}
-                {canAddToCart ? "Añadir al Carrito" : "Agotado"}
+                {canAddToCart
+                  ? `Añadir al Carrito · $${selectedOpt.price.toLocaleString("es-CL")}`
+                  : "Agotado"}
               </button>
               <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.9" }}>
                 <p>✓ Autenticidad Garantizada</p>

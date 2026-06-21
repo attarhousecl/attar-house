@@ -294,7 +294,7 @@ const S = {
   navBtn:  { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#d4af37", borderRadius: "6px", padding: "7px 14px", fontSize: "0.8rem", cursor: "pointer" },
   content: { padding: "24px", maxWidth: "1100px", margin: "0 auto" },
   sectionTitle: { fontSize: "0.8rem", color: "#d4af37", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #1a1a1a", paddingBottom: "8px", marginBottom: "16px", marginTop: "4px" },
-  cabecera: { display: "grid", gridTemplateColumns: "160px 180px 1fr", gap: "14px", marginBottom: "20px" },
+  cabecera: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "14px", marginBottom: "20px" },
   itemForm: { background: "#0f0f0f", border: "1px solid #1a1a1a", borderRadius: "10px", padding: "16px", marginBottom: "16px" },
   itemFields: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-end", marginBottom: "14px" },
   input:   { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "6px", padding: "9px 12px", color: "#e0e0e0", fontSize: "0.86rem", outline: "none", fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
