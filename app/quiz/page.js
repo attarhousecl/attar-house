@@ -228,7 +228,7 @@ export default function QuizPage() {
         <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver</Link>
 
         <div style={{ textAlign: "center", margin: "24px 0 32px" }}>
-          <p style={{ color: "#555", fontSize: "0.75rem", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "4px" }}>Pregunta {paso + 1} de {PREGUNTAS.length}</p>
+          <p style={{ color: "#888", fontSize: "0.75rem", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "4px" }}>Pregunta {paso + 1} de {PREGUNTAS.length}</p>
           <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Quiz de Fragancias</h1>
           <p style={{ color: "#e0e0e0", fontSize: "1rem", margin: 0 }}>{pregunta.pregunta}</p>
         </div>
@@ -254,7 +254,7 @@ export default function QuizPage() {
         </div>
 
         {paso > 0 && (
-          <button onClick={() => setPaso(paso - 1)} style={{ marginTop: "20px", background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: "0.8rem", display: "block", margin: "20px auto 0" }}>
+          <button onClick={() => setPaso(paso - 1)} style={{ marginTop: "20px", background: "none", border: "none", color: "#888", cursor: "pointer", fontSize: "0.8rem", display: "block", margin: "20px auto 0" }}>
             ← Pregunta anterior
           </button>
         )}

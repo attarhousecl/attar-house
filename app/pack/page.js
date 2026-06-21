@@ -140,7 +140,7 @@ export default function PackPage() {
                   ))}
                 </div>
               ) : (
-                <p style={{ color: "#333", fontSize: "0.78rem", textAlign: "center", padding: "12px 0" }}>Selecciona perfumes para armar tu pack</p>
+                <p style={{ color: "#777", fontSize: "0.78rem", textAlign: "center", padding: "12px 0" }}>Selecciona perfumes para armar tu pack</p>
               )}
 
               {selected.length > 0 && (
@@ -165,7 +165,7 @@ export default function PackPage() {
                 {listo ? `Agregar pack al carrito` : `Selecciona al menos ${MIN_ITEMS}`}
               </button>
 
-              <p style={{ marginTop: "12px", fontSize: "0.7rem", color: "#333", textAlign: "center" }}>Cada decant es de {FORMAT_LABEL} (~100 atomizaciones)</p>
+              <p style={{ marginTop: "12px", fontSize: "0.7rem", color: "#777", textAlign: "center" }}>Cada decant es de {FORMAT_LABEL} (~100 atomizaciones)</p>
             </div>
           </div>
         </div>

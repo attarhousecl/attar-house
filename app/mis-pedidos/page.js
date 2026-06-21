@@ -60,7 +60,7 @@ export default function MisPedidosPage() {
 
         {searched && !loading && orders !== null && (
           orders.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#444", padding: "40px 0" }}>
+            <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
               <div style={{ fontSize: "2rem", marginBottom: "12px" }}>🔍</div>
               <p>No encontramos pedidos con ese número o email.</p>
               <p style={{ fontSize: "0.78rem", marginTop: "8px" }}>¿Tienes dudas? <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Escríbenos por WhatsApp</a></p>
@@ -73,7 +73,7 @@ export default function MisPedidosPage() {
                     <div>
                       <div style={{ fontSize: "0.7rem", color: "#555", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Pedido</div>
                       <div style={{ fontFamily: "monospace", color: "#d4af37", fontSize: "0.95rem", fontWeight: 700 }}>{order.commerce_order}</div>
-                      <div style={{ fontSize: "0.72rem", color: "#444", marginTop: "3px" }}>{fmt(order.created_at)}</div>
+                      <div style={{ fontSize: "0.72rem", color: "#777", marginTop: "3px" }}>{fmt(order.created_at)}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <span style={{ fontSize: "0.75rem", fontWeight: 700, color: STATUS_COLOR[order.status] || "#888", background: (STATUS_COLOR[order.status] || "#888") + "18", border: `1px solid ${(STATUS_COLOR[order.status] || "#888")}44`, padding: "4px 12px", borderRadius: "20px" }}>

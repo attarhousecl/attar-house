@@ -126,11 +126,11 @@ export default function SearchBox() {
 
             <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
               {q.trim().length < 2 ? (
-                <p style={{ padding: "28px 20px", color: "#555", fontSize: "0.85rem", textAlign: "center" }}>
+                <p style={{ padding: "28px 20px", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
                   Escribe al menos 2 letras para buscar
                 </p>
               ) : results.length === 0 ? (
-                <p style={{ padding: "28px 20px", color: "#555", fontSize: "0.85rem", textAlign: "center" }}>
+                <p style={{ padding: "28px 20px", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
                   No encontramos nada para &ldquo;{q}&rdquo;. Prueba otra palabra.
                 </p>
               ) : (
