@@ -51,7 +51,7 @@ export default function CartDrawer() {
         aria-label={`Abrir carrito (${itemCount} ${itemCount === 1 ? "artículo" : "artículos"})`}
       >
         <i className="ph ph-shopping-cart" aria-hidden="true"></i>
-        <span className="cart-badge">{itemCount}</span>
+        {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
       </button>
 
       {open && <div className="cart-overlay" onClick={() => setOpen(false)} />}
@@ -161,34 +161,36 @@ export default function CartDrawer() {
           </div>
         )}
 
-        <div className="cart-footer">
-          <div className="cart-total">
-            <span>Total:</span>
-            <span style={{ color: "var(--gold-primary)" }}>${total.toLocaleString("es-CL")}</span>
+        {cart.length > 0 && (
+          <div className="cart-footer">
+            <div className="cart-total">
+              <span>Total:</span>
+              <span style={{ color: "var(--gold-primary)" }}>${total.toLocaleString("es-CL")}</span>
+            </div>
+            <a
+              href="/checkout"
+              className="btn-add-cart-gold"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none", marginBottom: "10px" }}
+              onClick={() => setOpen(false)}
+            >
+              <i className="ph ph-credit-card" style={{ fontSize: "1.2rem" }}></i> Pagar con Mercado Pago
+            </a>
+            <button className="btn-whatsapp-final" onClick={sendWhatsAppOrder}>
+              <i className="ph ph-whatsapp-logo"></i> Pedir por WhatsApp
+            </button>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "0.7rem",
+                color: "var(--text-muted)",
+                marginTop: "15px",
+                textTransform: "none",
+              }}
+            >
+              Pago contra entrega en Valdivia. Transferencia bancaria para envíos a regiones.
+            </p>
           </div>
-          <a
-            href="/checkout"
-            className="btn-add-cart-gold"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none", marginBottom: "10px" }}
-            onClick={() => setOpen(false)}
-          >
-            <i className="ph ph-credit-card" style={{ fontSize: "1.2rem" }}></i> Pagar con Mercado Pago
-          </a>
-          <button className="btn-whatsapp-final" onClick={sendWhatsAppOrder}>
-            <i className="ph ph-whatsapp-logo"></i> Pedir por WhatsApp
-          </button>
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: "0.7rem",
-              color: "var(--text-muted)",
-              marginTop: "15px",
-              textTransform: "none",
-            }}
-          >
-            Pago contra entrega en Valdivia. Transferencia bancaria para envíos a regiones.
-          </p>
-        </div>
+        )}
       </div>
     </>
   );
