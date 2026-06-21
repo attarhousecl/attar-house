@@ -22,6 +22,9 @@ export function ToastProvider({ children }) {
       <div
         id="global-toast"
         className={`toast ${toast.show ? "show" : ""}`}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
         dangerouslySetInnerHTML={{ __html: toast.message }}
       />
     </ToastContext.Provider>

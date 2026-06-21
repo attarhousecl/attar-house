@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 
 export default function CartDrawer() {
   const [open, setOpen] = useState(false);
+  const closeBtnRef = useRef(null);
   const { cart, updateQty, total, decantTotal, itemCount, freeShippingEligible, freeGiftEligible, freeGift, setFreeGift, SHIPPING_THRESHOLD, GIFT_THRESHOLD } =
     useCart();
   const { arabDB } = useCatalog();
@@ -21,12 +22,13 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Cerrar el carrito con la tecla Escape (a11y).
+  // Cerrar el carrito con la tecla Escape + mover el foco al cajón al abrir (a11y).
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    const t = setTimeout(() => closeBtnRef.current?.focus(), 80);
+    return () => { document.removeEventListener("keydown", onKey); clearTimeout(t); };
   }, [open]);
 
   const sendWhatsAppOrder = () => {
@@ -72,7 +74,7 @@ export default function CartDrawer() {
       >
         <div className="cart-header">
           <h3 className="serif">Tu Pedido</h3>
-          <button className="close-cart" onClick={() => setOpen(false)} aria-label="Cerrar carrito">
+          <button ref={closeBtnRef} className="close-cart" onClick={() => setOpen(false)} aria-label="Cerrar carrito">
             <i className="ph ph-x" aria-hidden="true"></i>
           </button>
         </div>

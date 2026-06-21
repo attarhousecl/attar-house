@@ -43,7 +43,7 @@ export default function NewsletterSignup() {
       </p>
 
       {status === "ok" ? (
-        <p style={{ color: "#d4af37", fontSize: "0.82rem", fontWeight: 600 }}>{msg}</p>
+        <p role="status" aria-live="polite" style={{ color: "#d4af37", fontSize: "0.82rem", fontWeight: 600 }}>{msg}</p>
       ) : (
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <input
@@ -80,7 +80,7 @@ export default function NewsletterSignup() {
             {status === "loading" ? "Enviando..." : "Suscribirme"}
           </button>
           {status === "error" && (
-            <span style={{ color: "#c0392b", fontSize: "0.75rem" }}>{msg}</span>
+            <span role="alert" style={{ color: "#e0584f", fontSize: "0.75rem" }}>{msg}</span>
           )}
         </form>
       )}

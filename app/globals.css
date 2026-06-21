@@ -792,6 +792,9 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255
 @media (prefers-reduced-motion: reduce) {
     .hero-actions, .hero-trust, .product-card { animation: none; opacity: 1; transform: none; }
     .highlight-panel, .btn-gold-solid, .highlight-panel .hp-link i { transition: none; }
+    /* Detener animaciones infinitas/decorativas para quienes prefieren menos movimiento */
+    #inicio::after, .hero-content, .custom-logo-hero { animation: none; }
+    .sk::after { animation: none; }
 }
 
 @media (max-width: 900px) {
