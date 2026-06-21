@@ -50,7 +50,8 @@ export default function MisPedidosPage() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="AH1234567890 o tu@email.com"
-            style={{ flex: 1, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px 16px", color: "#e0e0e0", fontSize: "0.9rem", outline: "none", fontFamily: "inherit" }}
+            aria-label="Número de pedido o correo electrónico"
+            style={{ flex: 1, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px 16px", color: "#e0e0e0", fontSize: "0.9rem", fontFamily: "inherit" }}
           />
           <button type="submit" disabled={loading} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", whiteSpace: "nowrap" }}>
             {loading ? "..." : "Buscar"}
