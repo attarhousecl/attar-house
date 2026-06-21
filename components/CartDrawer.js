@@ -97,9 +97,17 @@ export default function CartDrawer() {
 
         <div className="cart-items">
           {cart.length === 0 ? (
-            <p style={{ textAlign: "center", color: "#555", marginTop: "20px" }}>
-              Tu carrito está vacío
-            </p>
+            <div style={{ textAlign: "center", color: "#666", marginTop: "40px", padding: "0 20px" }}>
+              <i className="ph ph-shopping-bag" style={{ fontSize: "2.4rem", color: "var(--gold-dark)" }} aria-hidden="true"></i>
+              <p style={{ marginTop: "12px", marginBottom: "18px" }}>Tu carrito está vacío</p>
+              <a
+                href="/catalogo"
+                onClick={() => setOpen(false)}
+                style={{ display: "inline-block", border: "1px solid var(--gold-primary)", color: "var(--gold-primary)", padding: "10px 22px", borderRadius: "8px", textDecoration: "none", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "1px" }}
+              >
+                Ver catálogo
+              </a>
+            </div>
           ) : (
             cart.map((i, idx) => {
               const sub = i.price * i.quantity;
