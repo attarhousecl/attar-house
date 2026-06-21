@@ -21,6 +21,14 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // Cerrar el carrito con la tecla Escape (a11y).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const sendWhatsAppOrder = () => {
     if (cart.length === 0) return;
 
@@ -56,7 +64,12 @@ export default function CartDrawer() {
 
       {open && <div className="cart-overlay" onClick={() => setOpen(false)} />}
 
-      <div className={`cart-sidebar ${open ? "open" : ""}`}>
+      <div
+        className={`cart-sidebar ${open ? "open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Carrito de compras"
+      >
         <div className="cart-header">
           <h3 className="serif">Tu Pedido</h3>
           <button className="close-cart" onClick={() => setOpen(false)} aria-label="Cerrar carrito">

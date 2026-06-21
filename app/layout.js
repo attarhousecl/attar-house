@@ -63,13 +63,14 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
       </head>
       <body>
+        <a href="#main-content" className="skip-link">Saltar al contenido</a>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
         <ToastProvider>
           <CatalogProvider>
             <CartProvider>
               <AnnouncementBar />
               <Nav />
-              <main>{children}</main>
+              <main id="main-content">{children}</main>
               <CartDrawer />
               <WhatsAppFloat />
               <SocialProof />

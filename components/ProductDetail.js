@@ -49,9 +49,18 @@ export default function ProductDetail({ id }) {
     return (
       <section id="detalle-perfume" className="page-section active">
         <div className="container" id="detalle-container">
-          <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "60px 20px" }}>
-            Cargando...
-          </p>
+          <div className="detail-grid" aria-busy="true" aria-label="Cargando producto">
+            <div className="sk" style={{ minHeight: "380px", borderRadius: "16px" }} />
+            <div>
+              <div className="sk" style={{ height: "14px", width: "40%", marginBottom: "16px" }} />
+              <div className="sk" style={{ height: "34px", width: "70%", marginBottom: "20px" }} />
+              <div className="sk" style={{ height: "12px", width: "100%", marginBottom: "8px" }} />
+              <div className="sk" style={{ height: "12px", width: "94%", marginBottom: "8px" }} />
+              <div className="sk" style={{ height: "12px", width: "82%", marginBottom: "24px" }} />
+              <div className="sk" style={{ height: "12px", width: "50%" }} />
+            </div>
+            <div className="sk" style={{ minHeight: "280px", borderRadius: "16px" }} />
+          </div>
         </div>
       </section>
     );

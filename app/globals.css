@@ -85,6 +85,10 @@ main { flex: 1; margin-top: 105px; }
 /* Foco de teclado visible en toda la tienda (WCAG 2.4.7) */
 :focus-visible { outline: 2px solid var(--gold-primary); outline-offset: 2px; border-radius: 4px; }
 
+/* Saltar al contenido — solo visible al enfocar con teclado (a11y) */
+.skip-link { position: absolute; left: -9999px; top: 0; z-index: 10000; background: var(--gold-primary); color: var(--bg-base); padding: 10px 16px; border-radius: 0 0 8px 0; font-weight: 700; text-decoration: none; }
+.skip-link:focus { left: 0; }
+
 /* --- PACK DESCUBRIMIENTO --- */
 .pack-grid { display: grid; gap: 24px; grid-template-columns: 1fr 300px; }
 @media (max-width: 768px) {
@@ -467,6 +471,10 @@ main { flex: 1; margin-top: 105px; }
     from { transform: translateX(-100%); }
     to { transform: translateX(100%); }
 }
+
+/* Bloque skeleton genérico con shimmer (reutiliza @keyframes shimmer) */
+.sk { position: relative; overflow: hidden; background: #141414; border-radius: 8px; }
+.sk::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); animation: shimmer 1.5s infinite; }
 
 .catalog-main { flex: 1; }
 .btn-mobile-filters { display: none; width: 100%; padding: 12px; background: transparent; border: 1px solid var(--gold-primary); color: var(--gold-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; border-radius: 6px; margin-bottom: 20px; font-family: var(--font-montserrat), sans-serif;}
