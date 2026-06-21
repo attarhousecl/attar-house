@@ -75,6 +75,17 @@ export default function CatalogoPage() {
 
   const allDB = [...arabDB, ...nichoDB, ...designerDB];
   const totalResults = (showArab ? filteredArab.length : 0) + (showNicho ? filteredNicho.length : 0) + (showDesigner ? filteredDesigner.length : 0);
+  const noResults = !loading && allDB.length > 0 && totalResults === 0;
+
+  function clearFilters() {
+    setSearch("");
+    setSort("default");
+    setGender("all");
+    setAroma("all");
+    setBrand("all");
+    setNote("");
+    setFormato("all");
+  }
 
   return (
     <section id="catalogo" className="page-section active catalog-bg">
@@ -110,7 +121,7 @@ export default function CatalogoPage() {
           totalResults={totalResults}
         />
 
-        {showArab && (arabDB.length > 0 || loading) && (
+        {showArab && (loading || filteredArab.length > 0) && (
           <div id="arab-section" style={{ marginBottom: "48px" }}>
             <div className="arab-section-header">
               <div className="section-divider"></div>
@@ -123,7 +134,7 @@ export default function CatalogoPage() {
           </div>
         )}
 
-        {showNicho && (nichoDB.length > 0 || loading) && (
+        {showNicho && (loading || filteredNicho.length > 0) && (
           <div id="nicho-section" style={{ marginBottom: "48px" }}>
             <div className="arab-section-header">
               <div className="section-divider"></div>
@@ -136,7 +147,7 @@ export default function CatalogoPage() {
           </div>
         )}
 
-        {showDesigner && (designerDB.length > 0 || loading) && (
+        {showDesigner && (loading || filteredDesigner.length > 0) && (
           <div className="designer-section" id="designer-section">
             <div className="designer-section-header">
               <div className="section-divider"></div>
@@ -146,6 +157,19 @@ export default function CatalogoPage() {
               </div>
             </div>
             {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredDesigner} variant="designer" />}
+          </div>
+        )}
+
+        {noResults && (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-muted)" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "12px" }}>🔍</div>
+            <p style={{ marginBottom: "20px" }}>No encontramos perfumes con esos filtros.</p>
+            <button
+              onClick={clearFilters}
+              style={{ background: "transparent", border: "1px solid var(--gold-primary)", color: "var(--gold-primary)", padding: "10px 24px", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.8rem" }}
+            >
+              Limpiar filtros
+            </button>
           </div>
         )}
       </div>
