@@ -14,7 +14,7 @@ const REGIONES = [
 ];
 
 export default function CheckoutPage() {
-  const { cart, total, freeGiftEligible } = useCart();
+  const { cart, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
   const { arabDB } = useCatalog();
   const { showToast } = useToast();
   const [form, setForm] = useState({
@@ -26,14 +26,13 @@ export default function CheckoutPage() {
     direccion: "",
     notas: "",
   });
-  const [freeGift, setFreeGift] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (arabDB.length > 0 && !freeGift) {
       setFreeGift(`${arabDB[0].name} (Decant 3ml)`);
     }
-  }, [arabDB, freeGift]);
+  }, [arabDB, freeGift, setFreeGift]);
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -102,7 +101,7 @@ export default function CheckoutPage() {
           <div className="checkout-summary">
             <h3 className="serif">Tu Pedido</h3>
             {cart.map((i) => (
-              <div className="checkout-item" key={`${i.id}-${i.format}`}>
+              <div className="checkout-item" key={`${i.id}-${i.format}-${i.price}`}>
                 <div className="checkout-item-info">
                   <strong>{i.name}</strong>
                   <p>

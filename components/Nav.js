@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchBox from "@/components/SearchBox";
 
 const LINKS = [
@@ -19,6 +19,17 @@ export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  // Cierra el menú al cambiar de ruta.
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  // Cierra el menú con la tecla Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
     <nav>
       <div className="container nav-content">
@@ -27,10 +38,15 @@ export default function Nav() {
         </Link>
         <div className="nav-right">
           <SearchBox />
-          <i
-            className="ph ph-list mobile-menu-btn"
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-          ></i>
+          >
+            <i className={`ph ${open ? "ph-x" : "ph-list"}`} aria-hidden="true"></i>
+          </button>
           <div className={`nav-links ${open ? "show" : ""}`}>
             {LINKS.map((link) => (
               <Link

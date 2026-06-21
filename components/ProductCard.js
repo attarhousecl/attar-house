@@ -13,7 +13,11 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
 
   const isDesigner = variant === "designer";
   const isNicho = variant === "nicho";
-  const isOut = !isDesigner && !isNicho && !perfume.stock.decant3;
+  // Agotado solo si NINGÚN tamaño de decant tiene stock (misma regla que el catálogo).
+  const isOut =
+    perfume.stock.decant3 === false &&
+    perfume.stock.decant5 === false &&
+    perfume.stock.decant10 === false;
   const isPopular = !isDesigner && !isNicho && perfume.popularity >= 95;
   const isLowStock = !isOut && perfume.stockLow;
 

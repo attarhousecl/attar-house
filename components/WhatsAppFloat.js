@@ -9,10 +9,10 @@ export default function WhatsAppFloat() {
       aria-label="Contactar por WhatsApp"
       style={{
         position: "fixed",
-        bottom: "90px",
-        right: "20px",
-        width: "50px",
-        height: "50px",
+        bottom: "108px",
+        right: "30px",
+        width: "56px",
+        height: "56px",
         background: "#25D366",
         borderRadius: "50%",
         display: "flex",

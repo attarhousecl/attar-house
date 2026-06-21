@@ -51,7 +51,7 @@ export default function Home() {
               Ver Catálogo
             </Link>
             <Link href="/quiz" className="btn-primary">
-              <span>🔮 Hacer el Quiz</span>
+              <span>🔮 Descubre tu aroma</span>
             </Link>
           </div>
 
@@ -101,7 +101,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="decants" className="page-section active">
+      <section id="decants" className="page-section home-section active">
         <div className="container">
           <h2 className="section-title serif">¿Qué es un Decant?</h2>
           <p className="section-subtitle">
@@ -183,23 +183,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="testimonios" className="page-section active">
+      <section id="testimonios" className="page-section home-section active">
         <div className="container">
           <h2 className="section-title serif">Lo que dicen nuestros clientes</h2>
           <p className="section-subtitle">Experiencias reales de personas que ya encontraron su aroma.</p>
           <Reveal className="testimonials-grid">
             <div className="testimonial-card">
-              <div className="testimonial-stars">★★★★★</div>
+              <div className="testimonial-stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★</span></div>
               <p className="testimonial-text">&ldquo;Pedí un decant de 5ml para probar y quedé tan enamorada que compré la botella completa. La atención fue increíble, respondieron todas mis dudas al tiro.&rdquo;</p>
               <div className="testimonial-author">— Valentina R., Santiago</div>
             </div>
             <div className="testimonial-card">
-              <div className="testimonial-stars">★★★★★</div>
+              <div className="testimonial-stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★</span></div>
               <p className="testimonial-text">&ldquo;Nunca había probado perfumería árabe. Me asesoraron perfecto por WhatsApp y el oud que elegí duró todo el día. Llegó súper bien empaquetado.&rdquo;</p>
               <div className="testimonial-author">— Matías C., Valdivia</div>
             </div>
             <div className="testimonial-card">
-              <div className="testimonial-stars">★★★★★</div>
+              <div className="testimonial-stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★</span></div>
               <p className="testimonial-text">&ldquo;Los decants son la mejor forma de probar fragancias caras sin arriesgarse. Calidad 100% original, lo comprobé. Ya les compré tres veces.&rdquo;</p>
               <div className="testimonial-author">— Felipe M., Concepción</div>
             </div>
@@ -207,7 +207,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="contacto" className="page-section active">
+      <section id="contacto" className="page-section home-section active">
         <div className="container" style={{ textAlign: "center" }}>
           <h2 className="section-title serif">Conversemos</h2>
           <p style={{ color: "var(--text-muted)", marginBottom: "8px" }}>

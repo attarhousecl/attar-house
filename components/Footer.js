@@ -51,7 +51,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2026 Attar House · Valdivia, Chile · Starken y Chilexpress · Retiro presencial disponible</p>
+          <p>&copy; {new Date().getFullYear()} Attar House · Valdivia, Chile · Starken y Chilexpress · Retiro presencial disponible</p>
         </div>
       </footer>
     </>

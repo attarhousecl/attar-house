@@ -33,7 +33,7 @@ export default async function ProductoPage({ params }) {
 
   const { data: p } = await supabaseAdmin
     .from("perfumes")
-    .select("name, brand, description, image_url, price_decant3, price_decant10")
+    .select("name, brand, description, image_url, price_decant3, price_decant5, price_decant10")
     .eq("id", id)
     .single();
 
@@ -52,7 +52,7 @@ export default async function ProductoPage({ params }) {
     offers: {
       "@type": "Offer",
       priceCurrency: "CLP",
-      price: p.price_decant3 || p.price_decant10 || 0,
+      price: [p.price_decant3, p.price_decant5, p.price_decant10].find((v) => v > 0) || 0,
       availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "Attar House" },
       url: `${siteUrl}/producto/${id}`,

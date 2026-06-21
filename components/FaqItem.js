@@ -6,10 +6,15 @@ export default function FaqItem({ question, children }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`faq-item ${open ? "active" : ""}`} onClick={() => setOpen((o) => !o)}>
-      <div className="faq-question">
-        {question} <i className="ph ph-plus faq-icon"></i>
-      </div>
+    <div className={`faq-item ${open ? "active" : ""}`}>
+      <button
+        type="button"
+        className="faq-question"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span>{question}</span> <i className="ph ph-plus faq-icon" aria-hidden="true"></i>
+      </button>
       <div className="faq-answer">{children}</div>
     </div>
   );

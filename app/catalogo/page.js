@@ -6,14 +6,25 @@ import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
 import SkeletonGrid from "@/components/SkeletonGrid";
 
+// Precio más bajo realmente disponible (cualquier formato > 0). Evita que un
+// perfume sin decant3 (precio 0) se cuele primero en "Menor precio".
+function effectivePrice(p) {
+  const candidates = [p.prices.decant3, p.prices.decant5, p.prices.decant10, p.prices.sellado].filter((v) => v > 0);
+  return candidates.length ? Math.min(...candidates) : Infinity;
+}
+
 function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, formato }) {
   let filtered = perfumes.filter((p) => {
     const hasSellado = p.prices.sellado > 0 && p.stock.sellado !== false;
+    const hasDecant =
+      (p.prices.decant3 > 0 && p.stock.decant3 !== false) ||
+      (p.prices.decant5 > 0 && p.stock.decant5 !== false) ||
+      (p.prices.decant10 > 0 && p.stock.decant10 !== false);
     const matchBrand = brand === "all" || p.brand === brand;
     const matchGender = gender === "all" || p.gender === gender;
     const matchAroma = aroma === "all" || p.families.includes(aroma);
     const matchNote = !note || p.notes.includes(note);
-    const matchFormato = formato === "all" || (formato === "sealed" ? hasSellado : !hasSellado);
+    const matchFormato = formato === "all" || (formato === "sealed" ? hasSellado : hasDecant);
     const matchSearch =
       search === "" ||
       p.name.toLowerCase().includes(search) ||
@@ -25,9 +36,9 @@ function applyFilters(perfumes, { search, sort, gender, aroma, brand, note, form
   });
 
   if (sort === "price-asc") {
-    filtered = [...filtered].sort((a, b) => a.prices.decant3 - b.prices.decant3);
+    filtered = [...filtered].sort((a, b) => effectivePrice(a) - effectivePrice(b));
   } else if (sort === "price-desc") {
-    filtered = [...filtered].sort((a, b) => b.prices.decant3 - a.prices.decant3);
+    filtered = [...filtered].sort((a, b) => effectivePrice(b) - effectivePrice(a));
   } else if (sort === "popularity") {
     filtered = [...filtered].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
   }

@@ -239,14 +239,14 @@ export default function FilterBar({
         {/* Separador + resultados + limpiar */}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
           {totalResults != null && (
-            <span style={{ fontSize: "0.75rem", color: "#555" }}>
+            <span style={{ fontSize: "0.75rem", color: "#999" }}>
               {totalResults} resultado{totalResults !== 1 ? "s" : ""}
             </span>
           )}
           {activeCount > 0 && (
             <button
               onClick={clearAll}
-              style={{ background: "none", border: "none", color: "#c0392b", fontSize: "0.75rem", cursor: "pointer", padding: "4px 8px", borderRadius: "6px", fontFamily: "inherit" }}
+              style={{ background: "none", border: "none", color: "#999", fontSize: "0.75rem", cursor: "pointer", padding: "4px 8px", borderRadius: "6px", fontFamily: "inherit" }}
             >
               ✕ Limpiar filtros ({activeCount})
             </button>

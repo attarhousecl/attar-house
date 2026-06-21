@@ -16,15 +16,18 @@ export default function AnnouncementBar() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    let timeout;
     const interval = setInterval(() => {
       setFading(true);
-      const timeout = setTimeout(() => {
+      timeout = setTimeout(() => {
         setIndex((i) => (i + 1) % ANNOUNCEMENTS.length);
         setFading(false);
       }, 400);
-      return () => clearTimeout(timeout);
     }, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (

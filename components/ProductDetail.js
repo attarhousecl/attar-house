@@ -76,8 +76,11 @@ export default function ProductDetail({ id }) {
   const stockCount = Object.values(perfume.stock).filter(Boolean).length;
   const showUrgency = !esDisenador && !esNicho && stockCount <= 2;
 
+  const selectedOpt = options.find((o) => o.key === selectedFormat);
+  const canAddToCart = !!selectedOpt && !selectedOpt.disabled;
+
   const handleAddToCart = () => {
-    if (!selectedFormat) return;
+    if (!canAddToCart) return;
     addToCart(perfume, selectedFormat);
   };
 
@@ -124,7 +127,6 @@ export default function ProductDetail({ id }) {
                 ))}
               </div>
             </div>
-            <ReviewSection perfumeId={perfume.id} />
           </div>
           <div className="detail-action-col">
             <div className="purchase-box">
@@ -174,8 +176,9 @@ export default function ProductDetail({ id }) {
                   ⚠ Últimas unidades disponibles
                 </div>
               )}
-              <button className="btn-add-cart-gold" onClick={handleAddToCart}>
-                <i className="ph ph-shopping-cart" style={{ fontSize: "1.2rem" }}></i> Añadir al Carrito
+              <button className="btn-add-cart-gold" onClick={handleAddToCart} disabled={!canAddToCart}>
+                <i className="ph ph-shopping-cart" style={{ fontSize: "1.2rem" }}></i>{" "}
+                {canAddToCart ? "Añadir al Carrito" : "Agotado"}
               </button>
               <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.9" }}>
                 <p>✓ Autenticidad Garantizada</p>
@@ -188,6 +191,8 @@ export default function ProductDetail({ id }) {
             </div>
           </div>
         </div>
+
+        <ReviewSection perfumeId={perfume.id} />
 
         <RelatedProducts perfume={perfume} />
       </div>

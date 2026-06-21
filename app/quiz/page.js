@@ -99,12 +99,15 @@ function scoreMatch(perfume, respuestas) {
 }
 
 function computeResultados(perfumes, respuestas) {
-  return perfumes
+  const ranked = perfumes
     .filter((p) => p.prices.decant3 > 0)
     .map((p) => ({ perfume: p, score: scoreMatch(p, respuestas) }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6)
-    .map((r) => r.perfume);
+    .sort((a, b) => b.score - a.score || (b.perfume.popularity || 0) - (a.perfume.popularity || 0));
+
+  // Prioriza coincidencias reales; si hay muy pocas, completa con favoritos.
+  const matches = ranked.filter((r) => r.score > 0);
+  const base = matches.length >= 3 ? matches : ranked;
+  return base.slice(0, 6).map((r) => r.perfume);
 }
 
 const QUIZ_STORE_KEY = "attar_quiz_state";
@@ -115,6 +118,8 @@ export default function QuizPage() {
   const [respuestas, setRespuestas] = useState({});
   const [resultados, setResultados] = useState(null);
   const [pendingIds, setPendingIds] = useState(null);
+  // Respuestas a la espera de que el catálogo termine de cargar para calcular.
+  const [pendingCompute, setPendingCompute] = useState(null);
 
   // Restaura el estado guardado al volver atrás (no perder los resultados).
   useEffect(() => {
@@ -134,21 +139,35 @@ export default function QuizPage() {
     setPendingIds(null);
   }, [pendingIds, perfumes]);
 
+  // Si el catálogo aún no estaba listo al terminar el quiz, calcula en cuanto llegue.
+  useEffect(() => {
+    if (!pendingCompute || perfumes.length === 0) return;
+    finalizar(pendingCompute);
+    setPendingCompute(null);
+  }, [pendingCompute, perfumes]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function finalizar(nuevas) {
+    const scored = computeResultados(perfumes, nuevas);
+    setResultados(scored);
+    try {
+      sessionStorage.setItem(
+        QUIZ_STORE_KEY,
+        JSON.stringify({ respuestas: nuevas, ids: scored.map((p) => p.id) })
+      );
+    } catch {}
+  }
+
   function elegir(valor) {
     const nuevas = { ...respuestas, [PREGUNTAS[paso].id]: valor };
     setRespuestas(nuevas);
 
     if (paso < PREGUNTAS.length - 1) {
       setPaso(paso + 1);
+    } else if (perfumes.length === 0) {
+      // Catálogo todavía cargando: espera a tenerlo antes de mostrar resultados.
+      setPendingCompute(nuevas);
     } else {
-      const scored = computeResultados(perfumes, nuevas);
-      setResultados(scored);
-      try {
-        sessionStorage.setItem(
-          QUIZ_STORE_KEY,
-          JSON.stringify({ respuestas: nuevas, ids: scored.map((p) => p.id) })
-        );
-      } catch {}
+      finalizar(nuevas);
     }
   }
 
@@ -157,6 +176,7 @@ export default function QuizPage() {
     setRespuestas({});
     setResultados(null);
     setPendingIds(null);
+    setPendingCompute(null);
     try { sessionStorage.removeItem(QUIZ_STORE_KEY); } catch {}
   }
 
@@ -187,6 +207,19 @@ export default function QuizPage() {
     );
   }
 
+  // Terminó el quiz pero el catálogo aún carga: pantalla de espera (no resultados vacíos).
+  if (pendingCompute) {
+    return (
+      <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>✨</div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Preparando tus recomendaciones…</h1>
+          <p style={{ color: "#666", fontSize: "0.88rem" }}>Estamos analizando tus respuestas.</p>
+        </div>
+      </div>
+    );
+  }
+
   const pregunta = PREGUNTAS[paso];
 
   return (
@@ -202,7 +235,7 @@ export default function QuizPage() {
 
         {/* Progress bar */}
         <div style={{ height: "3px", background: "#1a1a1a", borderRadius: "2px", marginBottom: "32px", overflow: "hidden" }}>
-          <div style={{ height: "100%", width: `${((paso) / PREGUNTAS.length) * 100}%`, background: "#d4af37", transition: "width 0.4s ease" }} />
+          <div style={{ height: "100%", width: `${((paso + 1) / PREGUNTAS.length) * 100}%`, background: "#d4af37", transition: "width 0.4s ease" }} />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>

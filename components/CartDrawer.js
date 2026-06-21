@@ -6,8 +6,7 @@ import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 
 export default function CartDrawer() {
   const [open, setOpen] = useState(false);
-  const [freeGift, setFreeGift] = useState("");
-  const { cart, updateQty, total, decantTotal, itemCount, freeShippingEligible, freeGiftEligible, SHIPPING_THRESHOLD, GIFT_THRESHOLD } =
+  const { cart, updateQty, total, decantTotal, itemCount, freeShippingEligible, freeGiftEligible, freeGift, setFreeGift, SHIPPING_THRESHOLD, GIFT_THRESHOLD } =
     useCart();
   const { arabDB } = useCatalog();
 
@@ -15,7 +14,7 @@ export default function CartDrawer() {
     if (arabDB.length > 0 && !freeGift) {
       setFreeGift(`${arabDB[0].name} (Decant 3ml)`);
     }
-  }, [arabDB, freeGift]);
+  }, [arabDB, freeGift, setFreeGift]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -45,10 +44,15 @@ export default function CartDrawer() {
 
   return (
     <>
-      <div className="cart-toggle" onClick={() => setOpen(true)}>
-        <i className="ph ph-shopping-cart"></i>
+      <button
+        type="button"
+        className="cart-toggle"
+        onClick={() => setOpen(true)}
+        aria-label={`Abrir carrito (${itemCount} ${itemCount === 1 ? "artículo" : "artículos"})`}
+      >
+        <i className="ph ph-shopping-cart" aria-hidden="true"></i>
         <span className="cart-badge">{itemCount}</span>
-      </div>
+      </button>
 
       {open && <div className="cart-overlay" onClick={() => setOpen(false)} />}
 
@@ -101,7 +105,7 @@ export default function CartDrawer() {
               const sub = i.price * i.quantity;
               const displayFormat = labelsFormatos[i.format] || i.format;
               return (
-                <div className="cart-item" key={`${i.name}-${i.format}`}>
+                <div className="cart-item" key={`${i.id}-${i.format}-${i.price}`}>
                   <div className="cart-item-info">
                     <h4>{i.name}</h4>
                     <p>{displayFormat}</p>

@@ -64,7 +64,7 @@ export default function PackPage() {
           <p style={{ color: "#888", fontSize: "0.9rem", margin: 0 }}>Elige {MIN_ITEMS}–{MAX_ITEMS} decants de 10ml y obtén <strong style={{ color: "#d4af37" }}>10% de descuento</strong></p>
         </div>
 
-        <div style={{ display: "grid", gap: "24px", gridTemplateColumns: "1fr 300px" }}>
+        <div className="pack-grid">
           {/* Left: selector */}
           <div>
             <input
@@ -73,6 +73,13 @@ export default function PackPage() {
               placeholder="Buscar perfume..."
               style={{ width: "100%", background: "#111", border: "1px solid #222", borderRadius: "8px", padding: "10px 16px", color: "#e0e0e0", fontSize: "0.88rem", marginBottom: "16px", boxSizing: "border-box", outline: "none", fontFamily: "inherit" }}
             />
+            {filtrados.length === 0 && (
+              <p style={{ color: "#666", fontSize: "0.85rem", textAlign: "center", padding: "32px 0" }}>
+                {search.trim()
+                  ? `No encontramos decants para "${search}".`
+                  : "Pronto habrá más decants disponibles para armar tu pack."}
+              </p>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px" }}>
               {filtrados.map(p => {
                 const isSelected = !!selected.find(s => s.id === p.id);
@@ -107,7 +114,7 @@ export default function PackPage() {
           </div>
 
           {/* Right: summary */}
-          <div style={{ position: "sticky", top: "80px", alignSelf: "flex-start" }}>
+          <div className="pack-summary" style={{ position: "sticky", top: "80px", alignSelf: "flex-start" }}>
             <div style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: "14px", padding: "24px" }}>
               <h3 style={{ margin: "0 0 16px", color: "#d4af37", fontSize: "0.95rem" }}>Tu Pack</h3>
 

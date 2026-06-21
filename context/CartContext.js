@@ -12,6 +12,8 @@ const GIFT_THRESHOLD = 15000;
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [hydrated, setHydrated] = useState(false);
+  // Regalo elegido — única fuente de verdad compartida entre el carrito y el checkout.
+  const [freeGift, setFreeGift] = useState("");
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -99,6 +101,8 @@ export function CartProvider({ children }) {
         itemCount,
         freeShippingEligible,
         freeGiftEligible,
+        freeGift,
+        setFreeGift,
         SHIPPING_THRESHOLD,
         GIFT_THRESHOLD,
       }}
