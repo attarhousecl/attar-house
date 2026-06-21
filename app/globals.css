@@ -754,7 +754,7 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(255,255
 /* MEDIA QUERIES (Móviles) */
 @media (max-width: 950px) {
     .detail-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
-    .detail-image-col { position: relative; min-height: 340px; }
+    .detail-image-col { position: relative; top: 0; min-height: 340px; }
 }
 @media (max-width: 768px) {
     .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: var(--bg-surface); flex-direction: column; padding: 20px; border-bottom: 1px solid var(--border-gold); }

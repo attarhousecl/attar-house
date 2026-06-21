@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCatalog } from "@/context/CatalogContext";
 import ProductGrid from "@/components/ProductGrid";
@@ -98,11 +98,41 @@ function scoreMatch(perfume, respuestas) {
   return score;
 }
 
+function computeResultados(perfumes, respuestas) {
+  return perfumes
+    .filter((p) => p.prices.decant3 > 0)
+    .map((p) => ({ perfume: p, score: scoreMatch(p, respuestas) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6)
+    .map((r) => r.perfume);
+}
+
+const QUIZ_STORE_KEY = "attar_quiz_state";
+
 export default function QuizPage() {
   const { perfumes } = useCatalog();
   const [paso, setPaso] = useState(0);
   const [respuestas, setRespuestas] = useState({});
   const [resultados, setResultados] = useState(null);
+  const [pendingIds, setPendingIds] = useState(null);
+
+  // Restaura el estado guardado al volver atrás (no perder los resultados).
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(QUIZ_STORE_KEY) || "null");
+      if (saved?.respuestas) setRespuestas(saved.respuestas);
+      if (saved?.ids?.length) setPendingIds(saved.ids);
+    } catch {}
+  }, []);
+
+  // Cuando el catálogo carga, reconstruye los resultados desde los IDs guardados.
+  useEffect(() => {
+    if (!pendingIds || perfumes.length === 0) return;
+    const byId = new Map(perfumes.map((p) => [p.id, p]));
+    const restored = pendingIds.map((id) => byId.get(id)).filter(Boolean);
+    if (restored.length) setResultados(restored);
+    setPendingIds(null);
+  }, [pendingIds, perfumes]);
 
   function elegir(valor) {
     const nuevas = { ...respuestas, [PREGUNTAS[paso].id]: valor };
@@ -111,13 +141,14 @@ export default function QuizPage() {
     if (paso < PREGUNTAS.length - 1) {
       setPaso(paso + 1);
     } else {
-      const scored = perfumes
-        .filter(p => p.prices.decant3 > 0)
-        .map(p => ({ perfume: p, score: scoreMatch(p, nuevas) }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 6)
-        .map(r => r.perfume);
+      const scored = computeResultados(perfumes, nuevas);
       setResultados(scored);
+      try {
+        sessionStorage.setItem(
+          QUIZ_STORE_KEY,
+          JSON.stringify({ respuestas: nuevas, ids: scored.map((p) => p.id) })
+        );
+      } catch {}
     }
   }
 
@@ -125,6 +156,8 @@ export default function QuizPage() {
     setPaso(0);
     setRespuestas({});
     setResultados(null);
+    setPendingIds(null);
+    try { sessionStorage.removeItem(QUIZ_STORE_KEY); } catch {}
   }
 
   if (resultados) {
