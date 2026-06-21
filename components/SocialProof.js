@@ -78,7 +78,7 @@ export default function SocialProof() {
       }}
     >
       <div style={{ fontSize: "1.4rem", flexShrink: 0 }}>🛍️</div>
-      <div style={{ fontFamily: "'Segoe UI', sans-serif", lineHeight: 1.35 }}>
+      <div style={{ fontFamily: "var(--font-montserrat), sans-serif", lineHeight: 1.35 }}>
         <div style={{ fontSize: "0.8rem", color: "#e8e8e8", fontWeight: 600 }}>
           Alguien compró <span style={{ color: "#d4af37" }}>{venta.product}</span>
         </div>

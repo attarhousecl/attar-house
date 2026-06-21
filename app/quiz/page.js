@@ -182,7 +182,7 @@ export default function QuizPage() {
 
   if (resultados) {
     return (
-      <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px" }}>
+      <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px" }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>✨</div>
@@ -210,7 +210,7 @@ export default function QuizPage() {
   // Terminó el quiz pero el catálogo aún carga: pantalla de espera (no resultados vacíos).
   if (pendingCompute) {
     return (
-      <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>✨</div>
           <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Preparando tus recomendaciones…</h1>
@@ -223,7 +223,7 @@ export default function QuizPage() {
   const pregunta = PREGUNTAS[paso];
 
   return (
-    <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ maxWidth: "560px", width: "100%" }}>
         <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver</Link>
 

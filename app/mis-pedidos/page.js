@@ -38,7 +38,7 @@ export default function MisPedidosPage() {
   }
 
   return (
-    <div style={{ fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh", padding: "40px 20px" }}>
+    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh", padding: "40px 20px" }}>
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
         <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver al inicio</Link>
 
