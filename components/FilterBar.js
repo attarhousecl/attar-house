@@ -83,6 +83,17 @@ export default function FilterBar({
     formato !== "all",
   ].filter(Boolean).length;
 
+  // Chips de filtros activos, removibles uno a uno.
+  const chips = [
+    search && { label: `“${search}”`, clear: () => setSearch("") },
+    sort !== "default" && { label: SORTS.find((s) => s.value === sort)?.label, clear: () => setSort("default") },
+    gender !== "all" && { label: gender, clear: () => setGender("all") },
+    aroma !== "all" && { label: aroma, clear: () => setAroma("all") },
+    brand !== "all" && { label: brand, clear: () => setBrand("all") },
+    note && { label: note, clear: () => setNote("") },
+    formato !== "all" && { label: FORMATOS.find((f) => f.value === formato)?.label, clear: () => setFormato("all") },
+  ].filter(Boolean);
+
   function clearAll() {
     setSort("default");
     setGender("all");
@@ -260,6 +271,26 @@ export default function FilterBar({
           )}
         </div>
       </div>
+
+      {chips.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
+          {chips.map((c, i) => (
+            <button
+              key={i}
+              onClick={c.clear}
+              aria-label={`Quitar filtro ${c.label}`}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.4)",
+                color: "#d4af37", borderRadius: "16px", padding: "4px 10px",
+                fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.3px",
+              }}
+            >
+              {c.label} <span style={{ fontSize: "0.85rem", lineHeight: 1, opacity: 0.8 }}>✕</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

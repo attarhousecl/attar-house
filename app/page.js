@@ -2,9 +2,43 @@ import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import Reveal from "@/components/Reveal";
 
+const SITE_URL = "https://attarhouse.cl";
+const storeJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Store",
+  name: "Attar House",
+  description:
+    "Perfumería árabe, de nicho y diseñador en decants y frascos sellados. 100% original. Retiro en Valdivia y envíos a todo Chile.",
+  url: SITE_URL,
+  image: `${SITE_URL}/images/his-confession.png`,
+  telephone: "+56632249728",
+  priceRange: "$$",
+  currenciesAccepted: "CLP",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Valdivia",
+    addressRegion: "Los Ríos",
+    addressCountry: "CL",
+  },
+  areaServed: { "@type": "Country", name: "Chile" },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "10:00",
+      closes: "21:00",
+    },
+  ],
+  sameAs: ["https://instagram.com/attar_housecl"],
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd).replace(/</g, "\\u003c") }}
+      />
       <section id="inicio" className="page-section active">
         <div className="hero-content">
           <div className="custom-logo-hero">
