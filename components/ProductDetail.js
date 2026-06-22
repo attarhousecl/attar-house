@@ -166,7 +166,7 @@ export default function ProductDetail({ id }) {
             <div className="detail-brand">
               {perfume.brand} | {perfume.gender}
             </div>
-            <h2 className="detail-title serif">{perfume.name}</h2>
+            <h1 className="detail-title serif">{perfume.name}</h1>
             <div className="inspiration-badge">
               Inspirado en: <strong>{perfume.inspiration}</strong>
             </div>

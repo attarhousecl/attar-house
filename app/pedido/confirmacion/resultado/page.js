@@ -48,7 +48,7 @@ export default async function ConfirmacionResultadoPage({ searchParams }) {
     return (
       <section className="page-section active">
         <div className="container" style={{ textAlign: "center" }}>
-          <h2 className="section-title serif">Pedido no encontrado</h2>
+          <h1 className="section-title serif">Pedido no encontrado</h1>
           <p className="section-subtitle">No pudimos encontrar la información de este pedido.</p>
           <Link href="/" className="btn-primary">
             <span>Volver al inicio</span>
@@ -64,7 +64,7 @@ export default async function ConfirmacionResultadoPage({ searchParams }) {
     <section className="page-section active">
       <div className="container" style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto" }}>
         <i className={`ph ${info.icon}`} style={{ fontSize: "4rem", color: info.color, marginBottom: "20px", display: "block" }}></i>
-        <h2 className="section-title serif">{info.title}</h2>
+        <h1 className="section-title serif">{info.title}</h1>
         <p className="section-subtitle">{info.message}</p>
 
         <div className="checkout-summary" style={{ textAlign: "left", marginTop: "30px" }}>

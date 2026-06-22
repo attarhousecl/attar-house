@@ -17,7 +17,7 @@ export default function FaqPage() {
   return (
     <section id="faq" className="page-section active">
       <div className="container">
-        <h2 className="section-title serif">Preguntas Frecuentes</h2>
+        <h1 className="section-title serif">Preguntas Frecuentes</h1>
         <p className="section-subtitle">
           Resolvemos todas tus dudas para que compres con total tranquilidad.
         </p>

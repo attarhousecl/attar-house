@@ -81,7 +81,7 @@ export default function CheckoutPage() {
     return (
       <section id="checkout" className="page-section active">
         <div className="container" style={{ textAlign: "center" }}>
-          <h2 className="section-title serif">Finalizar Compra</h2>
+          <h1 className="section-title serif">Finalizar Compra</h1>
           <p className="section-subtitle">Tu carrito está vacío.</p>
           <Link href="/catalogo" className="btn-primary">
             <span>Ver Catálogo</span>
@@ -94,9 +94,9 @@ export default function CheckoutPage() {
   return (
     <section id="checkout" className="page-section active">
       <div className="container">
-        <h2 className="section-title serif" style={{ marginBottom: "40px" }}>
+        <h1 className="section-title serif" style={{ marginBottom: "40px" }}>
           Finalizar Compra
-        </h2>
+        </h1>
         <div className="checkout-grid">
           <div className="checkout-summary">
             <h3 className="serif">Tu Pedido</h3>

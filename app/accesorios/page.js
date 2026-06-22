@@ -9,7 +9,7 @@ export default function AccesoriosPage() {
   return (
     <section id="accesorios" className="page-section active">
       <div className="container">
-        <h2 className="section-title serif">Accesorios</h2>
+        <h1 className="section-title serif">Accesorios</h1>
         <p className="section-subtitle">
           Detalles pensados para cuidar, transportar y lucir tus decants como se merecen.
         </p>

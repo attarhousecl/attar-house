@@ -122,9 +122,9 @@ function CatalogoContent() {
   return (
     <section id="catalogo" className="page-section active catalog-bg">
       <div className="container">
-        <h2 className="section-title serif" style={{ marginBottom: "24px" }}>
+        <h1 className="section-title serif" style={{ marginBottom: "24px" }}>
           Nuestro Catálogo
-        </h2>
+        </h1>
 
         {/* Category tabs */}
         <div className="catalog-tabs">
