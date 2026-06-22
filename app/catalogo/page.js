@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useCatalog } from "@/context/CatalogContext";
 import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
@@ -54,8 +55,9 @@ const TABS = [
   { id: "favoritos", label: "♥ Favoritos" },
 ];
 
-export default function CatalogoPage() {
+function CatalogoContent() {
   const { designerDB, nichoDB, arabDB, loading } = useCatalog();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("todos");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("default");
@@ -81,11 +83,12 @@ export default function CatalogoPage() {
     };
   }, []);
 
-  // Permite enlazar directo a una pestaña (p. ej. /catalogo?tab=favoritos desde el nav).
+  // Permite enlazar directo a una pestaña (p. ej. /catalogo?tab=favoritos desde el nav),
+  // reactivo aunque ya estés en /catalogo (cambia el query sin remontar).
+  const tabParam = searchParams.get("tab");
   useEffect(() => {
-    const t = new URLSearchParams(window.location.search).get("tab");
-    if (t && TABS.some((x) => x.id === t)) setActiveTab(t);
-  }, []);
+    if (tabParam && TABS.some((x) => x.id === tabParam)) setActiveTab(tabParam);
+  }, [tabParam]);
 
   const isFav = activeTab === "favoritos";
 
@@ -224,5 +227,13 @@ export default function CatalogoPage() {
         )}
       </div>
     </section>
+  );
+}
+
+export default function CatalogoPage() {
+  return (
+    <Suspense fallback={null}>
+      <CatalogoContent />
+    </Suspense>
   );
 }
