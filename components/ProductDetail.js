@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
 import ReviewSection from "./ReviewSection";
 import RelatedProducts from "./RelatedProducts";
 
@@ -17,6 +18,7 @@ const ATOMIZACIONES = {
 export default function ProductDetail({ id }) {
   const { perfumes, loading } = useCatalog();
   const { addToCart } = useCart();
+  const { showToast } = useToast();
   const [imgError, setImgError] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState("");
   const [wished, setWished] = useState(false);
@@ -38,6 +40,25 @@ export default function ProductDetail({ id }) {
       setWished(!wished);
       window.dispatchEvent(new Event("ah-wishlist-change"));
     } catch {}
+  }
+
+  async function share() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const data = {
+      title: `${perfume?.name} — Attar House`,
+      text: `Mira ${perfume?.name} en Attar House`,
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        showToast("🔗 Enlace copiado al portapapeles");
+      }
+    } catch {
+      // el usuario canceló el diálogo de compartir; no es un error
+    }
   }
 
   const options = perfume
@@ -215,24 +236,44 @@ export default function ProductDetail({ id }) {
                   ? `Añadir al Carrito · $${selectedOpt.price.toLocaleString("es-CL")}`
                   : "Agotado"}
               </button>
-              <button
-                type="button"
-                onClick={toggleWishlist}
-                aria-pressed={wished}
-                style={{
-                  width: "100%", marginTop: "10px",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                  background: "transparent",
-                  border: `1px solid ${wished ? "rgba(220,0,80,0.5)" : "var(--border-gold)"}`,
-                  color: wished ? "#e05a7a" : "var(--text-muted)",
-                  borderRadius: "8px", padding: "11px",
-                  fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "1px",
-                  cursor: "pointer", fontFamily: "var(--font-montserrat), sans-serif", transition: "all 0.2s",
-                }}
-              >
-                <span style={{ fontSize: "1rem", lineHeight: 1 }}>{wished ? "♥" : "♡"}</span>
-                {wished ? "Guardado en favoritos" : "Guardar en favoritos"}
-              </button>
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                <button
+                  type="button"
+                  onClick={toggleWishlist}
+                  aria-pressed={wished}
+                  style={{
+                    flex: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                    background: "transparent",
+                    border: `1px solid ${wished ? "rgba(220,0,80,0.5)" : "var(--border-gold)"}`,
+                    color: wished ? "#e05a7a" : "var(--text-muted)",
+                    borderRadius: "8px", padding: "11px",
+                    fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.5px",
+                    cursor: "pointer", fontFamily: "var(--font-montserrat), sans-serif", transition: "all 0.2s",
+                  }}
+                >
+                  <span style={{ fontSize: "1rem", lineHeight: 1 }}>{wished ? "♥" : "♡"}</span>
+                  {wished ? "Guardado" : "Guardar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={share}
+                  aria-label="Compartir este perfume"
+                  style={{
+                    flex: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                    background: "transparent",
+                    border: "1px solid var(--border-gold)",
+                    color: "var(--text-muted)",
+                    borderRadius: "8px", padding: "11px",
+                    fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.5px",
+                    cursor: "pointer", fontFamily: "var(--font-montserrat), sans-serif", transition: "all 0.2s",
+                  }}
+                >
+                  <i className="ph ph-share-network" aria-hidden="true" style={{ fontSize: "1rem" }}></i>
+                  Compartir
+                </button>
+              </div>
               <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.9" }}>
                 <p>✓ Autenticidad Garantizada</p>
                 <p>✓ Envíos a todo Chile por Starken</p>
