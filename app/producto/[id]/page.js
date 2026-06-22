@@ -15,15 +15,25 @@ export async function generateMetadata({ params }) {
     ? p.image_url
     : `${process.env.NEXT_PUBLIC_SITE_URL}/images/${p.image_url}`;
 
+  const desc = p.description?.slice(0, 155) || `Decant de ${p.name} por ${p.brand}. Disponible en Attar House Chile.`;
+  const ogImages = p.image_url ? [{ url: image, width: 800, height: 800 }] : [];
+
   return {
     title: `${p.name} · ${p.brand} — Attar House`,
-    description: p.description?.slice(0, 155) || `Decant de ${p.name} por ${p.brand}. Disponible en Attar House Chile.`,
+    description: desc,
+    alternates: { canonical: `/producto/${id}` },
     openGraph: {
       title: `${p.name} · ${p.brand}`,
-      description: p.description?.slice(0, 155) || `Decant de ${p.name} disponible en Attar House.`,
-      images: p.image_url ? [{ url: image, width: 800, height: 800 }] : [],
+      description: desc,
+      images: ogImages,
       type: "website",
       siteName: "Attar House",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${p.name} · ${p.brand}`,
+      description: desc,
+      images: ogImages.map((i) => i.url),
     },
   };
 }
