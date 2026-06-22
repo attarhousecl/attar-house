@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCatalog } from "@/context/CatalogContext";
 import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
@@ -51,6 +51,7 @@ const TABS = [
   { id: "arabe",     label: "🌙 Árabe" },
   { id: "nicho",     label: "◆ Nicho" },
   { id: "disenador", label: "✦ Diseñador" },
+  { id: "favoritos", label: "♥ Favoritos" },
 ];
 
 export default function CatalogoPage() {
@@ -64,18 +65,40 @@ export default function CatalogoPage() {
   const [note, setNote] = useState("");
   const [formato, setFormato] = useState("all");
 
+  // Wishlist (favoritos) desde localStorage, reactivo a cambios en cualquier tarjeta.
+  const [wishlist, setWishlist] = useState([]);
+  useEffect(() => {
+    const read = () => {
+      try { setWishlist(JSON.parse(localStorage.getItem("ah_wishlist") || "[]")); }
+      catch { setWishlist([]); }
+    };
+    read();
+    window.addEventListener("ah-wishlist-change", read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener("ah-wishlist-change", read);
+      window.removeEventListener("storage", read);
+    };
+  }, []);
+
+  const isFav = activeTab === "favoritos";
+
   const filterState = { search, sort, gender, aroma, brand, note, formato };
   const filteredArab     = applyFilters(arabDB, filterState);
   const filteredNicho    = applyFilters(nichoDB, filterState);
   const filteredDesigner = applyFilters(designerDB, filterState);
 
-  const showArab     = activeTab === "todos" || activeTab === "arabe";
-  const showNicho    = activeTab === "todos" || activeTab === "nicho";
-  const showDesigner = activeTab === "todos" || activeTab === "disenador";
+  const showArab     = !isFav && (activeTab === "todos" || activeTab === "arabe");
+  const showNicho    = !isFav && (activeTab === "todos" || activeTab === "nicho");
+  const showDesigner = !isFav && (activeTab === "todos" || activeTab === "disenador");
 
   const allDB = [...arabDB, ...nichoDB, ...designerDB];
-  const totalResults = (showArab ? filteredArab.length : 0) + (showNicho ? filteredNicho.length : 0) + (showDesigner ? filteredDesigner.length : 0);
-  const noResults = !loading && allDB.length > 0 && totalResults === 0;
+  const favItems = isFav ? applyFilters(allDB.filter((p) => wishlist.includes(p.id)), filterState) : [];
+
+  const totalResults = isFav
+    ? favItems.length
+    : (showArab ? filteredArab.length : 0) + (showNicho ? filteredNicho.length : 0) + (showDesigner ? filteredDesigner.length : 0);
+  const noResults = !isFav && !loading && allDB.length > 0 && totalResults === 0;
 
   function clearFilters() {
     setSearch("");
@@ -158,6 +181,27 @@ export default function CatalogoPage() {
             </div>
             {loading ? <SkeletonGrid count={4} /> : <ProductGrid perfumes={filteredDesigner} variant="designer" />}
           </div>
+        )}
+
+        {isFav && (
+          favItems.length > 0 ? (
+            <div id="favoritos-section" style={{ marginBottom: "48px" }}>
+              <div className="arab-section-header">
+                <div className="section-divider"></div>
+                <div>
+                  <h3 className="serif">Tus Favoritos</h3>
+                  <p>Los perfumes que guardaste con ♥</p>
+                </div>
+              </div>
+              <ProductGrid perfumes={favItems} variant="catalog" />
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-muted)" }}>
+              <div style={{ fontSize: "2rem", marginBottom: "12px" }} aria-hidden="true">♡</div>
+              <p style={{ marginBottom: "8px" }}>Aún no guardas favoritos.</p>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>Toca el ♥ en cualquier perfume para guardarlo aquí.</p>
+            </div>
+          )
         )}
 
         {noResults && (

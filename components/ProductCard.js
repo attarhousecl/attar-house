@@ -32,6 +32,8 @@ export default function ProductCard({ perfume, variant = "catalog", index = 0 })
       const next = wished ? list.filter((id) => id !== perfume.id) : [...list, perfume.id];
       localStorage.setItem("ah_wishlist", JSON.stringify(next));
       setWished(!wished);
+      // Avisa a la vista de catálogo (pestaña Favoritos) para que se actualice en vivo.
+      window.dispatchEvent(new Event("ah-wishlist-change"));
     } catch {}
   }
 
