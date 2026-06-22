@@ -25,8 +25,9 @@ export function ToastProvider({ children }) {
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        dangerouslySetInnerHTML={{ __html: toast.message }}
-      />
+      >
+        {toast.message}
+      </div>
     </ToastContext.Provider>
   );
 }

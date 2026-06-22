@@ -45,9 +45,9 @@ export function CartProvider({ children }) {
     });
 
     if (existing) {
-      showToast(`<i class="ph ph-check-circle"></i> +1 ${perfume.name} (${formatLabel})`);
+      showToast(`✓ +1 ${perfume.name} (${formatLabel})`);
     } else {
-      showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${perfume.name} (${formatLabel})`);
+      showToast(`✓ ¡Añadido! ${perfume.name} (${formatLabel})`);
     }
   };
 
@@ -57,7 +57,7 @@ export function CartProvider({ children }) {
       if (ex) return prev.map((i) => (i === ex ? { ...i, quantity: i.quantity + quantity } : i));
       return [...prev, { id, name, format, price, quantity }];
     });
-    showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${name}`);
+    showToast(`✓ ¡Añadido! ${name}`);
   };
 
   const addAccesorio = (accesorio) => {
@@ -67,7 +67,7 @@ export function CartProvider({ children }) {
       return [...prev, { id: accesorio.id, name: accesorio.name, format: "Accesorio", price: accesorio.price, quantity: 1 }];
     });
 
-    showToast(`<i class="ph ph-check-circle"></i> ¡Añadido! ${accesorio.name}`);
+    showToast(`✓ ¡Añadido! ${accesorio.name}`);
   };
 
   const updateQty = (idx, mod) => {

@@ -75,14 +75,17 @@ async function handleNotification(request) {
 
     // Solo al APROBARSE el pago, y solo una vez (idempotente ante reintentos del webhook).
     if (newStatus === "paid" && order && !order.confirmation_sent) {
+      // Escapa los valores del cliente: el mensaje va con parse_mode HTML a Telegram,
+      // así que datos como customer_name podrían inyectar etiquetas/enlaces falsos.
+      const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       const items = (order.items || [])
-        .map((i) => `• ${i.name} (${i.format}) ×${i.quantity} — $${(i.price * i.quantity).toLocaleString("es-CL")}`)
+        .map((i) => `• ${esc(i.name)} (${esc(i.format)}) ×${i.quantity} — $${(i.price * i.quantity).toLocaleString("es-CL")}`)
         .join("\n");
       await sendTelegramAlert(
         `🛒 <b>Nuevo pedido pagado</b>\n` +
-        `📋 <code>${order.commerce_order}</code>\n` +
-        `👤 ${order.customer_name} · ${order.customer_phone}\n` +
-        `📧 ${order.customer_email}\n\n` +
+        `📋 <code>${esc(order.commerce_order)}</code>\n` +
+        `👤 ${esc(order.customer_name)} · ${esc(order.customer_phone)}\n` +
+        `📧 ${esc(order.customer_email)}\n\n` +
         `${items}\n\n` +
         `💰 <b>Total: $${(order.total || 0).toLocaleString("es-CL")}</b>`
       );

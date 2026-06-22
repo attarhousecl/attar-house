@@ -69,7 +69,10 @@ export async function POST(request) {
   const subtotal = verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const total = subtotal;
 
-  const commerceOrder = `AH${Date.now()}`;
+  // Sufijo aleatorio para que el número de pedido NO sea adivinable/enumerable
+  // (evita que alguien vea el contenido de otros pedidos en la página de confirmación).
+  const rand = crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
+  const commerceOrder = `AH${Date.now()}${rand}`;
 
   const { error: insertError } = await supabaseAdmin.from("orders").insert({
     commerce_order: commerceOrder,
