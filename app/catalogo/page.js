@@ -81,6 +81,12 @@ export default function CatalogoPage() {
     };
   }, []);
 
+  // Permite enlazar directo a una pestaña (p. ej. /catalogo?tab=favoritos desde el nav).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t && TABS.some((x) => x.id === t)) setActiveTab(t);
+  }, []);
+
   const isFav = activeTab === "favoritos";
 
   const filterState = { search, sort, gender, aroma, brand, note, formato };

@@ -18,9 +18,25 @@ const LINKS = [
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [favCount, setFavCount] = useState(0);
 
   // Cierra el menú al cambiar de ruta.
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  // Contador de favoritos, reactivo a cambios desde tarjetas/ficha.
+  useEffect(() => {
+    const read = () => {
+      try { setFavCount(JSON.parse(localStorage.getItem("ah_wishlist") || "[]").length); }
+      catch { setFavCount(0); }
+    };
+    read();
+    window.addEventListener("ah-wishlist-change", read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener("ah-wishlist-change", read);
+      window.removeEventListener("storage", read);
+    };
+  }, []);
 
   // Cierra el menú con la tecla Escape.
   useEffect(() => {
@@ -38,6 +54,15 @@ export default function Nav() {
         </Link>
         <div className="nav-right">
           <SearchBox />
+          <Link
+            href="/catalogo?tab=favoritos"
+            className="nav-fav-btn"
+            aria-label={`Favoritos${favCount > 0 ? ` (${favCount})` : ""}`}
+            onClick={() => setOpen(false)}
+          >
+            <i className="ph ph-heart" aria-hidden="true"></i>
+            {favCount > 0 && <span className="nav-fav-badge">{favCount}</span>}
+          </Link>
           <button
             type="button"
             className="mobile-menu-btn"
