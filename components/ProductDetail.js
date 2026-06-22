@@ -19,8 +19,26 @@ export default function ProductDetail({ id }) {
   const { addToCart } = useCart();
   const [imgError, setImgError] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState("");
+  const [wished, setWished] = useState(false);
 
   const perfume = perfumes.find((p) => p.id === id);
+
+  // Estado de favorito para este perfume (mismo almacenamiento que las tarjetas).
+  useEffect(() => {
+    if (!id) return;
+    try { setWished(JSON.parse(localStorage.getItem("ah_wishlist") || "[]").includes(id)); }
+    catch { setWished(false); }
+  }, [id]);
+
+  function toggleWishlist() {
+    try {
+      const list = JSON.parse(localStorage.getItem("ah_wishlist") || "[]");
+      const next = wished ? list.filter((x) => x !== id) : [...list, id];
+      localStorage.setItem("ah_wishlist", JSON.stringify(next));
+      setWished(!wished);
+      window.dispatchEvent(new Event("ah-wishlist-change"));
+    } catch {}
+  }
 
   const options = perfume
     ? Object.keys(perfume.prices)
@@ -196,6 +214,24 @@ export default function ProductDetail({ id }) {
                 {canAddToCart
                   ? `Añadir al Carrito · $${selectedOpt.price.toLocaleString("es-CL")}`
                   : "Agotado"}
+              </button>
+              <button
+                type="button"
+                onClick={toggleWishlist}
+                aria-pressed={wished}
+                style={{
+                  width: "100%", marginTop: "10px",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                  background: "transparent",
+                  border: `1px solid ${wished ? "rgba(220,0,80,0.5)" : "var(--border-gold)"}`,
+                  color: wished ? "#e05a7a" : "var(--text-muted)",
+                  borderRadius: "8px", padding: "11px",
+                  fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "1px",
+                  cursor: "pointer", fontFamily: "var(--font-montserrat), sans-serif", transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: "1rem", lineHeight: 1 }}>{wished ? "♥" : "♡"}</span>
+                {wished ? "Guardado en favoritos" : "Guardar en favoritos"}
               </button>
               <div style={{ marginTop: "18px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.9" }}>
                 <p>✓ Autenticidad Garantizada</p>
