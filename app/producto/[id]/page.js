@@ -69,12 +69,28 @@ export default async function ProductoPage({ params }) {
     },
   } : null;
 
+  const breadcrumbJsonLd = p ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Catálogo", item: `${siteUrl}/catalogo` },
+      { "@type": "ListItem", position: 3, name: p.name, item: `${siteUrl}/producto/${id}` },
+    ],
+  } : null;
+
   return (
     <>
       {jsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        />
+      )}
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
         />
       )}
       <ProductDetail id={id} />
