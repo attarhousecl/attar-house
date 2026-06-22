@@ -230,9 +230,24 @@ function CatalogoContent() {
   );
 }
 
+// Fallback con contenido real (h1 + skeleton) para que el HTML inicial / SSR no
+// quede vacío mientras se resuelve el Suspense de useSearchParams.
+function CatalogoFallback() {
+  return (
+    <section id="catalogo" className="page-section active catalog-bg">
+      <div className="container">
+        <h1 className="section-title serif" style={{ marginBottom: "24px" }}>
+          Nuestro Catálogo
+        </h1>
+        <SkeletonGrid count={8} />
+      </div>
+    </section>
+  );
+}
+
 export default function CatalogoPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<CatalogoFallback />}>
       <CatalogoContent />
     </Suspense>
   );
