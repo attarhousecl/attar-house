@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createBrowserClient } from "@supabase/ssr";
 
 const STATUS_LABEL = { paid: "✅ Pagado", pending: "⏳ Pendiente", rejected: "❌ Rechazado", error: "⚠️ Error" };
 const STATUS_COLOR = { paid: "#27ae60", pending: "#d4af37", rejected: "#c0392b", error: "#c0392b" };
@@ -19,17 +18,19 @@ export default function MisPedidosPage() {
     setLoading(true);
     setSearched(true);
 
-    const sb = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    const q = query.trim().toLowerCase();
-
-    const { data } = await sb
-      .from("orders")
-      .select("commerce_order, status, customer_name, customer_email, items, total, created_at, shipping")
-      .or(`commerce_order.eq.${query.trim().toUpperCase()},customer_email.ilike.${q}`)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    setOrders(data || []);
+    // Búsqueda por número de pedido vía ruta de servidor (sin exponer la BD al
+    // navegador; sin lookup por email para no permitir enumerar pedidos ajenos).
+    try {
+      const res = await fetch("/api/mis-pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: query.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setOrders(data.order ? [data.order] : []);
+    } catch {
+      setOrders([]);
+    }
     setLoading(false);
   }
 
@@ -43,14 +44,14 @@ export default function MisPedidosPage() {
         <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver al inicio</Link>
 
         <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "2rem", color: "#d4af37", margin: "20px 0 8px" }}>Mis Pedidos</h1>
-        <p style={{ color: "#666", fontSize: "0.88rem", marginBottom: "32px" }}>Ingresa tu número de pedido (ej: AH1234567890) o tu email para ver el estado.</p>
+        <p style={{ color: "#666", fontSize: "0.88rem", marginBottom: "32px" }}>Ingresa tu número de pedido (lo encuentras en tu correo de confirmación, ej: AH…) para ver el estado.</p>
 
         <form onSubmit={buscar} style={{ display: "flex", gap: "10px", marginBottom: "32px" }}>
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="AH1234567890 o tu@email.com"
-            aria-label="Número de pedido o correo electrónico"
+            placeholder="Tu número de pedido (ej: AH…)"
+            aria-label="Número de pedido"
             style={{ flex: 1, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px 16px", color: "#e0e0e0", fontSize: "0.9rem", fontFamily: "inherit" }}
           />
           <button type="submit" disabled={loading} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", whiteSpace: "nowrap" }}>
