@@ -13,7 +13,7 @@ const isDev = process.env.NODE_ENV !== "production";
 // Mejora futura: pasar a CSP basado en nonce vía proxy.js.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
   "img-src 'self' data: blob: https:",
