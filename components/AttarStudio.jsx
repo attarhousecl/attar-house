@@ -20,6 +20,7 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toPng } from 'html-to-image';
+import { SCENES as BG_SCENES, makeSeed as makeBgSeed, Backdrop as ProceduralBackdrop } from './proceduralBackdrops';
 
 const DIM = {
   story:  { w: 1080, h: 1920, label: 'Story · 9:16' },
@@ -34,7 +35,22 @@ const TEMPLATES = [
   { id: 'promo',       label: 'Promo' },
   { id: 'lanzamiento', label: 'Lanzamiento' },
   { id: 'inspirado',   label: 'Inspirado en' },
+  { id: 'testimonio',  label: 'Testimonio' },
+  { id: 'comparativa', label: 'Precios' },
+  { id: 'countdown',   label: 'Urgencia' },
+  { id: 'carrusel',    label: 'Carrusel' },
 ];
+
+// Plantillas que admiten foto de producto + fondo de escena procedural
+const SCENE_CAPABLE = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown'];
+
+const THEMES = [
+  { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
+  { id: 'ivory',    label: 'Marfil',   bg: '#f3ede1', ink: '#1c1814', muted: '#9a9286', line: 'rgba(28,24,20,.14)' },
+  { id: 'burdeos',  label: 'Burdeos',  bg: '#1a0a0d', ink: '#f0e3d8', muted: '#a4827f', line: 'rgba(240,227,216,.14)' },
+  { id: 'esmeralda', label: 'Esmeralda', bg: '#07120d', ink: '#eef0e6', muted: '#80a08f', line: 'rgba(238,240,230,.14)' },
+];
+const themeOf = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
 
 const clp = (n) => '$' + Number(n || 0).toLocaleString('es-CL');
 
@@ -56,6 +72,34 @@ const lowestPrice = (p) => {
   const vals = [p?.price_decant3, p?.price_decant5, p?.price_decant10, p?.price_sellado].filter((x) => x > 0);
   return vals.length ? Math.min(...vals) : 0;
 };
+// Filas de precios por formato para la plantilla "Precios" (comparativa)
+const priceRows = (p) => ([
+  { label: '3ml decant', price: p?.stock_decant3 && p?.price_decant3 ? clp(p.price_decant3) : 'No disponible', best: false },
+  { label: '5ml decant', price: p?.stock_decant5 && p?.price_decant5 ? clp(p.price_decant5) : 'No disponible', best: false },
+  { label: '10ml decant', price: p?.stock_decant10 && p?.price_decant10 ? clp(p.price_decant10) : 'No disponible', best: true },
+  { label: 'Sellado', price: p?.stock_sellado && p?.price_sellado ? clp(p.price_sellado) : 'No disponible', best: false },
+]);
+
+// Vuelca los datos de un perfume del catálogo en todas las plantillas a la vez
+// (usado al hacer clic en el catálogo y al generar en lote)
+const mapPerfumeToContent = (p, c) => {
+  const notes = perfumeNotes(p).slice(0, 3).join(' · ') || '—';
+  const img = p.image_url || null;
+  const slides = c.carrusel.slides.slice();
+  const i = c.carrusel.activeSlide;
+  slides[i] = { ...slides[i], eyebrow: p.brand, name: p.name, notes, price: clp(lowestPrice(p)), img };
+  return {
+    ...c,
+    producto:    { ...c.producto, eyebrow: p.brand, name: p.name, notes, meta: perfumeMeta(p), img },
+    lanzamiento: { ...c.lanzamiento, name: p.name, notes, eyebrow: 'Nuevo en Attar House', img },
+    promo:       { ...c.promo, name: p.name, notes, price: clp(lowestPrice(p)), img },
+    versus:      { ...c.versus, lHead: p.name, lSub: p.description || c.versus.lSub, img },
+    inspirado:   { ...c.inspirado, name: p.name, target: p.inspiration || c.inspirado.target, notes, meta: perfumeMeta(p), img },
+    comparativa: { ...c.comparativa, name: p.name, img, rows: priceRows(p) },
+    countdown:   { ...c.countdown, name: p.name, notes, price: clp(lowestPrice(p)), img },
+    carrusel:    { ...c.carrusel, slides },
+  };
+};
 
 const defaultContent = () => ({
   versus: {
@@ -73,10 +117,35 @@ const defaultContent = () => ({
       { feat: 'Envío gratis sobre el monto', o: 'dash' },
     ],
   },
-  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null },
-  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null },
-  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null },
-  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null },
+  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null },
+  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null },
+  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null },
+  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null },
+  testimonio: {
+    quote: '"Llegó antes de lo esperado y el aroma dura todo el día. Mi favorito hasta ahora."',
+    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null,
+  },
+  comparativa: {
+    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null,
+    rows: [
+      { label: '3ml decant', price: '', best: false },
+      { label: '5ml decant', price: '', best: false },
+      { label: '10ml decant', price: '', best: true },
+      { label: 'Sellado', price: '', best: false },
+    ],
+  },
+  countdown: {
+    eyebrow: 'Oferta relámpago', name: 'Nombre del perfume', notes: '—', endsText: 'Termina en 24 horas',
+    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null,
+  },
+  carrusel: {
+    activeSlide: 0,
+    slides: [
+      { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null },
+      { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null },
+      { eyebrow: 'Casa', name: 'Perfume 3', notes: '—', price: '', img: null },
+    ],
+  },
 });
 
 export default function AttarStudio({ supabase, onExit }) {
@@ -90,6 +159,8 @@ export default function AttarStudio({ supabase, onExit }) {
   const [products, setProducts] = useState([]);
   const [query, setQuery]   = useState('');
   const [tab, setTab]       = useState('design');  // design | catalog | saved
+  const [selectedIds, setSelectedIds] = useState([]); // selección para generar en lote
+  const [batchProgress, setBatchProgress] = useState(null); // {i, total} mientras genera
   const [designs, setDesigns] = useState([]);
   const [designId, setDesignId] = useState(null);
   const [title, setTitle]   = useState('Sin título');
@@ -133,29 +204,31 @@ export default function AttarStudio({ supabase, onExit }) {
 
   // ---- helpers de estado ----
   const patch = (fields) => setContent((c) => ({ ...c, [tpl]: { ...c[tpl], ...fields } }));
+  const patchSlide = (fields) => setContent((c) => {
+    const slides = c.carrusel.slides.slice();
+    const i = c.carrusel.activeSlide;
+    slides[i] = { ...slides[i], ...fields };
+    return { ...c, carrusel: { ...c.carrusel, slides } };
+  });
   const cur = content[tpl];
+  const curSlide = tpl === 'carrusel' ? cur.slides[cur.activeSlide] : null;
 
   const applyPerfume = (p) => {
     setPerfumeId(p.id);
-    const notes = perfumeNotes(p).slice(0, 3).join(' · ') || '—';
-    const img = p.image_url || null;
-    setContent((c) => ({
-      ...c,
-      producto:    { ...c.producto, eyebrow: p.brand, name: p.name, notes, meta: perfumeMeta(p), img },
-      lanzamiento: { ...c.lanzamiento, name: p.name, notes, eyebrow: 'Nuevo en Attar House', img },
-      promo:       { ...c.promo, name: p.name, notes, price: clp(lowestPrice(p)), img },
-      versus:      { ...c.versus, lHead: p.name, lSub: p.description || c.versus.lSub, img },
-      inspirado:   { ...c.inspirado, name: p.name, target: p.inspiration || c.inspirado.target, notes, meta: perfumeMeta(p), img },
-    }));
+    setContent((c) => mapPerfumeToContent(p, c));
     setTab('design');
   };
 
   const onUpload = (e) => {
     const f = e.target.files?.[0]; if (!f) return;
     const r = new FileReader();
-    r.onload = (ev) => patch({ img: ev.target.result });
+    r.onload = (ev) => (tpl === 'carrusel' ? patchSlide({ img: ev.target.result }) : patch({ img: ev.target.result }));
     r.readAsDataURL(f);
   };
+
+  // ---- fondo de escena procedural (solo plantillas con foto de producto) ----
+  const setBgScene = (sceneId) => patch({ bg: sceneId, bgSeed: sceneId === 'solido' ? null : makeBgSeed(sceneId) });
+  const shuffleBg = () => patch({ bgSeed: makeBgSeed(cur.bg) });
 
   // ---- render del PNG ----
   // Importante: el lienzo se muestra reducido con transform:scale en el preview.
@@ -175,6 +248,50 @@ export default function AttarStudio({ supabase, onExit }) {
       const a = document.createElement('a');
       a.download = `attarhouse_${tpl}_${format}.png`; a.href = url; a.click();
     } catch (e) { alert('No se pudo exportar: ' + e.message); }
+    setBusy('');
+  };
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---- exporta las 3 tarjetas del carrusel, una por una ----
+  const downloadCarousel = async () => {
+    setBusy('export');
+    try {
+      for (let i = 0; i < cur.slides.length; i++) {
+        patch({ activeSlide: i });
+        await wait(300); // deja repintar el lienzo (cambio de slide + carga de imagen)
+        const url = await renderPng();
+        const a = document.createElement('a');
+        a.download = `attarhouse_carrusel_${i + 1}_${format}.png`; a.href = url; a.click();
+        await wait(350); // evita que el navegador bloquee descargas múltiples seguidas
+      }
+    } catch (e) { alert('No se pudo exportar el carrusel: ' + e.message); }
+    setBusy('');
+  };
+
+  const toggleSelect = (id) => setSelectedIds((ids) => (
+    ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
+  ));
+
+  // ---- genera una imagen por cada perfume seleccionado, en lote ----
+  const batchGenerate = async () => {
+    const picked = products.filter((p) => selectedIds.includes(p.id));
+    if (!picked.length) return;
+    setBusy('batch');
+    try {
+      for (let i = 0; i < picked.length; i++) {
+        setBatchProgress({ i: i + 1, total: picked.length });
+        const p = picked[i];
+        setContent((c) => mapPerfumeToContent(p, c));
+        await wait(400); // deja que la imagen del producto cargue antes de capturar
+        const url = await renderPng();
+        const a = document.createElement('a');
+        const slug = `${p.brand}_${p.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        a.download = `attarhouse_${tpl}_${slug}.png`; a.href = url; a.click();
+        await wait(350);
+      }
+    } catch (e) { alert('No se pudo generar el lote: ' + e.message); }
+    setBatchProgress(null);
     setBusy('');
   };
 
@@ -204,12 +321,23 @@ export default function AttarStudio({ supabase, onExit }) {
     setBusy('');
   };
 
-  const openDesign = (d) => {
-    setDesignId(d.id); setTitle(d.title); setTpl(d.template);
+  const openDesign = (d, duplicate = false) => {
+    setDesignId(duplicate ? null : d.id);
+    setTitle(duplicate ? `${d.title} (copia)` : d.title);
+    setTpl(d.template);
     setFormat(d.format); setTheme(d.theme); setAccent(d.accent || '#c6a15b');
     setPerfumeId(d.perfume_id);
     setContent((c) => ({ ...c, [d.template]: { ...c[d.template], ...(d.content || {}) } }));
     setTab('design');
+  };
+
+  const deleteDesign = async (d) => {
+    if (!supabase) return;
+    if (!confirm(`¿Eliminar "${d.title}"? Esta acción no se puede deshacer.`)) return;
+    const { error } = await supabase.from('studio_designs').delete().eq('id', d.id);
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    if (designId === d.id) setDesignId(null);
+    loadDesigns();
   };
 
   const filtered = products.filter((p) => {
@@ -230,14 +358,19 @@ export default function AttarStudio({ supabase, onExit }) {
         <Seg label="Formato" value={format} onChange={setFormat}
              opts={Object.entries(DIM).map(([k, v]) => [k, v.label])} />
         <Seg label="Tema" value={theme} onChange={setTheme}
-             opts={[['noir', 'Noir'], ['ivory', 'Marfil']]} />
+             opts={THEMES.map((t) => [t.id, t.label])} />
         <label className="as-accent">Acento
           <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} />
         </label>
         <div className="as-spacer" />
         <input className="as-title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="as-btn ghost" disabled={busy} onClick={download}>
-          {busy === 'export' ? '…' : 'Descargar PNG'}</button>
+        {tpl === 'carrusel' ? (
+          <button className="as-btn ghost" disabled={busy} onClick={downloadCarousel}>
+            {busy === 'export' ? '…' : 'Descargar las 3 (PNG)'}</button>
+        ) : (
+          <button className="as-btn ghost" disabled={busy} onClick={download}>
+            {busy === 'export' ? '…' : 'Descargar PNG'}</button>
+        )}
         <button className="as-btn" disabled={busy} onClick={save}>
           {busy === 'save' ? 'Guardando…' : 'Guardar en mi sitio'}</button>
         {onExit && <button className="as-btn ghost" onClick={onExit}>Salir</button>}
@@ -259,7 +392,21 @@ export default function AttarStudio({ supabase, onExit }) {
                   <button key={t.id} className={`as-tpl ${tpl === t.id ? 'on' : ''}`} onClick={() => setTpl(t.id)}>{t.label}</button>
                 ))}
               </div>
-              <Fields tpl={tpl} cur={cur} patch={patch} onUpload={onUpload}
+              {SCENE_CAPABLE.includes(tpl) && (
+                <div className="as-card">
+                  <div className="as-subh" style={{ marginTop: 0 }}>Fondo</div>
+                  <div className="as-scenegrid">
+                    <button className={`as-scenebtn ${cur.bg === 'solido' ? 'on' : ''}`} onClick={() => setBgScene('solido')}>Sólido</button>
+                    {BG_SCENES.map((s) => (
+                      <button key={s.id} className={`as-scenebtn ${cur.bg === s.id ? 'on' : ''}`} onClick={() => setBgScene(s.id)}>{s.label}</button>
+                    ))}
+                  </div>
+                  {cur.bg !== 'solido' && (
+                    <button className="as-shuffle" onClick={shuffleBg}>🔀 Generar variación</button>
+                  )}
+                </div>
+              )}
+              <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
                       setContent={setContent} />
             </>
           )}
@@ -268,14 +415,30 @@ export default function AttarStudio({ supabase, onExit }) {
             <>
               <input className="as-search" placeholder="Buscar perfume…" value={query}
                      onChange={(e) => setQuery(e.target.value)} />
+              {selectedIds.length > 0 && (
+                <button className="as-batchbtn" disabled={!!busy} onClick={batchGenerate}>
+                  {busy === 'batch'
+                    ? `Generando ${batchProgress?.i || 0}/${batchProgress?.total || selectedIds.length}…`
+                    : `✦ Generar ${selectedIds.length} imagen${selectedIds.length > 1 ? 'es' : ''} (${tpl})`}
+                </button>
+              )}
               <div className="as-list">
                 {filtered.map((p) => (
-                  <button key={p.id} className="as-item" onClick={() => applyPerfume(p)}>
-                    {p.image_url
-                      ? <img src={p.image_url} alt="" crossOrigin="anonymous" />
-                      : <span className="ph" />}
-                    <span className="meta"><b>{p.name}</b><i>{p.brand} · {perfumeNotes(p).slice(0,2).join(', ')}</i></span>
-                  </button>
+                  <div key={p.id} className="as-item">
+                    <input
+                      type="checkbox"
+                      className="as-check"
+                      checked={selectedIds.includes(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <button className="as-itembody" onClick={() => applyPerfume(p)}>
+                      {p.image_url
+                        ? <img src={p.image_url} alt="" crossOrigin="anonymous" />
+                        : <span className="ph" />}
+                      <span className="meta"><b>{p.name}</b><i>{p.brand} · {perfumeNotes(p).slice(0,2).join(', ')}</i></span>
+                    </button>
+                  </div>
                 ))}
                 {!filtered.length && <p className="as-empty">Sin resultados.</p>}
               </div>
@@ -285,10 +448,14 @@ export default function AttarStudio({ supabase, onExit }) {
           {tab === 'saved' && (
             <div className="as-saved">
               {designs.map((d) => (
-                <button key={d.id} className="as-savedcard" onClick={() => openDesign(d)}>
-                  {d.thumbnail_url && <img src={d.thumbnail_url} alt="" />}
-                  <span><b>{d.title}</b><i>{d.template} · {d.format}</i></span>
-                </button>
+                <div key={d.id} className="as-savedcard">
+                  <button className="as-savedbody" onClick={() => openDesign(d)}>
+                    {d.thumbnail_url && <img src={d.thumbnail_url} alt="" />}
+                    <span><b>{d.title}</b><i>{d.template} · {d.format}</i></span>
+                  </button>
+                  <button className="as-mini" title="Duplicar" onClick={() => openDesign(d, true)}>⎘</button>
+                  <button className="as-mini del" title="Eliminar" onClick={() => deleteDesign(d)}>×</button>
+                </div>
               ))}
               {!designs.length && <p className="as-empty">Aún no guardas diseños.</p>}
             </div>
@@ -298,7 +465,7 @@ export default function AttarStudio({ supabase, onExit }) {
         {/* PREVIEW */}
         <section className="as-canvas" ref={areaRef}>
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
-            <Stage stageRef={stageRef} tpl={tpl} cur={cur} w={w} h={h} tall={tall}
+            <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
                    theme={theme} accent={accent} scale={scale} />
           </div>
         </section>
@@ -342,8 +509,11 @@ function Upload({ has, onUpload }) {
   );
 }
 
-function Fields({ tpl, cur, patch, onUpload, setContent }) {
+const STARS_OPTS = [1, 2, 3, 4, 5];
+
+function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent }) {
   const f = (k) => (v) => patch({ [k]: v });
+  const fSlide = (k) => (v) => patchSlide({ [k]: v });
   if (tpl === 'versus') return (
     <>
       <div className="as-subh">Lado Attar House</div>
@@ -417,6 +587,71 @@ function Fields({ tpl, cur, patch, onUpload, setContent }) {
       <Field label="Pie / desde" value={cur.meta} onChange={f('meta')} />
     </>
   );
+  if (tpl === 'testimonio') return (
+    <>
+      <Upload has={!!cur.img} onUpload={onUpload} />
+      <Field label="Cita del cliente" value={cur.quote} onChange={f('quote')} multi />
+      <Field label="Nombre" value={cur.name} onChange={f('name')} />
+      <Field label="Ciudad" value={cur.location} onChange={f('location')} />
+      <div className="as-field">
+        <label>Estrellas</label>
+        <div className="as-seg">
+          {STARS_OPTS.map((n) => (
+            <button key={n} className={cur.stars === n ? 'on' : ''} onClick={() => patch({ stars: n })}>{n}★</button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+  if (tpl === 'comparativa') return (
+    <>
+      <Upload has={!!cur.img} onUpload={onUpload} />
+      <Field label="Casa / Marca" value={cur.eyebrow} onChange={f('eyebrow')} />
+      <Field label="Nombre" value={cur.name} onChange={f('name')} />
+      <div className="as-subh">Precios por formato</div>
+      {cur.rows.map((r, i) => (
+        <div className="as-row" key={i}>
+          <input value={r.label} onChange={(e) => {
+            const rows = cur.rows.slice(); rows[i] = { ...r, label: e.target.value }; patch({ rows });
+          }} />
+          <input value={r.price} placeholder="Precio" onChange={(e) => {
+            const rows = cur.rows.slice(); rows[i] = { ...r, price: e.target.value }; patch({ rows });
+          }} />
+          <button className={`as-mini ${r.best ? 'on' : ''}`} title="Marcar como mejor valor" onClick={() => {
+            const rows = cur.rows.map((row, j) => ({ ...row, best: j === i ? !row.best : row.best }));
+            patch({ rows });
+          }}>★</button>
+        </div>
+      ))}
+    </>
+  );
+  if (tpl === 'countdown') return (
+    <>
+      <Upload has={!!cur.img} onUpload={onUpload} />
+      <Field label="Etiqueta superior" value={cur.eyebrow} onChange={f('eyebrow')} />
+      <Field label="Nombre" value={cur.name} onChange={f('name')} />
+      <Field label="Notas" value={cur.notes} onChange={f('notes')} />
+      <Field label="Texto de urgencia" value={cur.endsText} onChange={f('endsText')} />
+      <Field label="Precio" value={cur.price} onChange={f('price')} />
+      <Field label="Etiqueta inferior" value={cur.chip} onChange={f('chip')} />
+    </>
+  );
+  if (tpl === 'carrusel') return (
+    <>
+      <div className="as-subh" style={{ marginTop: 0 }}>Tarjeta</div>
+      <div className="as-seg" style={{ marginBottom: 13 }}>
+        {cur.slides.map((_, i) => (
+          <button key={i} className={cur.activeSlide === i ? 'on' : ''} onClick={() => patch({ activeSlide: i })}>{i + 1}</button>
+        ))}
+      </div>
+      <Upload has={!!curSlide.img} onUpload={onUpload} />
+      <Field label="Casa / Marca" value={curSlide.eyebrow} onChange={fSlide('eyebrow')} />
+      <Field label="Nombre" value={curSlide.name} onChange={fSlide('name')} />
+      <Field label="Notas" value={curSlide.notes} onChange={fSlide('notes')} />
+      <Field label="Precio" value={curSlide.price} onChange={fSlide('price')} />
+      <p className="as-hint">Elige el perfume desde el Catálogo para esta tarjeta, luego cambia de tarjeta arriba y repite.</p>
+    </>
+  );
   return null;
 }
 
@@ -424,7 +659,8 @@ function Fields({ tpl, cur, patch, onUpload, setContent }) {
 
 const GhostBottle = ({ s = 1, theme }) => {
   const bw = 230 * s, bh = 320 * s, cap = 96 * s;
-  const fill = theme === 'noir'
+  const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
+  const fill = dark
     ? 'linear-gradient(160deg,#2b2820,#191710)'
     : 'linear-gradient(160deg,#d9d3c6,#c7c0b2)';
   return (
@@ -441,23 +677,25 @@ const Mark = ({ type, color }) => {
   return <svg width="40" height="40" viewBox="0 0 24 24" {...c}><path d="M6 12h12" /></svg>;
 };
 
-function Stage({ stageRef, tpl, cur, w, h, tall, theme, accent, scale }) {
-  const ink = theme === 'noir' ? '#f3ede1' : '#1c1814';
-  const bg  = theme === 'noir' ? '#0c0b09' : '#f3ede1';
-  const muted = theme === 'noir' ? '#8c857a' : '#9a9286';
-  const line  = theme === 'noir' ? 'rgba(243,237,225,.12)' : 'rgba(28,24,20,.14)';
+function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale }) {
+  const th = themeOf(theme);
+  const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
+  const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
   const serif = 'var(--font-cormorant), Georgia, serif';
   const sans  = 'var(--font-inter-studio), system-ui, sans-serif';
   const m = 46;
 
+  const hasScene = SCENE_CAPABLE.includes(tpl) && cur.bg && cur.bg !== 'solido' && cur.bgSeed;
+
   const base = {
-    width: w, height: h, background: bg, color: ink, position: 'absolute', top: 0, left: 0,
+    width: w, height: h, background: hasScene ? '#000' : bg, color: ink, position: 'absolute', top: 0, left: 0,
     transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden', fontFamily: serif,
   };
+  const scene = hasScene ? <ProceduralBackdrop seed={cur.bgSeed} width={w} height={h} uid="-as" /> : null;
   const frame = (
     <svg style={{ position: 'absolute', inset: m, pointerEvents: 'none' }} width={w - m * 2} height={h - m * 2}>
       <rect x="0.5" y="0.5" width={w - m * 2 - 1} height={h - m * 2 - 1} fill="none"
-            stroke={theme === 'noir' ? 'rgba(198,161,91,.28)' : 'rgba(28,24,20,.18)'} strokeWidth="1" />
+            stroke={dark ? 'rgba(198,161,91,.28)' : 'rgba(28,24,20,.18)'} strokeWidth="1" />
     </svg>
   );
   const foot = (
@@ -579,8 +817,104 @@ function Stage({ stageRef, tpl, cur, w, h, tall, theme, accent, scale }) {
     );
   }
 
+  if (tpl === 'testimonio') {
+    const qSize = tall ? 50 : 40;
+    body = (
+      <>
+        <div style={{ position: 'absolute', top: tall ? 220 : 90, left: 0, right: 0, textAlign: 'center', fontSize: 90, color: accent, opacity: .5, fontFamily: serif }}>"</div>
+        <div style={{ position: 'absolute', top: tall ? 320 : 150, left: 0, right: 0, padding: '0 130px', textAlign: 'center', fontSize: qSize, lineHeight: 1.4, fontStyle: 'italic' }}>
+          {cur.quote}
+        </div>
+        <div style={{ position: 'absolute', top: tall ? 660 : 360, left: 0, right: 0, textAlign: 'center', fontSize: 36, color: accent, letterSpacing: 6 }}>
+          {'★'.repeat(cur.stars || 5)}
+        </div>
+        <div style={{ position: 'absolute', top: tall ? 740 : 420, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
+        <div style={{ position: 'absolute', top: tall ? 786 : 462, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>
+        {cur.img && (
+          <div style={{ position: 'absolute', bottom: tall ? 140 : 60, left: 0, right: 0, height: tall ? 340 : 220, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: .85 }}>
+            <Img src={cur.img} style={{ maxWidth: '40%', maxHeight: '100%' }} />
+          </div>
+        )}
+      </>
+    );
+  }
+
+  if (tpl === 'comparativa') {
+    const imgTop = tall ? 160 : 70, imgH = tall ? 520 : 360, listTop = imgTop + imgH + (tall ? 60 : 36);
+    const rowH = tall ? 96 : 74, sideX = 110;
+    body = (
+      <>
+        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 160px' }}>
+          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
+        </div>
+        <div style={{ position: 'absolute', top: imgTop + imgH + (tall ? 16 : 8), left: 0, right: 0, textAlign: 'center', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.28em', fontSize: 22, color: muted }}>{cur.eyebrow}</div>
+        <div style={{ position: 'absolute', top: imgTop + imgH + (tall ? 50 : 32), left: 0, right: 0, textAlign: 'center', fontWeight: 600, fontSize: tall ? 70 : 56 }}>{cur.name}</div>
+        <div style={{ position: 'absolute', top: listTop + (tall ? 50 : 36), left: sideX, right: sideX }}>
+          {cur.rows.map((r, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH,
+              borderTop: i ? `1px solid ${line}` : 'none', padding: r.best ? '0 18px' : '0',
+              background: r.best ? `${accent}1a` : 'transparent', borderRadius: r.best ? 10 : 0,
+            }}>
+              <span style={{ fontFamily: sans, fontSize: tall ? 32 : 26, fontWeight: r.best ? 700 : 400, color: r.best ? accent : ink }}>
+                {r.best && '★ '}{r.label}
+              </span>
+              <span style={{ fontFamily: serif, fontSize: tall ? 38 : 30, fontWeight: 600, color: r.best ? accent : ink }}>{r.price}</span>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  if (tpl === 'countdown') {
+    const imgTop = tall ? 160 : 70, imgH = tall ? 700 : 460, infoTop = imgTop + imgH + (tall ? 24 : 14);
+    body = (
+      <>
+        <div style={{
+          position: 'absolute', top: tall ? 70 : 36, left: '50%', transform: 'translateX(-50%)',
+          fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700,
+          padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
+        }}>{cur.endsText}</div>
+        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
+          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+        </div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
+          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+          <div style={{ fontWeight: 600, fontSize: tall ? 84 : 68, marginTop: 16 }}>{cur.name}</div>
+          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 16, color: muted }}>{cur.notes}</div>
+          <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 96 : 80, color: accent, marginTop: 22 }}>{cur.price}</div>
+          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 22, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+        </div>
+      </>
+    );
+  }
+
+  if (tpl === 'carrusel') {
+    const s = curSlide;
+    const imgTop = tall ? 200 : 100, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 40 : 24);
+    body = (
+      <>
+        <div style={{
+          position: 'absolute', top: tall ? 60 : 30, left: '50%', transform: 'translateX(-50%)',
+          fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em',
+        }}>{cur.activeSlide + 1} / {cur.slides.length}</div>
+        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
+          {s.img ? <Img src={s.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+        </div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
+          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
+          <div style={{ fontWeight: 600, fontSize: tall ? 90 : 74, marginTop: 18, lineHeight: 1 }}>{s.name}</div>
+          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 20, color: muted }}>{s.notes}</div>
+          <div style={{ fontFamily: serif, fontSize: tall ? 50 : 42, fontWeight: 600, marginTop: 24, color: accent }}>{s.price}</div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div ref={stageRef} style={base}>
+      {scene}
       {frame}
       {body}
       {foot}
@@ -627,18 +961,30 @@ const CSS = `
 .as-upload.has{border-style:solid;border-color:var(--gold);color:var(--gold-b)}
 .as-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-bottom:7px}
 .as-row input{background:rgba(0,0,0,.28);border:1px solid rgba(243,237,225,.1);border-radius:7px;color:var(--cream);padding:8px;font-size:13px}
-.as-mini{width:34px;height:34px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--cream);border-radius:7px;cursor:pointer}
+.as-mini{width:34px;height:34px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--cream);border-radius:7px;cursor:pointer;flex:0 0 auto}
 .as-mini.del{color:var(--smoke)}
+.as-mini.on{border-color:var(--gold);color:var(--gold);background:rgba(198,161,91,.12)}
 .as-addrow{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer;margin-top:4px}
 .as-search{margin-bottom:12px}
+.as-hint{font-size:11px;color:var(--smoke);line-height:1.5;margin:8px 0 0}
+.as-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.as-scenegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.as-scenebtn{border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:8px 4px;font-size:11px;cursor:pointer}
+.as-scenebtn.on{border-color:var(--gold);color:var(--cream);background:rgba(198,161,91,.1)}
+.as-shuffle{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer}
+.as-shuffle:hover{border-color:var(--gold);color:var(--gold)}
+.as-batchbtn{width:100%;background:var(--gold);color:#1a1404;border:none;border-radius:8px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.as-batchbtn:disabled{opacity:.6;cursor:not-allowed}
 .as-list,.as-saved{display:flex;flex-direction:column;gap:7px}
-.as-item,.as-savedcard{display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:transparent;border-radius:10px;padding:8px;cursor:pointer;text-align:left;color:var(--cream)}
-.as-item:hover,.as-savedcard:hover{border-color:var(--gold);background:rgba(198,161,91,.07)}
-.as-item img,.as-savedcard img,.as-item .ph{width:42px;height:52px;object-fit:contain;border-radius:6px;background:rgba(0,0,0,.3);flex:0 0 auto}
-.as-savedcard img{width:48px;height:48px}
-.as-item .meta,.as-savedcard span{display:flex;flex-direction:column;gap:2px;min-width:0}
-.as-item b,.as-savedcard b{font-size:13px}
-.as-item i,.as-savedcard i{font-size:11px;color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-item,.as-savedcard{display:flex;align-items:center;gap:8px}
+.as-check{flex:0 0 auto;width:16px;height:16px;cursor:pointer;accent-color:var(--gold)}
+.as-itembody,.as-savedbody{flex:1;display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:transparent;border-radius:10px;padding:8px;cursor:pointer;text-align:left;color:var(--cream);min-width:0}
+.as-itembody:hover,.as-savedbody:hover{border-color:var(--gold);background:rgba(198,161,91,.07)}
+.as-itembody img,.as-savedbody img,.as-itembody .ph{width:42px;height:52px;object-fit:contain;border-radius:6px;background:rgba(0,0,0,.3);flex:0 0 auto}
+.as-savedbody img{width:48px;height:48px}
+.as-itembody .meta,.as-savedbody span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.as-itembody b,.as-savedbody b{font-size:13px}
+.as-itembody i,.as-savedbody i{font-size:11px;color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
 .as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden}
 .as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
