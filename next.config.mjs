@@ -3,9 +3,11 @@
 const isDev = process.env.NODE_ENV !== "production";
 
 // Content-Security-Policy. Permite los recursos externos que el sitio usa de
-// verdad (Google Fonts + Phosphor Icons desde unpkg) y el REST/Realtime de
-// Supabase. En desarrollo se añade 'unsafe-eval' porque el HMR de Next lo
-// necesita; en producción no.
+// verdad (Google Fonts + Phosphor Icons desde unpkg), el REST/Realtime de
+// Supabase, y el CDN de modelos de @imgly/background-removal (Estudio
+// Fotografico recorta fondos en el navegador descargando su modelo IA desde
+// staticimgly.com; sin esto el fetch queda bloqueado). En desarrollo se añade
+// 'unsafe-eval' porque el HMR de Next lo necesita; en producción no.
 //
 // Limitación conocida: script-src usa 'unsafe-inline' porque Next inyecta
 // scripts de hidratación inline y el sitio usa estilos inline (styled-jsx).
@@ -17,7 +19,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://staticimgly.com blob:",
   "frame-src 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",

@@ -926,7 +926,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale 
 const CSS = `
 .attar-studio{--ink:#0c0b09;--noir:#15120c;--gold:#c6a15b;--gold-b:#e6c887;--cream:#f3ede1;--smoke:#8c857a;--line:rgba(198,161,91,.22);
   position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ink);color:var(--cream);
-  font-family:var(--font-inter-studio),system-ui,sans-serif;z-index:50}
+  font-family:var(--font-inter-studio),system-ui,sans-serif;z-index:2000}
 .attar-studio *{box-sizing:border-box}
 .as-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(21,18,12,.7)}
 .as-mark{font-family:var(--font-cormorant),serif;font-size:22px}

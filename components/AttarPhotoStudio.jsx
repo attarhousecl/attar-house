@@ -203,7 +203,7 @@ export default function AttarPhotoStudio({ onExit }) {
 
 const CSS = `
 .ps-page{--ink:#0c0b09;--gold:#d4af37;--cream:#f3ede1;--smoke:#8c857a;--line:rgba(212,175,55,.22);
-  min-height:100vh;background:var(--ink);color:var(--cream);font-family:var(--font-inter-studio),system-ui,sans-serif}
+  position:fixed;inset:0;overflow:auto;background:var(--ink);color:var(--cream);font-family:var(--font-inter-studio),system-ui,sans-serif;z-index:2000}
 .ps-page *{box-sizing:border-box}
 .ps-top{display:flex;align-items:center;gap:18px;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(21,18,12,.7);position:sticky;top:0;z-index:10}
 .ps-mark{font-family:var(--font-cormorant),serif;font-size:22px}
