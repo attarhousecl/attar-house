@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { useCatalog } from "@/context/CatalogContext";
 import ProductGrid from "@/components/ProductGrid";
 
@@ -149,6 +150,7 @@ export default function QuizPage() {
   function finalizar(nuevas) {
     const scored = computeResultados(perfumes, nuevas);
     setResultados(scored);
+    track("quiz_complete", { ...nuevas });
     try {
       sessionStorage.setItem(
         QUIZ_STORE_KEY,

@@ -122,9 +122,12 @@ function CatalogoContent() {
   return (
     <section id="catalogo" className="page-section active catalog-bg">
       <div className="container">
-        <h1 className="section-title serif" style={{ marginBottom: "24px" }}>
+        <h1 className="section-title serif" style={{ marginBottom: "10px" }}>
           Nuestro Catálogo
         </h1>
+        <p className="section-subtitle" style={{ marginBottom: "28px" }}>
+          Perfumería árabe, de nicho y diseñador — pruébala en decant o llévala en frasco sellado. Envíos a todo Chile.
+        </p>
 
         {/* Category tabs */}
         <div className="catalog-tabs">
@@ -236,9 +239,12 @@ function CatalogoFallback() {
   return (
     <section id="catalogo" className="page-section active catalog-bg">
       <div className="container">
-        <h1 className="section-title serif" style={{ marginBottom: "24px" }}>
+        <h1 className="section-title serif" style={{ marginBottom: "10px" }}>
           Nuestro Catálogo
         </h1>
+        <p className="section-subtitle" style={{ marginBottom: "28px" }}>
+          Perfumería árabe, de nicho y diseñador — pruébala en decant o llévala en frasco sellado. Envíos a todo Chile.
+        </p>
         <SkeletonGrid count={8} />
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 
@@ -33,6 +34,7 @@ export default function CartDrawer() {
 
   const sendWhatsAppOrder = () => {
     if (cart.length === 0) return;
+    track("whatsapp_order", { items: itemCount, total });
 
     let t = "¡Hola Attar House! Me gustaría realizar el siguiente pedido:\n\n";
     cart.forEach((i) => {
@@ -186,7 +188,7 @@ export default function CartDrawer() {
               href="/checkout"
               className="btn-add-cart-gold"
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none", marginBottom: "10px" }}
-              onClick={() => setOpen(false)}
+              onClick={() => { track("begin_checkout", { items: itemCount, total }); setOpen(false); }}
             >
               <i className="ph ph-credit-card" style={{ fontSize: "1.2rem" }}></i> Pagar con Mercado Pago
             </a>

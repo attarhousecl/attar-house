@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { track } from "@vercel/analytics";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import ReviewSection from "./ReviewSection";
 import RelatedProducts from "./RelatedProducts";
+import RecentlyViewed from "./RecentlyViewed";
 
 const ATOMIZACIONES = {
   decant3:  { sprays: 30,  dias: "7–10 días" },
@@ -84,6 +86,17 @@ export default function ProductDetail({ id }) {
     return () => document.body.classList.remove("has-buy-bar");
   }, []);
 
+  // Registra el perfume en "vistos recientemente" (localStorage, máx 10).
+  useEffect(() => {
+    if (!perfume?.id) return;
+    try {
+      const prev = JSON.parse(localStorage.getItem("ah_recent") || "[]");
+      const next = [perfume.id, ...prev.filter((x) => x !== perfume.id)].slice(0, 10);
+      localStorage.setItem("ah_recent", JSON.stringify(next));
+      window.dispatchEvent(new Event("ah-recent-change"));
+    } catch {}
+  }, [perfume?.id]);
+
   if (loading) {
     return (
       <section id="detalle-perfume" className="page-section active">
@@ -136,6 +149,7 @@ export default function ProductDetail({ id }) {
   const handleAddToCart = () => {
     if (!canAddToCart) return;
     addToCart(perfume, selectedFormat);
+    track("add_to_cart", { perfume: perfume.name, brand: perfume.brand, format: selectedFormat, price: selectedOpt.price });
   };
 
   return (
@@ -289,6 +303,8 @@ export default function ProductDetail({ id }) {
         <ReviewSection perfumeId={perfume.id} />
 
         <RelatedProducts perfume={perfume} />
+
+        <RecentlyViewed excludeId={perfume.id} />
       </div>
 
       {/* Barra de compra fija (solo mobile): "añadir al carrito" siempre a un toque. */}
