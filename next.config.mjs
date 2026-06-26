@@ -4,10 +4,12 @@ const isDev = process.env.NODE_ENV !== "production";
 
 // Content-Security-Policy. Permite los recursos externos que el sitio usa de
 // verdad (Google Fonts + Phosphor Icons desde unpkg), el REST/Realtime de
-// Supabase, y el CDN de modelos de @imgly/background-removal (Estudio
-// Fotografico recorta fondos en el navegador descargando su modelo IA desde
-// staticimgly.com; sin esto el fetch queda bloqueado). En desarrollo se añade
-// 'unsafe-eval' porque el HMR de Next lo necesita; en producción no.
+// Supabase, y lo que necesita @imgly/background-removal (Estudio Fotografico
+// recorta fondos en el navegador): fetch del modelo IA desde staticimgly.com,
+// import() dinámico de un módulo empaquetado como blob: (así carga su backend
+// wasm/onnxruntime), y 'wasm-unsafe-eval' para poder instanciar ese WASM bajo
+// una CSP estricta. En desarrollo se añade 'unsafe-eval' porque el HMR de
+// Next lo necesita; en producción no.
 //
 // Limitación conocida: script-src usa 'unsafe-inline' porque Next inyecta
 // scripts de hidratación inline y el sitio usa estilos inline (styled-jsx).
@@ -15,11 +17,12 @@ const isDev = process.env.NODE_ENV !== "production";
 // Mejora futura: pasar a CSP basado en nonce vía proxy.js.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://staticimgly.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
   "img-src 'self' data: blob: https:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://staticimgly.com blob:",
+  "worker-src 'self' blob:",
   "frame-src 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
