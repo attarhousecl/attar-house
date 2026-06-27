@@ -104,11 +104,11 @@ const mapPerfumeToContent = (p, c) => {
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
-    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null,
+    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '',
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
-    img: null,
+    img: null, extra: '',
     rows: [
       { feat: 'Fragancias originales', o: 'x' },
       { feat: 'Asesoría personal', o: 'x' },
@@ -117,16 +117,16 @@ const defaultContent = () => ({
       { feat: 'Envío gratis sobre el monto', o: 'dash' },
     ],
   },
-  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null },
-  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null },
-  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null },
-  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null },
+  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '' },
+  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '' },
+  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '' },
+  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '' },
   testimonio: {
     quote: '"Llegó antes de lo esperado y el aroma dura todo el día. Mi favorito hasta ahora."',
-    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null,
+    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '',
   },
   comparativa: {
-    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null,
+    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '',
     rows: [
       { label: '3ml decant', price: '', best: false },
       { label: '5ml decant', price: '', best: false },
@@ -136,14 +136,14 @@ const defaultContent = () => ({
   },
   countdown: {
     eyebrow: 'Oferta relámpago', name: 'Nombre del perfume', notes: '—', endsText: 'Termina en 24 horas',
-    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null,
+    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '',
   },
   carrusel: {
     activeSlide: 0,
     slides: [
-      { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null },
-      { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null },
-      { eyebrow: 'Casa', name: 'Perfume 3', notes: '—', price: '', img: null },
+      { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null, extra: '' },
+      { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null, extra: '' },
+      { eyebrow: 'Casa', name: 'Perfume 3', notes: '—', price: '', img: null, extra: '' },
     ],
   },
 });
@@ -564,6 +564,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Título" value={cur.rHead} onChange={f('rHead')} />
       <Field label="Descripción" value={cur.rSub} onChange={f('rSub')} multi />
       <Upload has={!!cur.rImg} onUpload={onUpload} field="rImg" label="Subir foto (lado Otros)" />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'tabla') return (
@@ -586,6 +587,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
         </div>
       ))}
       <button className="as-addrow" onClick={() => patch({ rows: [...cur.rows, { feat: 'Nueva ventaja', o: 'x' }] })}>+ Agregar fila</button>
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'producto') return (
@@ -596,6 +598,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
       <Field label="Etiqueta" value={cur.chip} onChange={f('chip')} />
       <Field label="Formatos / precios" value={cur.meta} onChange={f('meta')} />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'promo') return (
@@ -607,6 +610,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Precio antes (opcional)" value={cur.from} onChange={f('from')} />
       <Field label="Precio ahora" value={cur.price} onChange={f('price')} />
       <Field label="Etiqueta inferior" value={cur.chip} onChange={f('chip')} />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'lanzamiento') return (
@@ -616,6 +620,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
       <Field label="Pie" value={cur.meta} onChange={f('meta')} />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'inspirado') return (
@@ -626,6 +631,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Nuestra versión" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
       <Field label="Pie / desde" value={cur.meta} onChange={f('meta')} />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'testimonio') return (
@@ -642,6 +648,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
           ))}
         </div>
       </div>
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'comparativa') return (
@@ -664,6 +671,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
           }}>★</button>
         </div>
       ))}
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'countdown') return (
@@ -675,6 +683,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Texto de urgencia" value={cur.endsText} onChange={f('endsText')} />
       <Field label="Precio" value={cur.price} onChange={f('price')} />
       <Field label="Etiqueta inferior" value={cur.chip} onChange={f('chip')} />
+      <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
   if (tpl === 'carrusel') return (
@@ -690,6 +699,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Nombre" value={curSlide.name} onChange={fSlide('name')} />
       <Field label="Notas" value={curSlide.notes} onChange={fSlide('notes')} />
       <Field label="Precio" value={curSlide.price} onChange={fSlide('price')} />
+      <Field label="Texto extra (opcional)" value={curSlide.extra} onChange={fSlide('extra')} multi />
       <p className="as-hint">Elige el perfume desde el Catálogo para esta tarjeta, luego cambia de tarjeta arriba y repite.</p>
     </>
   );
@@ -957,11 +967,22 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     );
   }
 
+  const extraText = tpl === 'carrusel' ? curSlide.extra : cur.extra;
+  const extra = extraText ? (
+    <div style={{
+      position: 'absolute', left: 0, right: 0, bottom: tall ? 118 : 88, textAlign: 'center', padding: '0 90px',
+      fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, letterSpacing: '.02em', lineHeight: 1.4,
+    }}>
+      {extraText}
+    </div>
+  ) : null;
+
   return (
     <div ref={stageRef} style={base}>
       {scene}
       {frame}
       {body}
+      {extra}
       {foot}
     </div>
   );
