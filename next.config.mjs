@@ -7,9 +7,10 @@ const isDev = process.env.NODE_ENV !== "production";
 // Supabase, y lo que necesita @imgly/background-removal (Estudio Fotografico
 // recorta fondos en el navegador): fetch del modelo IA desde staticimgly.com,
 // import() dinámico de un módulo empaquetado como blob: (así carga su backend
-// wasm/onnxruntime), y 'wasm-unsafe-eval' para poder instanciar ese WASM bajo
-// una CSP estricta. En desarrollo se añade 'unsafe-eval' porque el HMR de
-// Next lo necesita; en producción no.
+// wasm/onnxruntime), 'wasm-unsafe-eval' para instanciar ese WASM bajo una CSP
+// estricta, y data: en connect-src porque la librería hace fetch() sobre la
+// propia foto subida (llega como data:image/...;base64,...). En desarrollo
+// se añade 'unsafe-eval' porque el HMR de Next lo necesita; en producción no.
 //
 // Limitación conocida: script-src usa 'unsafe-inline' porque Next inyecta
 // scripts de hidratación inline y el sitio usa estilos inline (styled-jsx).
@@ -21,7 +22,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://staticimgly.com blob:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://staticimgly.com blob: data:",
   "worker-src 'self' blob:",
   "frame-src 'self'",
   "frame-ancestors 'none'",
