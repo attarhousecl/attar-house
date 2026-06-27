@@ -42,6 +42,15 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
 ];
 
+// CSP relajada SOLO para /admin/estudio: @imgly/background-removal usa
+// new Function()/eval para cargar su módulo onnxruntime dinámico, lo que
+// exige 'unsafe-eval' (wasm-unsafe-eval no basta). Aislado a esta ruta para
+// no debilitar la CSP del resto del sitio (incluido el resto del admin).
+const cspEstudioFotografico = csp.replace(
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:"
+);
+
 const nextConfig = {
   async headers() {
     return [
@@ -58,6 +67,11 @@ const nextConfig = {
           { key: "CDN-Cache-Control", value: "no-store" },
           { key: "Vercel-CDN-Cache-Control", value: "no-store" },
         ],
+      },
+      {
+        // Override de CSP solo para esta ruta (ver comentario arriba).
+        source: "/admin/estudio/:path*",
+        headers: [{ key: "Content-Security-Policy", value: cspEstudioFotografico }],
       },
     ];
   },
