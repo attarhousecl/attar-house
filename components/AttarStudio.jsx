@@ -104,11 +104,11 @@ const mapPerfumeToContent = (p, c) => {
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
-    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '',
+    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '', imgScale: 1,
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
-    img: null, extra: '',
+    img: null, extra: '', imgScale: 1,
     rows: [
       { feat: 'Fragancias originales', o: 'x' },
       { feat: 'Asesoría personal', o: 'x' },
@@ -117,16 +117,16 @@ const defaultContent = () => ({
       { feat: 'Envío gratis sobre el monto', o: 'dash' },
     ],
   },
-  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '' },
-  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '' },
-  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '' },
-  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '' },
+  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
+  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
+  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
+  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
   testimonio: {
     quote: '"Llegó antes de lo esperado y el aroma dura todo el día. Mi favorito hasta ahora."',
-    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '',
+    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '', imgScale: 1,
   },
   comparativa: {
-    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '',
+    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
     rows: [
       { label: '3ml decant', price: '', best: false },
       { label: '5ml decant', price: '', best: false },
@@ -136,14 +136,14 @@ const defaultContent = () => ({
   },
   countdown: {
     eyebrow: 'Oferta relámpago', name: 'Nombre del perfume', notes: '—', endsText: 'Termina en 24 horas',
-    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '',
+    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
   },
   carrusel: {
     activeSlide: 0,
     slides: [
-      { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null, extra: '' },
-      { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null, extra: '' },
-      { eyebrow: 'Casa', name: 'Perfume 3', notes: '—', price: '', img: null, extra: '' },
+      { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
+      { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
+      { eyebrow: 'Casa', name: 'Perfume 3', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
     ],
   },
 });
@@ -568,6 +568,20 @@ function Upload({ has, onUpload, field = 'img', label = 'Subir foto (PNG sin fon
   );
 }
 
+function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
+  return (
+    <div className="as-field" style={{ marginTop: -4 }}>
+      <label>{label} · {Math.round((value ?? 1) * 100)}%</label>
+      <input
+        type="range" min="0.4" max="2.2" step="0.1"
+        value={value ?? 1}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="as-range"
+      />
+    </div>
+  );
+}
+
 const STARS_OPTS = [1, 2, 3, 4, 5];
 
 function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent }) {
@@ -579,6 +593,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Título" value={cur.lHead} onChange={f('lHead')} />
       <Field label="Descripción" value={cur.lSub} onChange={f('lSub')} multi />
       <Upload has={!!cur.img} onUpload={onUpload} field="img" label="Subir foto (lado Attar House)" />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <div className="as-subh">Lado Otros</div>
       <Field label="Título" value={cur.rHead} onChange={f('rHead')} />
       <Field label="Descripción" value={cur.rSub} onChange={f('rSub')} multi />
@@ -590,6 +605,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
     <>
       <Field label="Título" value={cur.title} onChange={f('title')} multi />
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <div className="as-subh">Filas</div>
       {cur.rows.map((r, i) => (
         <div className="as-row" key={i}>
@@ -612,6 +628,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'producto') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Casa / Marca" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
@@ -623,6 +640,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'promo') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Etiqueta superior" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
@@ -635,6 +653,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'lanzamiento') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Etiqueta superior" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
@@ -645,6 +664,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'inspirado') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Etiqueta (Inspirado en)" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Fragancia original" value={cur.target} onChange={f('target')} />
       <Field label="Nuestra versión" value={cur.name} onChange={f('name')} />
@@ -656,6 +676,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'testimonio') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Cita del cliente" value={cur.quote} onChange={f('quote')} multi />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Ciudad" value={cur.location} onChange={f('location')} />
@@ -673,6 +694,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'comparativa') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Casa / Marca" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <div className="as-subh">Precios por formato</div>
@@ -696,6 +718,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'countdown') return (
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
+      {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
       <Field label="Etiqueta superior" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
@@ -714,6 +737,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
         ))}
       </div>
       <Upload has={!!curSlide.img} onUpload={onUpload} />
+      {curSlide.img && <SizeSlider value={curSlide.imgScale} onChange={fSlide('imgScale')} />}
       <Field label="Casa / Marca" value={curSlide.eyebrow} onChange={fSlide('eyebrow')} />
       <Field label="Nombre" value={curSlide.name} onChange={fSlide('name')} />
       <Field label="Notas" value={curSlide.notes} onChange={fSlide('notes')} />
@@ -778,7 +802,9 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
       ATTAR HOUSE
     </div>
   );
-  const Img = ({ src, style }) => <img src={src} crossOrigin="anonymous" alt="" style={{ objectFit: 'contain', ...style }} />;
+  const Img = ({ src, style, scale = 1 }) => (
+    <img src={src} crossOrigin="anonymous" alt="" style={{ objectFit: 'contain', ...style, transform: scale !== 1 ? `scale(${scale})` : style?.transform }} />
+  );
 
   let body = null;
 
@@ -789,7 +815,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
         <div style={{ color, fontSize: hs, fontWeight: 600, marginTop: top, textAlign: 'center', maxWidth: '84%', lineHeight: .98 }}>{head}</div>
         <div style={{ color, fontFamily: sans, fontWeight: 300, fontSize: ss, marginTop: tall ? 34 : 24, textAlign: 'center', maxWidth: '78%', lineHeight: 1.35 }}>{sub}</div>
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: tall ? 80 : 46, opacity: img ? 1 : (ghost ? .55 : 1) }}>
-          {img ? <Img src={img} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
+          {img ? <Img src={img} scale={cur.imgScale} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
         </div>
       </div>
     );
@@ -811,7 +837,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
       <>
         {hasImg && tall && (
           <div style={{ position: 'absolute', top: 120, left: 0, right: 0, height: 420, display: 'flex', justifyContent: 'center' }}>
-            <Img src={cur.img} style={{ height: '100%' }} />
+            <Img src={cur.img} scale={cur.imgScale} style={{ height: '100%' }} />
           </div>
         )}
         <div style={{ position: 'absolute', top: titleTop, left: 0, right: 0, padding: `0 ${sideX}px`, textAlign: 'center', color: accent, fontWeight: 600, fontSize: tall ? 72 : 58 }}>{cur.title}</div>
@@ -836,7 +862,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
         </div>
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
@@ -856,7 +882,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
         </div>
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
@@ -880,7 +906,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
           {cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span>
         </div>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
         </div>
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
@@ -906,7 +932,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
         <div style={{ position: 'absolute', top: tall ? 786 : 462, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>
         {cur.img && (
           <div style={{ position: 'absolute', bottom: tall ? 140 : 60, left: 0, right: 0, height: tall ? 340 : 220, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: .85 }}>
-            <Img src={cur.img} style={{ maxWidth: '40%', maxHeight: '100%' }} />
+            <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '40%', maxHeight: '100%' }} />
           </div>
         )}
       </>
@@ -921,7 +947,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 160px' }}>
-          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
+          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
         </div>
         <div style={{
           position: 'absolute', top: contentTop, bottom: contentBottom, left: 0, right: 0,
@@ -962,7 +988,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
           padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
         }}>{cur.endsText}</div>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
         </div>
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
@@ -985,7 +1011,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
           fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em',
         }}>{cur.activeSlide + 1} / {cur.slides.length}</div>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {s.img ? <Img src={s.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+          {s.img ? <Img src={s.img} scale={s.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
         </div>
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
