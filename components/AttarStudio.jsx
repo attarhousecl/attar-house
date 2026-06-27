@@ -914,28 +914,39 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   }
 
   if (tpl === 'comparativa') {
-    const imgTop = tall ? 160 : 70, imgH = tall ? 520 : 360, listTop = imgTop + imgH + (tall ? 60 : 36);
-    const rowH = tall ? 96 : 74, sideX = 110;
+    const imgTop = tall ? 130 : 56, imgH = tall ? 620 : 380;
+    const contentTop = imgTop + imgH;
+    const contentBottom = tall ? 230 : 150; // deja espacio reservado para el pie/logo
+    const rowH = tall ? 108 : 80, cardPad = tall ? 36 : 26;
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 160px' }}>
           {cur.img ? <Img src={cur.img} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
         </div>
-        <div style={{ position: 'absolute', top: imgTop + imgH + (tall ? 16 : 8), left: 0, right: 0, textAlign: 'center', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.28em', fontSize: 22, color: muted }}>{cur.eyebrow}</div>
-        <div style={{ position: 'absolute', top: imgTop + imgH + (tall ? 50 : 32), left: 0, right: 0, textAlign: 'center', fontWeight: 600, fontSize: tall ? 70 : 56 }}>{cur.name}</div>
-        <div style={{ position: 'absolute', top: listTop + (tall ? 50 : 36), left: sideX, right: sideX }}>
-          {cur.rows.map((r, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH,
-              borderTop: i ? `1px solid ${line}` : 'none', padding: r.best ? '0 18px' : '0',
-              background: r.best ? `${accent}1a` : 'transparent', borderRadius: r.best ? 10 : 0,
-            }}>
-              <span style={{ fontFamily: sans, fontSize: tall ? 32 : 26, fontWeight: r.best ? 700 : 400, color: r.best ? accent : ink }}>
-                {r.best && '★ '}{r.label}
-              </span>
-              <span style={{ fontFamily: serif, fontSize: tall ? 38 : 30, fontWeight: 600, color: r.best ? accent : ink }}>{r.price}</span>
-            </div>
-          ))}
+        <div style={{
+          position: 'absolute', top: contentTop, bottom: contentBottom, left: 0, right: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 90px',
+        }}>
+          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.28em', fontSize: tall ? 24 : 20, color: muted }}>{cur.eyebrow}</div>
+          <div style={{ fontWeight: 600, fontSize: tall ? 76 : 58, marginTop: 14, textAlign: 'center', lineHeight: 1.05 }}>{cur.name}</div>
+          <div style={{ width: 64, height: 1, background: accent, opacity: .6, margin: tall ? '30px 0 36px' : '20px 0 26px' }} />
+          <div style={{
+            width: '100%', maxWidth: tall ? 660 : 540, border: `1px solid ${line}`, borderRadius: 18,
+            padding: tall ? '8px 36px' : '6px 26px', background: dark ? 'rgba(255,255,255,.02)' : 'rgba(0,0,0,.015)',
+          }}>
+            {cur.rows.map((r, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH,
+                borderTop: i ? `1px solid ${line}` : 'none', margin: r.best ? `0 -${cardPad}px` : 0, padding: r.best ? `0 ${cardPad}px` : 0,
+                background: r.best ? `${accent}1a` : 'transparent', borderRadius: r.best ? 12 : 0,
+              }}>
+                <span style={{ fontFamily: sans, fontSize: tall ? 34 : 27, fontWeight: r.best ? 700 : 400, color: r.best ? accent : ink, letterSpacing: '.02em' }}>
+                  {r.best && '★ '}{r.label}
+                </span>
+                <span style={{ fontFamily: serif, fontSize: tall ? 44 : 34, fontWeight: 600, color: r.best ? accent : ink }}>{r.price}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </>
     );
