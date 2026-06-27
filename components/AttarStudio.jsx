@@ -104,7 +104,7 @@ const mapPerfumeToContent = (p, c) => {
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
-    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null,
+    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null,
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
@@ -166,9 +166,33 @@ export default function AttarStudio({ supabase, onExit }) {
   const [title, setTitle]   = useState('Sin título');
   const [busy, setBusy]     = useState('');
   const [scale, setScale]   = useState(0.4);
+  const [logo, setLogoState] = useState(null); // logo propio, persiste en este navegador
 
   const stageRef = useRef(null);
   const areaRef  = useRef(null);
+
+  // ---- cargar logo guardado en este navegador ----
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('attarhouse_studio_logo');
+      if (saved) setLogoState(saved);
+    } catch { /* localStorage no disponible */ }
+  }, []);
+
+  const setLogo = (dataUrl) => {
+    setLogoState(dataUrl);
+    try {
+      if (dataUrl) localStorage.setItem('attarhouse_studio_logo', dataUrl);
+      else localStorage.removeItem('attarhouse_studio_logo');
+    } catch { /* localStorage no disponible */ }
+  };
+
+  const onUploadLogo = (e) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = (ev) => setLogo(ev.target.result);
+    r.readAsDataURL(f);
+  };
 
   // ---- cargar catálogo ----
   useEffect(() => {
@@ -219,10 +243,10 @@ export default function AttarStudio({ supabase, onExit }) {
     setTab('design');
   };
 
-  const onUpload = (e) => {
+  const onUpload = (e, field = 'img') => {
     const f = e.target.files?.[0]; if (!f) return;
     const r = new FileReader();
-    r.onload = (ev) => (tpl === 'carrusel' ? patchSlide({ img: ev.target.result }) : patch({ img: ev.target.result }));
+    r.onload = (ev) => (tpl === 'carrusel' ? patchSlide({ [field]: ev.target.result }) : patch({ [field]: ev.target.result }));
     r.readAsDataURL(f);
   };
 
@@ -387,6 +411,22 @@ export default function AttarStudio({ supabase, onExit }) {
 
           {tab === 'design' && (
             <>
+              <div className="as-card">
+                <div className="as-subh" style={{ marginTop: 0 }}>Logo propio</div>
+                <p className="as-hint" style={{ marginTop: 0, marginBottom: 10 }}>
+                  Se usa en el pie de todas tus plantillas en lugar del texto "Attar House". Se guarda en este navegador.
+                </p>
+                {logo && (
+                  <div className="as-logopreview">
+                    <img src={logo} alt="Logo" />
+                    <button className="as-mini del" title="Quitar logo" onClick={() => setLogo(null)}>×</button>
+                  </div>
+                )}
+                <label className={`as-upload ${logo ? 'has' : ''}`}>
+                  {logo ? 'Logo cargado · cambiar' : 'Subir mi logo'}
+                  <input type="file" accept="image/*" onChange={onUploadLogo} hidden />
+                </label>
+              </div>
               <div className="as-tplgrid">
                 {TEMPLATES.map((t) => (
                   <button key={t.id} className={`as-tpl ${tpl === t.id ? 'on' : ''}`} onClick={() => setTpl(t.id)}>{t.label}</button>
@@ -466,7 +506,7 @@ export default function AttarStudio({ supabase, onExit }) {
         <section className="as-canvas" ref={areaRef}>
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
-                   theme={theme} accent={accent} scale={scale} />
+                   theme={theme} accent={accent} scale={scale} logo={logo} />
           </div>
         </section>
       </div>
@@ -500,11 +540,11 @@ function Field({ label, value, onChange, multi }) {
   );
 }
 
-function Upload({ has, onUpload }) {
+function Upload({ has, onUpload, field = 'img', label = 'Subir foto (PNG sin fondo)' }) {
   return (
     <label className={`as-upload ${has ? 'has' : ''}`}>
-      {has ? 'Imagen cargada · cambiar' : 'Subir foto (PNG sin fondo)'}
-      <input type="file" accept="image/*" onChange={onUpload} hidden />
+      {has ? 'Imagen cargada · cambiar' : label}
+      <input type="file" accept="image/*" onChange={(e) => onUpload(e, field)} hidden />
     </label>
   );
 }
@@ -519,10 +559,11 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <div className="as-subh">Lado Attar House</div>
       <Field label="Título" value={cur.lHead} onChange={f('lHead')} />
       <Field label="Descripción" value={cur.lSub} onChange={f('lSub')} multi />
-      <Upload has={!!cur.img} onUpload={onUpload} />
+      <Upload has={!!cur.img} onUpload={onUpload} field="img" label="Subir foto (lado Attar House)" />
       <div className="as-subh">Lado Otros</div>
       <Field label="Título" value={cur.rHead} onChange={f('rHead')} />
       <Field label="Descripción" value={cur.rSub} onChange={f('rSub')} multi />
+      <Upload has={!!cur.rImg} onUpload={onUpload} field="rImg" label="Subir foto (lado Otros)" />
     </>
   );
   if (tpl === 'tabla') return (
@@ -677,7 +718,7 @@ const Mark = ({ type, color }) => {
   return <svg width="40" height="40" viewBox="0 0 24 24" {...c}><path d="M6 12h12" /></svg>;
 };
 
-function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale }) {
+function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo }) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
   const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
@@ -698,7 +739,11 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale 
             stroke={dark ? 'rgba(198,161,91,.28)' : 'rgba(28,24,20,.18)'} strokeWidth="1" />
     </svg>
   );
-  const foot = (
+  const foot = logo ? (
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 64 : 42, display: 'flex', justifyContent: 'center' }}>
+      <img src={logo} alt="" style={{ height: tall ? 56 : 40, maxWidth: '44%', objectFit: 'contain', opacity: .92 }} />
+    </div>
+  ) : (
     <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 70 : 48, textAlign: 'center',
       fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.5em', fontSize: 24, color: accent, opacity: .85 }}>
       ATTAR HOUSE
@@ -714,7 +759,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale 
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ color, fontSize: hs, fontWeight: 600, marginTop: top, textAlign: 'center', maxWidth: '84%', lineHeight: .98 }}>{head}</div>
         <div style={{ color, fontFamily: sans, fontWeight: 300, fontSize: ss, marginTop: tall ? 34 : 24, textAlign: 'center', maxWidth: '78%', lineHeight: 1.35 }}>{sub}</div>
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: tall ? 80 : 46, opacity: ghost ? .55 : 1 }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: tall ? 80 : 46, opacity: img ? 1 : (ghost ? .55 : 1) }}>
           {img ? <Img src={img} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
         </div>
       </div>
@@ -723,7 +768,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale 
       <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
         <Col head={cur.lHead} sub={cur.lSub} color={accent} img={cur.img} />
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1, background: `linear-gradient(180deg,transparent,${line},transparent)` }} />
-        <Col head={cur.rHead} sub={cur.rSub} color={muted} ghost />
+        <Col head={cur.rHead} sub={cur.rSub} color={muted} img={cur.rImg} ghost />
       </div>
     );
   }
@@ -768,10 +813,10 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale 
           <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
           <div style={{ fontWeight: 600, fontSize: tall ? 96 : 78, marginTop: 18, lineHeight: 1 }}>{cur.name}</div>
           <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 22, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em' }}>{cur.meta}</div>
           {tpl === 'producto' && (
-            <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 32, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+            <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
           )}
+          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em' }}>{cur.meta}</div>
         </div>
       </>
     );
@@ -973,6 +1018,9 @@ const CSS = `
 .as-scenebtn.on{border-color:var(--gold);color:var(--cream);background:rgba(198,161,91,.1)}
 .as-shuffle{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer}
 .as-shuffle:hover{border-color:var(--gold);color:var(--gold)}
+.as-logopreview{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.as-logopreview img{height:32px;max-width:160px;object-fit:contain}
+.as-logopreview .as-mini{margin-left:auto}
 .as-batchbtn{width:100%;background:var(--gold);color:#1a1404;border:none;border-radius:8px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px}
 .as-batchbtn:disabled{opacity:.6;cursor:not-allowed}
 .as-list,.as-saved{display:flex;flex-direction:column;gap:7px}
