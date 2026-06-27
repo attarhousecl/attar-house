@@ -167,6 +167,7 @@ export default function AttarStudio({ supabase, onExit }) {
   const [busy, setBusy]     = useState('');
   const [scale, setScale]   = useState(0.4);
   const [logo, setLogoState] = useState(null); // logo propio, persiste en este navegador
+  const [logoScale, setLogoScaleState] = useState(1); // tamaño del logo, persiste igual
 
   const stageRef = useRef(null);
   const areaRef  = useRef(null);
@@ -176,6 +177,8 @@ export default function AttarStudio({ supabase, onExit }) {
     try {
       const saved = localStorage.getItem('attarhouse_studio_logo');
       if (saved) setLogoState(saved);
+      const savedScale = parseFloat(localStorage.getItem('attarhouse_studio_logo_scale'));
+      if (savedScale > 0) setLogoScaleState(savedScale);
     } catch { /* localStorage no disponible */ }
   }, []);
 
@@ -185,6 +188,11 @@ export default function AttarStudio({ supabase, onExit }) {
       if (dataUrl) localStorage.setItem('attarhouse_studio_logo', dataUrl);
       else localStorage.removeItem('attarhouse_studio_logo');
     } catch { /* localStorage no disponible */ }
+  };
+
+  const setLogoScale = (scale) => {
+    setLogoScaleState(scale);
+    try { localStorage.setItem('attarhouse_studio_logo_scale', String(scale)); } catch { /* localStorage no disponible */ }
   };
 
   const onUploadLogo = (e) => {
@@ -426,6 +434,17 @@ export default function AttarStudio({ supabase, onExit }) {
                   {logo ? 'Logo cargado · cambiar' : 'Subir mi logo'}
                   <input type="file" accept="image/*" onChange={onUploadLogo} hidden />
                 </label>
+                {logo && (
+                  <div className="as-field" style={{ marginTop: 12, marginBottom: 0 }}>
+                    <label>Tamaño del logo · {Math.round(logoScale * 100)}%</label>
+                    <input
+                      type="range" min="0.4" max="3" step="0.1"
+                      value={logoScale}
+                      onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                      className="as-range"
+                    />
+                  </div>
+                )}
               </div>
               <div className="as-tplgrid">
                 {TEMPLATES.map((t) => (
@@ -506,7 +525,7 @@ export default function AttarStudio({ supabase, onExit }) {
         <section className="as-canvas" ref={areaRef}>
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
-                   theme={theme} accent={accent} scale={scale} logo={logo} />
+                   theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} />
           </div>
         </section>
       </div>
@@ -597,7 +616,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
       <Field label="Etiqueta" value={cur.chip} onChange={f('chip')} />
-      <Field label="Formatos / precios" value={cur.meta} onChange={f('meta')} />
+      <Field label="Formatos / precios" value={cur.meta} onChange={f('meta')} multi />
       <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
@@ -619,7 +638,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Etiqueta superior" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
-      <Field label="Pie" value={cur.meta} onChange={f('meta')} />
+      <Field label="Pie" value={cur.meta} onChange={f('meta')} multi />
       <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
@@ -630,7 +649,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Fragancia original" value={cur.target} onChange={f('target')} />
       <Field label="Nuestra versión" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
-      <Field label="Pie / desde" value={cur.meta} onChange={f('meta')} />
+      <Field label="Pie / desde" value={cur.meta} onChange={f('meta')} multi />
       <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
@@ -728,7 +747,7 @@ const Mark = ({ type, color }) => {
   return <svg width="40" height="40" viewBox="0 0 24 24" {...c}><path d="M6 12h12" /></svg>;
 };
 
-function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo }) {
+function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1 }) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
   const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
@@ -751,7 +770,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   );
   const foot = logo ? (
     <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 64 : 42, display: 'flex', justifyContent: 'center' }}>
-      <img src={logo} alt="" style={{ height: tall ? 56 : 40, maxWidth: '44%', objectFit: 'contain', opacity: .92 }} />
+      <img src={logo} alt="" style={{ height: (tall ? 56 : 40) * logoScale, maxWidth: '80%', objectFit: 'contain', opacity: .92 }} />
     </div>
   ) : (
     <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 70 : 48, textAlign: 'center',
@@ -826,7 +845,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
           {tpl === 'producto' && (
             <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
           )}
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em' }}>{cur.meta}</div>
+          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
         </div>
       </>
     );
@@ -866,7 +885,7 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
         <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
           <div style={{ fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
           <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 20, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 26, color: accent }}>{cur.meta}</div>
+          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 26, color: accent, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
         </div>
       </>
     );
@@ -1004,6 +1023,7 @@ const CSS = `
 .as-seg button.on{background:var(--gold);color:#1a1404;font-weight:600}
 .as-accent{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
 .as-accent input{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;background:none;padding:0;cursor:pointer}
+.as-range{width:100%;accent-color:var(--gold);cursor:pointer}
 .as-spacer{flex:1}
 .as-title{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:8px;color:var(--cream);padding:8px 12px;font-size:13px;width:150px}
 .as-btn{border:1px solid var(--gold);border-radius:999px;background:linear-gradient(180deg,var(--gold-b),var(--gold));color:#1a1404;font-weight:600;font-size:13px;padding:10px 18px;cursor:pointer}
