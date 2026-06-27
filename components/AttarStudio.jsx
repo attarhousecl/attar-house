@@ -594,8 +594,8 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Casa / Marca" value={cur.eyebrow} onChange={f('eyebrow')} />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Notas" value={cur.notes} onChange={f('notes')} />
-      <Field label="Formatos / precios" value={cur.meta} onChange={f('meta')} />
       <Field label="Etiqueta" value={cur.chip} onChange={f('chip')} />
+      <Field label="Formatos / precios" value={cur.meta} onChange={f('meta')} />
     </>
   );
   if (tpl === 'promo') return (
