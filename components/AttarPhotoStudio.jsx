@@ -2,13 +2,22 @@
 /**
  * Attar House · Estudio Fotográfico
  * Recorta el fondo de la foto subida (100% en el navegador, sin API externa)
- * y la coloca sobre un fondo de estudio generado por capas de CSS/SVG.
- * Cada escena tiene una semilla aleatoria (luz, brillos, hojas) que se puede
- * regenerar con "Generar variación", para que no todas las fotos salgan iguales.
+ * y la compone sobre un fondo fotorrealista generado por IA (Cloudflare
+ * Workers AI · FLUX-1-schnell, gratis sin tarjeta). Cada generación varía
+ * un poco el prompt, así que el resultado no es idéntico cada vez.
  */
-import { useState, useRef, useEffect } from "react";
-import { toPng } from "html-to-image";
-import { SCENES, BACKDROP_SIZE as SIZE, makeSeed, Backdrop, GroundShadow } from "./proceduralBackdrops";
+import { useState, useRef } from "react";
+
+const SIZE = 1024;
+
+const SCENES = [
+  { id: "marmol", label: "Mármol Oscuro", desc: "Lujo, fondo casi negro" },
+  { id: "blanco", label: "E-commerce Blanco", desc: "Limpio y clásico" },
+  { id: "gris", label: "E-commerce Gris", desc: "Elegante y uniforme" },
+  { id: "bokeh", label: "Bokeh Dorado", desc: "Luces difusas doradas" },
+  { id: "arena", label: "Arena Cálida", desc: "Tonos cálidos suaves" },
+  { id: "tropical", label: "Hojas Tropicales", desc: "Verde oscuro, hojas" },
+];
 
 function prepareCutout(dataUrl) {
   return new Promise((resolve) => {
@@ -40,36 +49,59 @@ async function removeBg(dataUrl) {
   });
 }
 
+function compositeWithBackground(bgDataUrl, cutoutDataUrl) {
+  return new Promise((resolve, reject) => {
+    const bg = new Image();
+    bg.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = SIZE;
+      canvas.height = SIZE;
+      const ctx = canvas.getContext("2d");
+
+      const scale = Math.max(SIZE / bg.width, SIZE / bg.height);
+      const w = bg.width * scale, h = bg.height * scale;
+      ctx.drawImage(bg, (SIZE - w) / 2, (SIZE - h) / 2, w, h);
+
+      ctx.save();
+      ctx.globalAlpha = 0.4;
+      ctx.translate(SIZE / 2, SIZE * 0.87);
+      ctx.scale(1, 0.22);
+      ctx.beginPath();
+      ctx.arc(0, 0, SIZE * 0.17, 0, Math.PI * 2);
+      ctx.fillStyle = "#000";
+      try { ctx.filter = "blur(18px)"; } catch { /* sin soporte de filter en canvas */ }
+      ctx.fill();
+      ctx.restore();
+
+      const cutout = new Image();
+      cutout.onload = () => {
+        ctx.drawImage(cutout, 0, 0, SIZE, SIZE);
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
+      };
+      cutout.onerror = reject;
+      cutout.src = cutoutDataUrl;
+    };
+    bg.onerror = reject;
+    bg.src = bgDataUrl;
+  });
+}
+
 export default function AttarPhotoStudio({ onExit }) {
   const inputRef = useRef(null);
-  const stageRef = useRef(null);
-  const areaRef = useRef(null);
 
   const [originalDataUrl, setOriginalDataUrl] = useState(null);
-  const [cutoutUrl, setCutoutUrl] = useState(null);
+  const [cutoutDataUrl, setCutoutDataUrl] = useState(null);
+  const [resultUrl, setResultUrl] = useState(null);
   const [sceneId, setSceneId] = useState("marmol");
-  const [seed, setSeed] = useState(() => makeSeed("marmol"));
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
-  const [scale, setScale] = useState(0.4);
-
-  useEffect(() => {
-    const fit = () => {
-      const a = areaRef.current;
-      if (!a) return;
-      setScale(Math.min((a.clientWidth - 32) / SIZE, (a.clientHeight - 32) / SIZE, 1));
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    if (areaRef.current) ro.observe(areaRef.current);
-    return () => ro.disconnect();
-  }, []);
 
   function handleFile(e) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError("");
-    setCutoutUrl(null);
+    setCutoutDataUrl(null);
+    setResultUrl(null);
     const reader = new FileReader();
     reader.onload = (ev) => setOriginalDataUrl(ev.target.result);
     reader.readAsDataURL(file);
@@ -78,50 +110,54 @@ export default function AttarPhotoStudio({ onExit }) {
   function removeImage(e) {
     e.stopPropagation();
     setOriginalDataUrl(null);
-    setCutoutUrl(null);
+    setCutoutDataUrl(null);
+    setResultUrl(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  function selectScene(id) {
-    setSceneId(id);
-    setSeed(makeSeed(id));
-  }
-
-  function shuffle() {
-    setSeed(makeSeed(sceneId));
+  async function fetchBackground() {
+    const res = await fetch("/api/estudio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ style: sceneId }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+    return `data:${data.mimeType};base64,${data.imageData}`;
   }
 
   async function generate() {
     if (!originalDataUrl) { setError("Sube una foto primero."); return; }
     setError("");
-    setBusy("recortando");
     try {
-      const noBg = await removeBg(originalDataUrl);
-      setBusy("posicionando");
-      const positioned = await prepareCutout(noBg);
-      setCutoutUrl(positioned);
+      let cutout = cutoutDataUrl;
+      if (!cutout) {
+        setBusy("recortando");
+        const noBg = await removeBg(originalDataUrl);
+        cutout = await prepareCutout(noBg);
+        setCutoutDataUrl(cutout);
+      }
+      setBusy("generando");
+      const bg = await fetchBackground();
+      setBusy("componiendo");
+      const final = await compositeWithBackground(bg, cutout);
+      setResultUrl(final);
     } catch (e) {
-      setError("No se pudo recortar el fondo: " + e.message);
+      setError("No se pudo generar la foto: " + e.message);
     }
     setBusy("");
   }
 
-  const download = async () => {
-    if (!stageRef.current) return;
-    setBusy("exportando");
-    try {
-      const url = await toPng(stageRef.current, {
-        width: SIZE, height: SIZE, pixelRatio: 1, cacheBust: true,
-        style: { transform: "none", transformOrigin: "top left", margin: "0" },
-      });
-      const a = document.createElement("a");
-      a.download = `attarhouse_${sceneId}.png`;
-      a.href = url;
-      a.click();
-    } catch (e) {
-      setError("No se pudo exportar: " + e.message);
-    }
-    setBusy("");
+  function selectScene(id) {
+    setSceneId(id);
+  }
+
+  const download = () => {
+    if (!resultUrl) return;
+    const a = document.createElement("a");
+    a.download = `attarhouse_${sceneId}.jpg`;
+    a.href = resultUrl;
+    a.click();
   };
 
   return (
@@ -156,7 +192,7 @@ export default function AttarPhotoStudio({ onExit }) {
           </div>
 
           <div className="ps-card">
-            <h2 className="ps-card-title">2. Escena</h2>
+            <h2 className="ps-card-title">2. Escena (generada por IA)</h2>
             <div className="ps-scenes">
               {SCENES.map((s) => (
                 <button key={s.id} className={`ps-scene ${sceneId === s.id ? "on" : ""}`} onClick={() => selectScene(s.id)}>
@@ -165,35 +201,33 @@ export default function AttarPhotoStudio({ onExit }) {
                 </button>
               ))}
             </div>
-            <button className="ps-shuffle" onClick={shuffle}>🔀 Generar variación</button>
           </div>
 
           {error && <div className="ps-error">{error}</div>}
 
           <button className="ps-genbtn" onClick={generate} disabled={!!busy || !originalDataUrl}>
-            {busy === "recortando" ? "Recortando fondo…" : busy === "posicionando" ? "Posicionando…" : "✦ Recortar y posicionar"}
+            {busy === "recortando" ? "Recortando fondo…"
+              : busy === "generando" ? "Generando ambiente con IA…"
+              : busy === "componiendo" ? "Componiendo…"
+              : resultUrl ? "🔀 Generar variación" : "✦ Generar Foto"}
           </button>
-          {cutoutUrl && (
+          {resultUrl && (
             <button className="ps-dlbtn" onClick={download} disabled={!!busy}>
-              {busy === "exportando" ? "Exportando…" : "⬇ Descargar PNG (1024×1024)"}
+              ⬇ Descargar JPG (1024×1024)
             </button>
           )}
         </aside>
 
-        <section className="ps-canvas" ref={areaRef}>
-          <div className="ps-viewport" style={{ width: SIZE * scale, height: SIZE * scale }}>
-            <div className="ps-frame" ref={stageRef} style={{ width: SIZE, height: SIZE, transform: `scale(${scale})` }}>
-              <Backdrop seed={seed} />
-              {cutoutUrl && <GroundShadow shadowScale={seed.shadowScale} />}
-              {cutoutUrl ? (
-                <img src={cutoutUrl} alt="Resultado" className="ps-result-img" />
-              ) : (
-                <div className="ps-ph">
-                  <span style={{ fontSize: "2.5rem", opacity: 0.3 }}>🖼</span>
-                  <p>{originalDataUrl ? "Pulsa “Recortar y posicionar”" : "Sube una foto para comenzar"}</p>
-                </div>
-              )}
-            </div>
+        <section className="ps-canvas">
+          <div className="ps-box">
+            {resultUrl ? (
+              <img src={resultUrl} alt="Resultado" className="ps-result-img" />
+            ) : (
+              <div className="ps-ph">
+                <span style={{ fontSize: "2.5rem", opacity: 0.3 }}>🖼</span>
+                <p>{busy ? "Generando…" : originalDataUrl ? "Pulsa “Generar Foto”" : "Sube una foto para comenzar"}</p>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -222,22 +256,19 @@ const CSS = `
 .ps-preview-wrap{position:relative;height:100%;display:flex;align-items:center;justify-content:center;padding:8px}
 .ps-preview-img{max-height:100px;max-width:100%;object-fit:contain;border-radius:6px}
 .ps-remove{position:absolute;top:4px;right:4px;background:#c0392b;color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem}
-.ps-scenes{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.ps-scenes{display:flex;flex-direction:column;gap:8px}
 .ps-scene{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
 .ps-scene.on{border-color:var(--gold);background:rgba(212,175,55,.07)}
 .ps-scene-label{font-size:.85rem;font-weight:600;color:var(--cream)}
 .ps-scene.on .ps-scene-label{color:var(--gold)}
 .ps-scene-desc{font-size:.72rem;color:#666}
-.ps-shuffle{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:10px;font-size:.8rem;cursor:pointer}
-.ps-shuffle:hover{border-color:var(--gold);color:var(--gold)}
 .ps-error{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);color:#e07070;border-radius:8px;padding:10px 14px;font-size:.82rem}
 .ps-genbtn{background:var(--gold);color:#000;border:none;border-radius:10px;padding:14px;font-size:.9rem;font-weight:700;cursor:pointer;width:100%}
 .ps-genbtn:disabled{opacity:.4;cursor:not-allowed}
 .ps-dlbtn{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:13px;font-size:.88rem;font-weight:600;cursor:pointer;width:100%}
 .ps-dlbtn:disabled{opacity:.4;cursor:not-allowed}
 .ps-canvas{position:sticky;top:76px;display:flex;justify-content:center;min-height:300px}
-.ps-viewport{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
-.ps-frame{position:relative;transform-origin:top left;border-radius:10px;overflow:hidden}
+.ps-box{position:relative;width:100%;max-width:480px;aspect-ratio:1/1;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.8);background:#0d0d0d}
 .ps-result-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .ps-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#555;font-size:.85rem;text-align:center;padding:0 20px}
 @media (max-width:860px){.ps-shell{grid-template-columns:1fr}.ps-canvas{position:static}}
