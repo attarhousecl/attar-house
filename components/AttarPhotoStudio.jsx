@@ -21,24 +21,17 @@ const SCENES = [
   { id: "tropical", label: "Hojas Tropicales", desc: "Verde oscuro, hojas" },
 ];
 
-function prepareCutout(dataUrl) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = SIZE;
-      canvas.height = SIZE;
-      const ctx = canvas.getContext("2d");
-      const targetHeight = SIZE * 0.66;
-      const scale = targetHeight / img.height;
-      const targetWidth = img.width * scale;
-      const x = (SIZE - targetWidth) / 2;
-      const y = SIZE - targetHeight - SIZE * 0.1;
-      ctx.drawImage(img, x, y, targetWidth, targetHeight);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.src = dataUrl;
-  });
+// Dónde y a qué tamaño se coloca la foto dentro del lienzo de 1024x1024.
+function computePlacement(imgWidth, imgHeight) {
+  const targetHeight = SIZE * 0.66;
+  const scale = targetHeight / imgHeight;
+  const targetWidth = imgWidth * scale;
+  return {
+    x: (SIZE - targetWidth) / 2,
+    y: SIZE - targetHeight - SIZE * 0.1,
+    width: targetWidth,
+    height: targetHeight,
+  };
 }
 
 async function removeBg(dataUrl) {
@@ -51,50 +44,12 @@ async function removeBg(dataUrl) {
   });
 }
 
-// A partir del recorte (PNG 1024x1024 con transparencia, botella ya
-// posicionada) construye: (1) una imagen plana (botella sobre fondo neutro,
-// para enviar como "image") y (2) una máscara (negro = preservar la botella,
-// blanco = regenerar el entorno), tomada directo del canal alfa del recorte
-// — el borde ya viene suavizado por el propio recorte, sin trabajo extra.
-function buildImageAndMask(cutoutDataUrl) {
+function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = async () => {
-      try {
-        const imgCanvas = document.createElement("canvas");
-        imgCanvas.width = SIZE;
-        imgCanvas.height = SIZE;
-        const ictx = imgCanvas.getContext("2d");
-        ictx.fillStyle = "#888888";
-        ictx.fillRect(0, 0, SIZE, SIZE);
-        ictx.drawImage(img, 0, 0, SIZE, SIZE);
-
-        const maskCanvas = document.createElement("canvas");
-        maskCanvas.width = SIZE;
-        maskCanvas.height = SIZE;
-        const mctx = maskCanvas.getContext("2d");
-        mctx.drawImage(img, 0, 0, SIZE, SIZE);
-        const src = mctx.getImageData(0, 0, SIZE, SIZE);
-        const maskData = mctx.createImageData(SIZE, SIZE);
-        for (let i = 0; i < SIZE * SIZE; i++) {
-          const alpha = src.data[i * 4 + 3];
-          const v = 255 - alpha;
-          maskData.data[i * 4] = v;
-          maskData.data[i * 4 + 1] = v;
-          maskData.data[i * 4 + 2] = v;
-          maskData.data[i * 4 + 3] = 255;
-        }
-        mctx.putImageData(maskData, 0, 0);
-
-        const imageBlob = await new Promise((res) => imgCanvas.toBlob(res, "image/png"));
-        const maskBlob = await new Promise((res) => maskCanvas.toBlob(res, "image/png"));
-        resolve({ imageBlob, maskBlob });
-      } catch (e) {
-        reject(e);
-      }
-    };
+    img.onload = () => resolve(img);
     img.onerror = reject;
-    img.src = cutoutDataUrl;
+    img.src = src;
   });
 }
 
@@ -111,27 +66,126 @@ async function blobToByteArray(blob) {
   return Array.from(new Uint8Array(buf));
 }
 
-// Los modelos de inpainting a veces "reinventan" detalles finos (texto de
-// etiqueta, logos) incluso dentro del área marcada para preservar. Para
-// garantizar que la botella quede idéntica a la foto real, se pega encima
-// del resultado el recorte original exacto (con su transparencia), dejando
-// que la IA solo aporte el entorno regenerado alrededor.
-function pasteBackOriginal(resultDataUrl, cutoutDataUrl) {
+// El recorte de fondo a veces le asigna transparencia parcial a zonas
+// oscuras/brillantes de la etiqueta (las confunde con fondo), dejando
+// "huecos" en la silueta. Esos huecos dejan a la IA inventar texto ahí
+// — tanto al generar como al "pegar de vuelta". La solución es un cierre
+// morfológico: difuminar el canal alfa para que los huecos rodeados de
+// botella se rellenen, y usar SIEMPRE los píxeles de la foto original
+// (no el recorte) dentro de esa silueta ya cerrada, sin depender de qué
+// tan preciso sea el alfa ahí.
+async function buildAssets(originalDataUrl, noBgDataUrl) {
+  const [orig, noBg] = await Promise.all([loadImage(originalDataUrl), loadImage(noBgDataUrl)]);
+  const placement = computePlacement(orig.width, orig.height);
+
+  const origCanvas = document.createElement("canvas");
+  origCanvas.width = SIZE;
+  origCanvas.height = SIZE;
+  const octx = origCanvas.getContext("2d");
+  octx.drawImage(orig, placement.x, placement.y, placement.width, placement.height);
+  const origData = octx.getImageData(0, 0, SIZE, SIZE);
+
+  const alphaCanvas = document.createElement("canvas");
+  alphaCanvas.width = SIZE;
+  alphaCanvas.height = SIZE;
+  const actx = alphaCanvas.getContext("2d");
+  actx.drawImage(noBg, placement.x, placement.y, placement.width, placement.height);
+  const alphaSrc = actx.getImageData(0, 0, SIZE, SIZE);
+  const grayData = actx.createImageData(SIZE, SIZE);
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const a = alphaSrc.data[i * 4 + 3];
+    grayData.data[i * 4] = a;
+    grayData.data[i * 4 + 1] = a;
+    grayData.data[i * 4 + 2] = a;
+    grayData.data[i * 4 + 3] = 255;
+  }
+  actx.putImageData(grayData, 0, 0);
+
+  // cierre morfológico: difumina el canal alfa para rellenar huecos internos
+  const closedCanvas = document.createElement("canvas");
+  closedCanvas.width = SIZE;
+  closedCanvas.height = SIZE;
+  const cctx = closedCanvas.getContext("2d");
+  cctx.filter = "blur(14px)";
+  cctx.drawImage(alphaCanvas, 0, 0);
+  const closedData = cctx.getImageData(0, 0, SIZE, SIZE);
+
+  const preserve = new Uint8Array(SIZE * SIZE);
+  const maskCanvas = document.createElement("canvas");
+  maskCanvas.width = SIZE;
+  maskCanvas.height = SIZE;
+  const mctx = maskCanvas.getContext("2d");
+  const maskOut = mctx.createImageData(SIZE, SIZE);
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const keep = closedData.data[i * 4] > 40;
+    preserve[i] = keep ? 1 : 0;
+    const v = keep ? 0 : 255;
+    maskOut.data[i * 4] = v;
+    maskOut.data[i * 4 + 1] = v;
+    maskOut.data[i * 4 + 2] = v;
+    maskOut.data[i * 4 + 3] = 255;
+  }
+  mctx.putImageData(maskOut, 0, 0);
+  // suaviza apenas el borde de la máscara final (no reabre los huecos: ya están cerrados)
+  const maskSoftCanvas = document.createElement("canvas");
+  maskSoftCanvas.width = SIZE;
+  maskSoftCanvas.height = SIZE;
+  const msctx = maskSoftCanvas.getContext("2d");
+  msctx.filter = "blur(3px)";
+  msctx.drawImage(maskCanvas, 0, 0);
+
+  // imagen plana para enviar como "image": foto real sobre fondo neutro
+  const flatCanvas = document.createElement("canvas");
+  flatCanvas.width = SIZE;
+  flatCanvas.height = SIZE;
+  const fctx = flatCanvas.getContext("2d");
+  fctx.fillStyle = "#888888";
+  fctx.fillRect(0, 0, SIZE, SIZE);
+  fctx.drawImage(orig, placement.x, placement.y, placement.width, placement.height);
+
+  // recorte "restaurable": píxeles de la foto ORIGINAL (no el alfa del recorte)
+  // dentro de la silueta ya cerrada — para pegar de vuelta sin huecos
+  const restoreCanvas = document.createElement("canvas");
+  restoreCanvas.width = SIZE;
+  restoreCanvas.height = SIZE;
+  const rctx = restoreCanvas.getContext("2d");
+  const restoreData = rctx.createImageData(SIZE, SIZE);
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    if (preserve[i]) {
+      restoreData.data[i * 4] = origData.data[i * 4];
+      restoreData.data[i * 4 + 1] = origData.data[i * 4 + 1];
+      restoreData.data[i * 4 + 2] = origData.data[i * 4 + 2];
+      restoreData.data[i * 4 + 3] = 255;
+    }
+  }
+  rctx.putImageData(restoreData, 0, 0);
+
+  const [imageBlob, maskBlob] = await Promise.all([
+    new Promise((res) => flatCanvas.toBlob(res, "image/png")),
+    new Promise((res) => maskSoftCanvas.toBlob(res, "image/png")),
+  ]);
+  return { imageBlob, maskBlob, restoreDataUrl: restoreCanvas.toDataURL("image/png") };
+}
+
+// Pega los píxeles reales de la botella (ya restaurados sin huecos) encima
+// del fondo generado por la IA, así el resultado nunca depende de que el
+// modelo "adivine" bien letras o logos finos.
+function pasteBackOriginal(resultDataUrl, restoreDataUrl) {
   return new Promise((resolve, reject) => {
     const result = new Image();
     result.onload = () => {
-      const cutout = new Image();
-      cutout.onload = () => {
+      const restore = new Image();
+      restore.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = SIZE;
         canvas.height = SIZE;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(result, 0, 0, SIZE, SIZE);
-        ctx.drawImage(cutout, 0, 0, SIZE, SIZE);
+        ctx.drawImage(restore, 0, 0, SIZE, SIZE);
         resolve(canvas.toDataURL("image/png"));
       };
-      cutout.onerror = reject;
-      cutout.src = cutoutDataUrl;
+      restore.onerror = reject;
+      restore.src = restoreDataUrl;
     };
     result.onerror = reject;
     result.src = resultDataUrl;
@@ -142,7 +196,7 @@ export default function AttarPhotoStudio({ onExit }) {
   const inputRef = useRef(null);
 
   const [originalDataUrl, setOriginalDataUrl] = useState(null);
-  const [cutoutDataUrl, setCutoutDataUrl] = useState(null);
+  const [noBgDataUrl, setNoBgDataUrl] = useState(null);
   const [resultUrl, setResultUrl] = useState(null);
   const [sceneId, setSceneId] = useState("marmol");
   const [busy, setBusy] = useState("");
@@ -152,7 +206,7 @@ export default function AttarPhotoStudio({ onExit }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError("");
-    setCutoutDataUrl(null);
+    setNoBgDataUrl(null);
     setResultUrl(null);
     const reader = new FileReader();
     reader.onload = (ev) => setOriginalDataUrl(ev.target.result);
@@ -162,13 +216,12 @@ export default function AttarPhotoStudio({ onExit }) {
   function removeImage(e) {
     e.stopPropagation();
     setOriginalDataUrl(null);
-    setCutoutDataUrl(null);
+    setNoBgDataUrl(null);
     setResultUrl(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  async function fetchInpainted(cutout) {
-    const { imageBlob, maskBlob } = await buildImageAndMask(cutout);
+  async function fetchInpainted(imageBlob, maskBlob) {
     const [imageB64, mask] = await Promise.all([blobToBase64(imageBlob), blobToByteArray(maskBlob)]);
     const res = await fetch("/api/estudio", {
       method: "POST",
@@ -184,17 +237,18 @@ export default function AttarPhotoStudio({ onExit }) {
     if (!originalDataUrl) { setError("Sube una foto primero."); return; }
     setError("");
     try {
-      let cutout = cutoutDataUrl;
-      if (!cutout) {
+      let noBg = noBgDataUrl;
+      if (!noBg) {
         setBusy("recortando");
-        const noBg = await removeBg(originalDataUrl);
-        cutout = await prepareCutout(noBg);
-        setCutoutDataUrl(cutout);
+        noBg = await removeBg(originalDataUrl);
+        setNoBgDataUrl(noBg);
       }
+      setBusy("preparando");
+      const { imageBlob, maskBlob, restoreDataUrl: restored } = await buildAssets(originalDataUrl, noBg);
       setBusy("generando");
-      const aiResult = await fetchInpainted(cutout);
+      const aiResult = await fetchInpainted(imageBlob, maskBlob);
       setBusy("ajustando");
-      const final = await pasteBackOriginal(aiResult, cutout);
+      const final = await pasteBackOriginal(aiResult, restored);
       setResultUrl(final);
     } catch (e) {
       setError("No se pudo generar la foto: " + e.message);
@@ -261,6 +315,7 @@ export default function AttarPhotoStudio({ onExit }) {
 
           <button className="ps-genbtn" onClick={generate} disabled={!!busy || !originalDataUrl}>
             {busy === "recortando" ? "Recortando fondo…"
+              : busy === "preparando" ? "Preparando máscara…"
               : busy === "generando" ? "Generando ambiente con IA…"
               : busy === "ajustando" ? "Restaurando botella original…"
               : resultUrl ? "🔀 Generar variación" : "✦ Generar Foto"}
