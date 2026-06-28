@@ -111,6 +111,33 @@ async function blobToByteArray(blob) {
   return Array.from(new Uint8Array(buf));
 }
 
+// Los modelos de inpainting a veces "reinventan" detalles finos (texto de
+// etiqueta, logos) incluso dentro del área marcada para preservar. Para
+// garantizar que la botella quede idéntica a la foto real, se pega encima
+// del resultado el recorte original exacto (con su transparencia), dejando
+// que la IA solo aporte el entorno regenerado alrededor.
+function pasteBackOriginal(resultDataUrl, cutoutDataUrl) {
+  return new Promise((resolve, reject) => {
+    const result = new Image();
+    result.onload = () => {
+      const cutout = new Image();
+      cutout.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(result, 0, 0, SIZE, SIZE);
+        ctx.drawImage(cutout, 0, 0, SIZE, SIZE);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      cutout.onerror = reject;
+      cutout.src = cutoutDataUrl;
+    };
+    result.onerror = reject;
+    result.src = resultDataUrl;
+  });
+}
+
 export default function AttarPhotoStudio({ onExit }) {
   const inputRef = useRef(null);
 
@@ -165,7 +192,9 @@ export default function AttarPhotoStudio({ onExit }) {
         setCutoutDataUrl(cutout);
       }
       setBusy("generando");
-      const final = await fetchInpainted(cutout);
+      const aiResult = await fetchInpainted(cutout);
+      setBusy("ajustando");
+      const final = await pasteBackOriginal(aiResult, cutout);
       setResultUrl(final);
     } catch (e) {
       setError("No se pudo generar la foto: " + e.message);
@@ -233,6 +262,7 @@ export default function AttarPhotoStudio({ onExit }) {
           <button className="ps-genbtn" onClick={generate} disabled={!!busy || !originalDataUrl}>
             {busy === "recortando" ? "Recortando fondo…"
               : busy === "generando" ? "Generando ambiente con IA…"
+              : busy === "ajustando" ? "Restaurando botella original…"
               : resultUrl ? "🔀 Generar variación" : "✦ Generar Foto"}
           </button>
           {resultUrl && (
