@@ -2,9 +2,11 @@
 /**
  * Attar House · Estudio Fotográfico
  * Recorta el fondo de la foto subida (100% en el navegador, sin API externa)
- * y la compone sobre un fondo fotorrealista generado por IA (Cloudflare
- * Workers AI · FLUX-1-schnell, gratis sin tarjeta). Cada generación varía
- * un poco el prompt, así que el resultado no es idéntico cada vez.
+ * y usa ese recorte para construir una máscara de inpainting: Cloudflare
+ * Workers AI (stable-diffusion-v1-5-inpainting, gratis sin tarjeta) regenera
+ * solo el entorno alrededor de la botella en una sola pasada, en vez de
+ * recortar y pegar sobre un fondo generado por separado — así no se ve el
+ * borde del recorte y la luz queda coherente con el resto de la escena.
  */
 import { useState, useRef } from "react";
 
@@ -49,41 +51,64 @@ async function removeBg(dataUrl) {
   });
 }
 
-function compositeWithBackground(bgDataUrl, cutoutDataUrl) {
+// A partir del recorte (PNG 1024x1024 con transparencia, botella ya
+// posicionada) construye: (1) una imagen plana (botella sobre fondo neutro,
+// para enviar como "image") y (2) una máscara (negro = preservar la botella,
+// blanco = regenerar el entorno), tomada directo del canal alfa del recorte
+// — el borde ya viene suavizado por el propio recorte, sin trabajo extra.
+function buildImageAndMask(cutoutDataUrl) {
   return new Promise((resolve, reject) => {
-    const bg = new Image();
-    bg.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = SIZE;
-      canvas.height = SIZE;
-      const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.onload = async () => {
+      try {
+        const imgCanvas = document.createElement("canvas");
+        imgCanvas.width = SIZE;
+        imgCanvas.height = SIZE;
+        const ictx = imgCanvas.getContext("2d");
+        ictx.fillStyle = "#888888";
+        ictx.fillRect(0, 0, SIZE, SIZE);
+        ictx.drawImage(img, 0, 0, SIZE, SIZE);
 
-      const scale = Math.max(SIZE / bg.width, SIZE / bg.height);
-      const w = bg.width * scale, h = bg.height * scale;
-      ctx.drawImage(bg, (SIZE - w) / 2, (SIZE - h) / 2, w, h);
+        const maskCanvas = document.createElement("canvas");
+        maskCanvas.width = SIZE;
+        maskCanvas.height = SIZE;
+        const mctx = maskCanvas.getContext("2d");
+        mctx.drawImage(img, 0, 0, SIZE, SIZE);
+        const src = mctx.getImageData(0, 0, SIZE, SIZE);
+        const maskData = mctx.createImageData(SIZE, SIZE);
+        for (let i = 0; i < SIZE * SIZE; i++) {
+          const alpha = src.data[i * 4 + 3];
+          const v = 255 - alpha;
+          maskData.data[i * 4] = v;
+          maskData.data[i * 4 + 1] = v;
+          maskData.data[i * 4 + 2] = v;
+          maskData.data[i * 4 + 3] = 255;
+        }
+        mctx.putImageData(maskData, 0, 0);
 
-      ctx.save();
-      ctx.globalAlpha = 0.4;
-      ctx.translate(SIZE / 2, SIZE * 0.87);
-      ctx.scale(1, 0.22);
-      ctx.beginPath();
-      ctx.arc(0, 0, SIZE * 0.17, 0, Math.PI * 2);
-      ctx.fillStyle = "#000";
-      try { ctx.filter = "blur(18px)"; } catch { /* sin soporte de filter en canvas */ }
-      ctx.fill();
-      ctx.restore();
-
-      const cutout = new Image();
-      cutout.onload = () => {
-        ctx.drawImage(cutout, 0, 0, SIZE, SIZE);
-        resolve(canvas.toDataURL("image/jpeg", 0.92));
-      };
-      cutout.onerror = reject;
-      cutout.src = cutoutDataUrl;
+        const imageBlob = await new Promise((res) => imgCanvas.toBlob(res, "image/png"));
+        const maskBlob = await new Promise((res) => maskCanvas.toBlob(res, "image/png"));
+        resolve({ imageBlob, maskBlob });
+      } catch (e) {
+        reject(e);
+      }
     };
-    bg.onerror = reject;
-    bg.src = bgDataUrl;
+    img.onerror = reject;
+    img.src = cutoutDataUrl;
   });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function blobToByteArray(blob) {
+  const buf = await blob.arrayBuffer();
+  return Array.from(new Uint8Array(buf));
 }
 
 export default function AttarPhotoStudio({ onExit }) {
@@ -115,11 +140,13 @@ export default function AttarPhotoStudio({ onExit }) {
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  async function fetchBackground() {
+  async function fetchInpainted(cutout) {
+    const { imageBlob, maskBlob } = await buildImageAndMask(cutout);
+    const [imageB64, mask] = await Promise.all([blobToBase64(imageBlob), blobToByteArray(maskBlob)]);
     const res = await fetch("/api/estudio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ style: sceneId }),
+      body: JSON.stringify({ style: sceneId, imageB64, mask }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
@@ -138,9 +165,7 @@ export default function AttarPhotoStudio({ onExit }) {
         setCutoutDataUrl(cutout);
       }
       setBusy("generando");
-      const bg = await fetchBackground();
-      setBusy("componiendo");
-      const final = await compositeWithBackground(bg, cutout);
+      const final = await fetchInpainted(cutout);
       setResultUrl(final);
     } catch (e) {
       setError("No se pudo generar la foto: " + e.message);
@@ -155,7 +180,7 @@ export default function AttarPhotoStudio({ onExit }) {
   const download = () => {
     if (!resultUrl) return;
     const a = document.createElement("a");
-    a.download = `attarhouse_${sceneId}.jpg`;
+    a.download = `attarhouse_${sceneId}.png`;
     a.href = resultUrl;
     a.click();
   };
@@ -208,12 +233,11 @@ export default function AttarPhotoStudio({ onExit }) {
           <button className="ps-genbtn" onClick={generate} disabled={!!busy || !originalDataUrl}>
             {busy === "recortando" ? "Recortando fondo…"
               : busy === "generando" ? "Generando ambiente con IA…"
-              : busy === "componiendo" ? "Componiendo…"
               : resultUrl ? "🔀 Generar variación" : "✦ Generar Foto"}
           </button>
           {resultUrl && (
             <button className="ps-dlbtn" onClick={download} disabled={!!busy}>
-              ⬇ Descargar JPG (1024×1024)
+              ⬇ Descargar PNG (1024×1024)
             </button>
           )}
         </aside>
