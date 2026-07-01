@@ -387,8 +387,6 @@ export default function AdminClient() {
             { label: "💰 Contabilidad", action: () => router.push("/admin/contabilidad"), active: false },
             { label: "🎯 Objetivos", action: () => router.push("/admin/objetivos"), active: false },
             { label: "🏷️ Etiquetas", action: () => router.push("/admin/etiquetas"), active: false },
-            { label: "📸 Estudio Fotográfico", action: () => router.push("/admin/estudio"), active: false },
-            { label: "🎨 Publicidad", action: () => router.push("/admin/publicidad"), active: false },
           ].map(({ label, action, active }) => (
             <div
               key={label}
