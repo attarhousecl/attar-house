@@ -13,12 +13,12 @@ import { useState, useRef } from "react";
 const SIZE = 1024;
 
 const SCENES = [
-  { id: "marmol", label: "Mármol Oscuro", desc: "Lujo, fondo casi negro" },
-  { id: "blanco", label: "E-commerce Blanco", desc: "Limpio y clásico" },
-  { id: "gris", label: "E-commerce Gris", desc: "Elegante y uniforme" },
-  { id: "bokeh", label: "Bokeh Dorado", desc: "Luces difusas doradas" },
-  { id: "arena", label: "Arena Cálida", desc: "Tonos cálidos suaves" },
-  { id: "tropical", label: "Hojas Tropicales", desc: "Verde oscuro, hojas" },
+  { id: "marmol",   label: "Mármol Oscuro",    desc: "Lujo, fondo casi negro",    swatch: "linear-gradient(135deg,#241a0e,#3d2f1e)" },
+  { id: "blanco",   label: "E-commerce Blanco", desc: "Limpio y clásico",          swatch: "linear-gradient(135deg,#f5f3f0,#e4e0da)" },
+  { id: "gris",     label: "E-commerce Gris",   desc: "Elegante y uniforme",       swatch: "linear-gradient(135deg,#c0c0c0,#e0e0e0)" },
+  { id: "bokeh",    label: "Bokeh Dorado",       desc: "Luces difusas doradas",     swatch: "radial-gradient(circle at 35% 50%,rgba(212,175,55,.75),#0c0b08 58%)" },
+  { id: "arena",    label: "Arena Cálida",       desc: "Tonos cálidos suaves",      swatch: "linear-gradient(135deg,#d4c5a0,#bfaa78)" },
+  { id: "tropical", label: "Hojas Tropicales",   desc: "Verde oscuro, piedra",      swatch: "linear-gradient(135deg,#0d1a0d,#1e3820)" },
 ];
 
 // Dónde y a qué tamaño se coloca la foto dentro del lienzo de 1024x1024.
@@ -304,8 +304,11 @@ export default function AttarPhotoStudio({ onExit }) {
             <div className="ps-scenes">
               {SCENES.map((s) => (
                 <button key={s.id} className={`ps-scene ${sceneId === s.id ? "on" : ""}`} onClick={() => selectScene(s.id)}>
-                  <span className="ps-scene-label">{s.label}</span>
-                  <span className="ps-scene-desc">{s.desc}</span>
+                  <div className="ps-scene-swatch" style={{ background: s.swatch }} />
+                  <div className="ps-scene-info">
+                    <span className="ps-scene-label">{s.label}</span>
+                    <span className="ps-scene-desc">{s.desc}</span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -313,13 +316,18 @@ export default function AttarPhotoStudio({ onExit }) {
 
           {error && <div className="ps-error">{error}</div>}
 
-          <button className="ps-genbtn" onClick={generate} disabled={!!busy || !originalDataUrl}>
+          <button className={`ps-genbtn${busy ? " busy" : ""}`} onClick={generate} disabled={!!busy || !originalDataUrl}>
             {busy === "recortando" ? "Recortando fondo…"
               : busy === "preparando" ? "Preparando máscara…"
               : busy === "generando" ? "Generando ambiente con IA…"
-              : busy === "ajustando" ? "Restaurando botella original…"
+              : busy === "ajustando" ? "Restaurando botella…"
               : resultUrl ? "🔀 Generar variación" : "✦ Generar Foto"}
           </button>
+          {noBgDataUrl && !busy && (
+            <p className="ps-hint" style={{ textAlign: "center", marginTop: -4 }}>
+              Recorte ya guardado — la próxima variación será más rápida.
+            </p>
+          )}
           {resultUrl && (
             <button className="ps-dlbtn" onClick={download} disabled={!!busy}>
               ⬇ Descargar PNG (1024×1024)
@@ -327,14 +335,25 @@ export default function AttarPhotoStudio({ onExit }) {
           )}
         </aside>
 
-        <section className="ps-canvas">
-          <div className="ps-box">
+        <section className=”ps-canvas”>
+          <div className=”ps-box”>
             {resultUrl ? (
-              <img src={resultUrl} alt="Resultado" className="ps-result-img" />
+              <img src={resultUrl} alt=”Resultado” className=”ps-result-img” />
             ) : (
-              <div className="ps-ph">
-                <span style={{ fontSize: "2.5rem", opacity: 0.3 }}>🖼</span>
-                <p>{busy ? "Generando…" : originalDataUrl ? "Pulsa “Generar Foto”" : "Sube una foto para comenzar"}</p>
+              <div className=”ps-ph”>
+                <span style={{ fontSize: “2.5rem”, opacity: 0.3 }}>🖼</span>
+                <p>{busy ? “” : originalDataUrl ? “Pulsa «Generar Foto»” : “Sube una foto para comenzar”}</p>
+              </div>
+            )}
+            {busy && (
+              <div className=”ps-overlay”>
+                <div className=”ps-ring” />
+                <p className=”ps-overlay-label”>
+                  {busy === “recortando” ? “Recortando fondo…”
+                    : busy === “preparando” ? “Preparando máscara…”
+                    : busy === “generando” ? “IA generando ambiente…”
+                    : “Restaurando botella…”}
+                </p>
               </div>
             )}
           </div>
@@ -365,20 +384,27 @@ const CSS = `
 .ps-preview-wrap{position:relative;height:100%;display:flex;align-items:center;justify-content:center;padding:8px}
 .ps-preview-img{max-height:100px;max-width:100%;object-fit:contain;border-radius:6px}
 .ps-remove{position:absolute;top:4px;right:4px;background:#c0392b;color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem}
-.ps-scenes{display:flex;flex-direction:column;gap:8px}
-.ps-scene{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.ps-scenes{display:flex;flex-direction:column;gap:7px}
+.ps-scene{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:9px 12px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
 .ps-scene.on{border-color:var(--gold);background:rgba(212,175,55,.07)}
-.ps-scene-label{font-size:.85rem;font-weight:600;color:var(--cream)}
+.ps-scene-swatch{width:30px;height:30px;border-radius:6px;flex:0 0 auto;border:1px solid rgba(255,255,255,.08)}
+.ps-scene-info{display:flex;flex-direction:column;gap:2px;flex:1;text-align:left}
+.ps-scene-label{font-size:.83rem;font-weight:600;color:var(--cream)}
 .ps-scene.on .ps-scene-label{color:var(--gold)}
-.ps-scene-desc{font-size:.72rem;color:#666}
+.ps-scene-desc{font-size:.7rem;color:#666}
 .ps-error{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);color:#e07070;border-radius:8px;padding:10px 14px;font-size:.82rem}
-.ps-genbtn{background:var(--gold);color:#000;border:none;border-radius:10px;padding:14px;font-size:.9rem;font-weight:700;cursor:pointer;width:100%}
+.ps-genbtn{background:var(--gold);color:#000;border:none;border-radius:10px;padding:14px;font-size:.9rem;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px}
 .ps-genbtn:disabled{opacity:.4;cursor:not-allowed}
+.ps-genbtn.busy::before{content:'';width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:ps-spin .75s linear infinite;flex:0 0 auto}
+@keyframes ps-spin{to{transform:rotate(360deg)}}
 .ps-dlbtn{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:13px;font-size:.88rem;font-weight:600;cursor:pointer;width:100%}
 .ps-dlbtn:disabled{opacity:.4;cursor:not-allowed}
 .ps-canvas{position:sticky;top:76px;display:flex;justify-content:center;min-height:300px}
 .ps-box{position:relative;width:100%;max-width:480px;aspect-ratio:1/1;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.8);background:#0d0d0d}
 .ps-result-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .ps-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#555;font-size:.85rem;text-align:center;padding:0 20px}
+.ps-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(12,11,9,.72);backdrop-filter:blur(6px)}
+.ps-ring{width:52px;height:52px;border:3px solid rgba(212,175,55,.2);border-top-color:var(--gold);border-radius:50%;animation:ps-spin .85s linear infinite}
+.ps-overlay-label{font-size:.82rem;color:var(--cream);opacity:.75;margin:0;letter-spacing:.04em}
 @media (max-width:860px){.ps-shell{grid-template-columns:1fr}.ps-canvas{position:static}}
 `;

@@ -104,7 +104,7 @@ const mapPerfumeToContent = (p, c) => {
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
-    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '', imgScale: 1,
+    rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '', imgScale: 1, rImgScale: 1,
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
@@ -398,7 +398,7 @@ export default function AttarStudio({ supabase, onExit }) {
         <input className="as-title" value={title} onChange={(e) => setTitle(e.target.value)} />
         {tpl === 'carrusel' ? (
           <button className="as-btn ghost" disabled={busy} onClick={downloadCarousel}>
-            {busy === 'export' ? '…' : 'Descargar las 3 (PNG)'}</button>
+            {busy === 'export' ? '…' : `Descargar las ${cur.slides.length} (PNG)`}</button>
         ) : (
           <button className="as-btn ghost" disabled={busy} onClick={download}>
             {busy === 'export' ? '…' : 'Descargar PNG'}</button>
@@ -598,6 +598,7 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
       <Field label="Título" value={cur.rHead} onChange={f('rHead')} />
       <Field label="Descripción" value={cur.rSub} onChange={f('rSub')} multi />
       <Upload has={!!cur.rImg} onUpload={onUpload} field="rImg" label="Subir foto (lado Otros)" />
+      {cur.rImg && <SizeSlider value={cur.rImgScale ?? 1} onChange={f('rImgScale')} />}
       <Field label="Texto extra (opcional)" value={cur.extra} onChange={f('extra')} multi />
     </>
   );
@@ -731,10 +732,24 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
   if (tpl === 'carrusel') return (
     <>
       <div className="as-subh" style={{ marginTop: 0 }}>Tarjeta</div>
-      <div className="as-seg" style={{ marginBottom: 13 }}>
-        {cur.slides.map((_, i) => (
-          <button key={i} className={cur.activeSlide === i ? 'on' : ''} onClick={() => patch({ activeSlide: i })}>{i + 1}</button>
-        ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 13 }}>
+        <div className="as-seg" style={{ flex: 1 }}>
+          {cur.slides.map((_, i) => (
+            <button key={i} className={cur.activeSlide === i ? 'on' : ''} onClick={() => patch({ activeSlide: i })}>{i + 1}</button>
+          ))}
+        </div>
+        <button className="as-mini" title="Agregar tarjeta" onClick={() => setContent((c) => ({
+          ...c, carrusel: {
+            ...c.carrusel,
+            slides: [...c.carrusel.slides, { eyebrow: 'Casa', name: `Perfume ${c.carrusel.slides.length + 1}`, notes: '—', price: '', img: null, extra: '', imgScale: 1 }],
+          },
+        }))}>+</button>
+        {cur.slides.length > 2 && (
+          <button className="as-mini del" title="Quitar última tarjeta" onClick={() => setContent((c) => {
+            const slides = c.carrusel.slides.slice(0, -1);
+            return { ...c, carrusel: { ...c.carrusel, slides, activeSlide: Math.min(c.carrusel.activeSlide, slides.length - 1) } };
+          })}>−</button>
+        )}
       </div>
       <Upload has={!!curSlide.img} onUpload={onUpload} />
       {curSlide.img && <SizeSlider value={curSlide.imgScale} onChange={fSlide('imgScale')} />}
@@ -810,51 +825,82 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
 
   if (tpl === 'versus') {
     const hs = tall ? 112 : 88, ss = tall ? 34 : 30, top = tall ? 170 : 120, ph = tall ? 720 : 430;
-    const Col = ({ head, sub, color, img, ghost }) => (
+    const Col = ({ head, sub, color, img, ghost, imgScale = 1 }) => (
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ color, fontSize: hs, fontWeight: 600, marginTop: top, textAlign: 'center', maxWidth: '84%', lineHeight: .98 }}>{head}</div>
         <div style={{ color, fontFamily: sans, fontWeight: 300, fontSize: ss, marginTop: tall ? 34 : 24, textAlign: 'center', maxWidth: '78%', lineHeight: 1.35 }}>{sub}</div>
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: tall ? 80 : 46, opacity: img ? 1 : (ghost ? .55 : 1) }}>
-          {img ? <Img src={img} scale={cur.imgScale} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
+          {img ? <Img src={img} scale={imgScale} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
         </div>
       </div>
     );
     body = (
       <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-        <Col head={cur.lHead} sub={cur.lSub} color={accent} img={cur.img} />
+        <Col head={cur.lHead} sub={cur.lSub} color={accent} img={cur.img} imgScale={cur.imgScale ?? 1} />
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1, background: `linear-gradient(180deg,transparent,${line},transparent)` }} />
-        <Col head={cur.rHead} sub={cur.rSub} color={muted} img={cur.rImg} ghost />
+        <Col head={cur.rHead} sub={cur.rSub} color={muted} img={cur.rImg} ghost imgScale={cur.rImgScale ?? 1} />
       </div>
     );
   }
 
   if (tpl === 'tabla') {
-    const hasImg = !!cur.img, sideX = 100;
-    const titleTop = tall ? (hasImg ? 520 : 150) : 90;
-    const tableTop = titleTop + (tall ? 150 : 120);
-    const colW = 150, featW = w - sideX * 2 - colW * 2, rowH = tall ? 150 : 104;
-    body = (
-      <>
-        {hasImg && tall && (
-          <div style={{ position: 'absolute', top: 120, left: 0, right: 0, height: 420, display: 'flex', justifyContent: 'center' }}>
-            <Img src={cur.img} scale={cur.imgScale} style={{ height: '100%' }} />
-          </div>
-        )}
-        <div style={{ position: 'absolute', top: titleTop, left: 0, right: 0, padding: `0 ${sideX}px`, textAlign: 'center', color: accent, fontWeight: 600, fontSize: tall ? 72 : 58 }}>{cur.title}</div>
-        <div style={{ position: 'absolute', top: tableTop, left: sideX, right: sideX }}>
-          <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.14em', color: muted, fontSize: 22, paddingBottom: 18 }}>
-            <span /><span style={{ textAlign: 'center' }}>Nosotros</span><span style={{ textAlign: 'center' }}>Otros</span>
-          </div>
-          {cur.rows.map((r, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
-              <div style={{ fontFamily: sans, fontSize: tall ? 34 : 28 }}>{r.feat}</div>
-              <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
-              <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+    const hasImg = !!cur.img;
+    if (tall) {
+      const sideX = 100;
+      const titleTop = hasImg ? 520 : 150;
+      const tableTop = titleTop + 150;
+      const colW = 150, featW = w - sideX * 2 - colW * 2, rowH = 150;
+      body = (
+        <>
+          {hasImg && (
+            <div style={{ position: 'absolute', top: 120, left: 0, right: 0, height: 420, display: 'flex', justifyContent: 'center' }}>
+              <Img src={cur.img} scale={cur.imgScale} style={{ height: '100%' }} />
             </div>
-          ))}
-        </div>
-      </>
-    );
+          )}
+          <div style={{ position: 'absolute', top: titleTop, left: 0, right: 0, padding: `0 ${sideX}px`, textAlign: 'center', color: accent, fontWeight: 600, fontSize: 72 }}>{cur.title}</div>
+          <div style={{ position: 'absolute', top: tableTop, left: sideX, right: sideX }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.14em', color: muted, fontSize: 22, paddingBottom: 18 }}>
+              <span /><span style={{ textAlign: 'center' }}>Nosotros</span><span style={{ textAlign: 'center' }}>Otros</span>
+            </div>
+            {cur.rows.map((r, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
+                <div style={{ fontFamily: sans, fontSize: 34 }}>{r.feat}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
+                <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    } else {
+      // Feed cuadrado: imagen a la izquierda, tabla a la derecha
+      const imgW = hasImg ? 360 : 0;
+      const tableX = hasImg ? imgW + 40 : 80;
+      const tableW = w - tableX - 60;
+      const colW = 110, featW = tableW - colW * 2, rowH = 104;
+      body = (
+        <>
+          {hasImg && (
+            <div style={{ position: 'absolute', top: 0, left: 0, width: imgW, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 0 60px 40px' }}>
+              <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} />
+            </div>
+          )}
+          <div style={{ position: 'absolute', top: 80, left: tableX, width: tableW, color: accent, fontWeight: 600, fontSize: 48, lineHeight: 1.1, marginBottom: 16 }}>{cur.title}</div>
+          <div style={{ position: 'absolute', top: 180, left: tableX, width: tableW }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.1em', color: muted, fontSize: 18, paddingBottom: 14 }}>
+              <span /><span style={{ textAlign: 'center' }}>Nos.</span><span style={{ textAlign: 'center' }}>Otros</span>
+            </div>
+            {cur.rows.map((r, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
+                <div style={{ fontFamily: sans, fontSize: 26 }}>{r.feat}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
+                <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
   }
 
   if (tpl === 'producto' || tpl === 'lanzamiento') {
