@@ -316,7 +316,7 @@ export default function AttarPhotoStudio({ onExit }) {
 
           {error && <div className="ps-error">{error}</div>}
 
-          <button className={`ps-genbtn${busy ? " busy" : ""}`} onClick={generate} disabled={!!busy || !originalDataUrl}>
+          <button className={busy ? "ps-genbtn busy" : "ps-genbtn"} onClick={generate} disabled={!!busy || !originalDataUrl}>
             {busy === "recortando" ? "Recortando fondo…"
               : busy === "preparando" ? "Preparando máscara…"
               : busy === "generando" ? "Generando ambiente con IA…"
@@ -335,22 +335,23 @@ export default function AttarPhotoStudio({ onExit }) {
           )}
         </aside>
 
-        <section className=”ps-canvas”>
-          <div className=”ps-box”>
-            {resultUrl ? (
-              <img src={resultUrl} alt=”Resultado” className=”ps-result-img” />
-            ) : (
-              <div className=”ps-ph”>
-                <span style={{ fontSize: “2.5rem”, opacity: 0.3 }}>🖼</span>
-                <p>{busy ? “” : originalDataUrl ? “Pulsa «Generar Foto»” : “Sube una foto para comenzar”}</p>
-              </div>
-            )}
+        <section className={“ps-canvas”}>
+          <div className={“ps-box”}>
+            {resultUrl
+              ? <img src={resultUrl} alt=”Resultado” className={“ps-result-img”} />
+              : (
+                <div className={“ps-ph”}>
+                  <span style={{ fontSize: “2.5rem”, opacity: 0.3 }}>{“🖼”}</span>
+                  <p>{busy ? “” : originalDataUrl ? “Pulsa Generar Foto” : “Sube una foto para comenzar”}</p>
+                </div>
+              )
+            }
             {busy && (
-              <div className=”ps-overlay”>
-                <div className=”ps-ring” />
-                <p className=”ps-overlay-label”>
+              <div className={“ps-overlay”}>
+                <div className={“ps-ring”} />
+                <p className={“ps-overlay-label”}>
                   {busy === “recortando” ? “Recortando fondo…”
-                    : busy === “preparando” ? “Preparando máscara…”
+                    : busy === “preparando” ? “Preparando mascara…”
                     : busy === “generando” ? “IA generando ambiente…”
                     : “Restaurando botella…”}
                 </p>
