@@ -1,9 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getAdminUser } from "@/lib/adminAuth";
 
-const client = new Anthropic();
-
 export async function GET(request) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return Response.json(
+      { error: "ANTHROPIC_API_KEY no configurada en el servidor." },
+      { status: 503 }
+    );
+  }
+
   // Endpoint caro (llama a la API de Anthropic). Solo para el admin autenticado:
   // evita que terceros gasten tu cuota de API.
   const admin = await getAdminUser();
@@ -18,6 +23,8 @@ export async function GET(request) {
   if (!name || !brand) {
     return Response.json({ error: "Falta nombre o marca" }, { status: 400 });
   }
+
+  const client = new Anthropic();
 
   try {
     const response = await client.messages.create({
