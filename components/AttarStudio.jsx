@@ -21,6 +21,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toPng } from 'html-to-image';
 import { SCENES as BG_SCENES, makeSeed as makeBgSeed, Backdrop as ProceduralBackdrop } from './proceduralBackdrops';
+import { EditableItem, ElementPanel } from './StudioEditable';
+
+// ids cuya "escala" vive en un campo de contenido ya existente (compatibilidad con el slider clásico)
+// en vez de dentro de layout[id].scale
+const IMG_SCALE_FIELD = { img: 'imgScale', rImg: 'rImgScale' };
 
 const DIM = {
   story:  { w: 1080, h: 1920, label: 'Story · 9:16' },
@@ -168,9 +173,18 @@ export default function AttarStudio({ supabase, onExit }) {
   const [scale, setScale]   = useState(0.4);
   const [logo, setLogoState] = useState(null); // logo propio, persiste en este navegador
   const [logoScale, setLogoScaleState] = useState(1); // tamaño del logo, persiste igual
+  const [selected, setSelected] = useState(null); // {id, kind} elemento seleccionado en el lienzo
 
   const stageRef = useRef(null);
   const areaRef  = useRef(null);
+
+  // deseleccionar al cambiar de plantilla o formato, y con Escape
+  useEffect(() => { setSelected(null); }, [tpl, format]);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') setSelected(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // ---- cargar logo guardado en este navegador ----
   useEffect(() => {
@@ -245,6 +259,59 @@ export default function AttarStudio({ supabase, onExit }) {
   const cur = content[tpl];
   const curSlide = tpl === 'carrusel' ? cur.slides[cur.activeSlide] : null;
 
+  // ---- lienzo editable: mover/redimensionar/alinear elementos ----
+  // Los ids "img"/"rImg" reusan el slider clásico (imgScale/rImgScale); "foot" reusa
+  // el tamaño global del logo; el resto guarda su propia escala dentro de layout[id].
+  const scaleFor = (id) => {
+    if (id === 'foot') return logoScale;
+    if (tpl === 'carrusel' && id === 'img') return curSlide?.imgScale ?? 1;
+    if (IMG_SCALE_FIELD[id]) return cur[IMG_SCALE_FIELD[id]] ?? 1;
+    return cur.layout?.[id]?.scale ?? 1;
+  };
+
+  const patchElement = useCallback((id, elPatch) => {
+    const { dx, dy, scale, ...rest } = elPatch;
+    if (scale !== undefined) {
+      if (id === 'foot') setLogoScale(scale);
+      else if (tpl === 'carrusel' && id === 'img') patchSlide({ imgScale: scale });
+      else if (IMG_SCALE_FIELD[id]) patch({ [IMG_SCALE_FIELD[id]]: scale });
+    }
+    setContent((c) => {
+      const t = c[tpl];
+      const layout = { ...(t.layout || {}) };
+      const entry = { ...(layout[id] || {}) };
+      if (dx !== undefined) entry.dx = dx;
+      if (dy !== undefined) entry.dy = dy;
+      if (scale !== undefined && id !== 'foot' && !(tpl === 'carrusel' && id === 'img') && !IMG_SCALE_FIELD[id]) entry.scale = scale;
+      Object.assign(entry, rest); // align, font, z
+      layout[id] = entry;
+      return { ...c, [tpl]: { ...t, layout } };
+    });
+  }, [tpl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const bringFront = (id) => {
+    const zs = Object.values(cur.layout || {}).map((l) => l.z ?? 0);
+    patchElement(id, { z: (zs.length ? Math.max(...zs) : 0) + 1 });
+  };
+  const sendBack = (id) => {
+    const zs = Object.values(cur.layout || {}).map((l) => l.z ?? 0);
+    patchElement(id, { z: (zs.length ? Math.min(...zs) : 0) - 1 });
+  };
+
+  const resetLayout = () => {
+    setContent((c) => {
+      const t = c[tpl];
+      const next = { ...t, layout: {} };
+      if ('imgScale' in t) next.imgScale = 1;
+      if ('rImgScale' in t) next.rImgScale = 1;
+      if (tpl === 'carrusel') next.slides = t.slides.map((s) => ({ ...s, imgScale: 1 }));
+      return { ...c, [tpl]: next };
+    });
+    setSelected(null);
+  };
+
+  const onSelectElement = (id, kind) => setSelected(id ? { id, kind } : null);
+
   const applyPerfume = (p) => {
     setPerfumeId(p.id);
     setContent((c) => mapPerfumeToContent(p, c));
@@ -266,6 +333,9 @@ export default function AttarStudio({ supabase, onExit }) {
   // Importante: el lienzo se muestra reducido con transform:scale en el preview.
   // Para exportar a 1080 real, forzamos transform:none solo en la copia capturada.
   const renderPng = async () => {
+    // oculta la selección/handles del lienzo editable antes de capturar
+    // oculta la selección/handles del lienzo editable antes de capturar
+    if (selected) { setSelected(null); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); }
     const { w, h } = DIM[format];
     return toPng(stageRef.current, {
       width: w, height: h, pixelRatio: 1, cacheBust: true, backgroundColor: null,
@@ -465,8 +535,26 @@ export default function AttarStudio({ supabase, onExit }) {
                   )}
                 </div>
               )}
-              <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
-                      setContent={setContent} />
+              {selected ? (
+                <ElementPanel
+                  id={selected.id} kind={selected.kind}
+                  scale={scaleFor(selected.id)}
+                  layout={cur.layout?.[selected.id]}
+                  onChange={(p) => patchElement(selected.id, p)}
+                  onReset={resetLayout}
+                  onFront={() => bringFront(selected.id)}
+                  onBack={() => sendBack(selected.id)}
+                  onClose={() => setSelected(null)}
+                />
+              ) : (
+                <>
+                  <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
+                          setContent={setContent} />
+                  {(Object.keys(cur.layout || {}).length > 0) && (
+                    <button className="as-shuffle" onClick={resetLayout}>Restablecer diseño</button>
+                  )}
+                </>
+              )}
             </>
           )}
 
@@ -522,10 +610,12 @@ export default function AttarStudio({ supabase, onExit }) {
         </aside>
 
         {/* PREVIEW */}
-        <section className="as-canvas" ref={areaRef}>
+        <section className="as-canvas" ref={areaRef} onPointerDown={() => setSelected(null)}>
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
-                   theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} />
+                   theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale}
+                   selected={selected} onSelect={onSelectElement} onPatchElement={patchElement}
+                   editable={tab === 'design'} />
           </div>
         </section>
       </div>
@@ -786,13 +876,28 @@ const Mark = ({ type, color }) => {
   return <svg width="40" height="40" viewBox="0 0 24 24" {...c}><path d="M6 12h12" /></svg>;
 };
 
-function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1 }) {
+function Stage({
+  stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1,
+  selected = null, onSelect = () => {}, onPatchElement = () => {}, editable = false,
+}) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
   const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
   const serif = 'var(--font-cormorant), Georgia, serif';
   const sans  = 'var(--font-inter-studio), system-ui, sans-serif';
   const m = 46;
+
+  // helper para envolver un bloque de la plantilla en un elemento seleccionable/arrastrable
+  const Edit = ({ id, kind = 'text', resizable = false, defaultAlign = 'center', style, className, children }) => (
+    <EditableItem
+      id={id} kind={kind} resizable={resizable} style={style} className={className} defaultAlign={defaultAlign}
+      layout={cur.layout?.[id]}
+      isSelected={selected?.id === id} onSelect={onSelect} onChange={onPatchElement}
+      editable={editable} previewScale={scale}
+    >
+      {children}
+    </EditableItem>
+  );
 
   const hasScene = SCENE_CAPABLE.includes(tpl) && cur.bg && cur.bg !== 'solido' && cur.bgSeed;
 
@@ -807,14 +912,16 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
             stroke={dark ? 'rgba(198,161,91,.28)' : 'rgba(28,24,20,.18)'} strokeWidth="1" />
     </svg>
   );
-  const foot = logo ? (
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 64 : 42, display: 'flex', justifyContent: 'center' }}>
-      <img src={logo} alt="" style={{ height: (tall ? 56 : 40) * logoScale, maxWidth: '80%', objectFit: 'contain', opacity: .92 }} />
-    </div>
+  const footContent = logo ? (
+    <img src={logo} alt="" style={{ height: (tall ? 56 : 40) * logoScale, maxWidth: '80%', objectFit: 'contain', opacity: .92 }} />
   ) : (
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 70 : 48, textAlign: 'center',
-      fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.5em', fontSize: 24, color: accent, opacity: .85 }}>
+    <span style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.5em', fontSize: 24 * logoScale, color: accent, opacity: .85 }}>
       ATTAR HOUSE
+    </span>
+  );
+  const foot = (
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 64 : 42, display: 'flex', justifyContent: 'center' }}>
+      <Edit id="foot" kind="logo" resizable>{footContent}</Edit>
     </div>
   );
   const Img = ({ src, style, scale = 1 }) => (
@@ -825,20 +932,26 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
 
   if (tpl === 'versus') {
     const hs = tall ? 112 : 88, ss = tall ? 34 : 30, top = tall ? 170 : 120, ph = tall ? 720 : 430;
-    const Col = ({ head, sub, color, img, ghost, imgScale = 1 }) => (
+    const Col = ({ head, sub, color, img, ghost, imgScale = 1, imgId, infoId }) => (
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ color, fontSize: hs, fontWeight: 600, marginTop: top, textAlign: 'center', maxWidth: '84%', lineHeight: .98 }}>{head}</div>
-        <div style={{ color, fontFamily: sans, fontWeight: 300, fontSize: ss, marginTop: tall ? 34 : 24, textAlign: 'center', maxWidth: '78%', lineHeight: 1.35 }}>{sub}</div>
+        <div style={{ marginTop: top, maxWidth: '84%' }}>
+          <Edit id={infoId}>
+            <div style={{ color, fontSize: hs, fontWeight: 600, lineHeight: .98 }}>{head}</div>
+            <div style={{ color, fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: ss, marginTop: tall ? 34 : 24, lineHeight: 1.35 }}>{sub}</div>
+          </Edit>
+        </div>
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: tall ? 80 : 46, opacity: img ? 1 : (ghost ? .55 : 1) }}>
-          {img ? <Img src={img} scale={imgScale} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
+          <Edit id={imgId} kind="image" resizable style={{ width: '100%', height: '100%' }}>
+            {img ? <Img src={img} scale={imgScale} style={{ width: '100%', height: '100%', objectPosition: 'bottom' }} /> : <GhostBottle s={ghost ? 0.9 : 1} theme={theme} />}
+          </Edit>
         </div>
       </div>
     );
     body = (
       <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-        <Col head={cur.lHead} sub={cur.lSub} color={accent} img={cur.img} imgScale={cur.imgScale ?? 1} />
+        <Col head={cur.lHead} sub={cur.lSub} color={accent} img={cur.img} imgScale={cur.imgScale ?? 1} imgId="img" infoId="infoL" />
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1, background: `linear-gradient(180deg,transparent,${line},transparent)` }} />
-        <Col head={cur.rHead} sub={cur.rSub} color={muted} img={cur.rImg} ghost imgScale={cur.rImgScale ?? 1} />
+        <Col head={cur.rHead} sub={cur.rSub} color={muted} img={cur.rImg} ghost imgScale={cur.rImgScale ?? 1} imgId="rImg" infoId="infoR" />
       </div>
     );
   }
@@ -854,21 +967,27 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
         <>
           {hasImg && (
             <div style={{ position: 'absolute', top: 120, left: 0, right: 0, height: 420, display: 'flex', justifyContent: 'center' }}>
-              <Img src={cur.img} scale={cur.imgScale} style={{ height: '100%' }} />
+              <Edit id="img" kind="image" resizable>
+                <Img src={cur.img} scale={cur.imgScale} style={{ height: '100%' }} />
+              </Edit>
             </div>
           )}
-          <div style={{ position: 'absolute', top: titleTop, left: 0, right: 0, padding: `0 ${sideX}px`, textAlign: 'center', color: accent, fontWeight: 600, fontSize: 72 }}>{cur.title}</div>
+          <div style={{ position: 'absolute', top: titleTop, left: 0, right: 0, padding: `0 ${sideX}px`, color: accent, fontWeight: 600, fontSize: 72 }}>
+            <Edit id="title">{cur.title}</Edit>
+          </div>
           <div style={{ position: 'absolute', top: tableTop, left: sideX, right: sideX }}>
-            <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.14em', color: muted, fontSize: 22, paddingBottom: 18 }}>
-              <span /><span style={{ textAlign: 'center' }}>Nosotros</span><span style={{ textAlign: 'center' }}>Otros</span>
-            </div>
-            {cur.rows.map((r, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
-                <div style={{ fontFamily: sans, fontSize: 34 }}>{r.feat}</div>
-                <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
-                <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+            <Edit id="table">
+              <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.14em', color: muted, fontSize: 22, paddingBottom: 18 }}>
+                <span /><span style={{ textAlign: 'center' }}>Nosotros</span><span style={{ textAlign: 'center' }}>Otros</span>
               </div>
-            ))}
+              {cur.rows.map((r, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
+                  <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 34, textAlign: 'left' }}>{r.feat}</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
+                  <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+                </div>
+              ))}
+            </Edit>
           </div>
         </>
       );
@@ -882,21 +1001,27 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
         <>
           {hasImg && (
             <div style={{ position: 'absolute', top: 0, left: 0, width: imgW, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 0 60px 40px' }}>
-              <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} />
+              <Edit id="img" kind="image" resizable>
+                <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} />
+              </Edit>
             </div>
           )}
-          <div style={{ position: 'absolute', top: 80, left: tableX, width: tableW, color: accent, fontWeight: 600, fontSize: 48, lineHeight: 1.1, marginBottom: 16 }}>{cur.title}</div>
+          <div style={{ position: 'absolute', top: 80, left: tableX, width: tableW, color: accent, fontWeight: 600, fontSize: 48, lineHeight: 1.1, marginBottom: 16 }}>
+            <Edit id="title" defaultAlign="left">{cur.title}</Edit>
+          </div>
           <div style={{ position: 'absolute', top: 180, left: tableX, width: tableW }}>
-            <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.1em', color: muted, fontSize: 18, paddingBottom: 14 }}>
-              <span /><span style={{ textAlign: 'center' }}>Nos.</span><span style={{ textAlign: 'center' }}>Otros</span>
-            </div>
-            {cur.rows.map((r, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
-                <div style={{ fontFamily: sans, fontSize: 26 }}>{r.feat}</div>
-                <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
-                <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+            <Edit id="table" defaultAlign="left">
+              <div style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.1em', color: muted, fontSize: 18, paddingBottom: 14 }}>
+                <span /><span style={{ textAlign: 'center' }}>Nos.</span><span style={{ textAlign: 'center' }}>Otros</span>
               </div>
-            ))}
+              {cur.rows.map((r, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: `${featW}px ${colW}px ${colW}px`, alignItems: 'center', height: rowH, borderTop: `1px solid ${line}` }}>
+                  <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 26, textAlign: 'left' }}>{r.feat}</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', color: accent }}><Mark type="check" color={accent} /></div>
+                  <div style={{ display: 'flex', justifyContent: 'center', color: muted }}><Mark type={r.o} color={muted} /></div>
+                </div>
+              ))}
+            </Edit>
           </div>
         </>
       );
@@ -908,16 +1033,20 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+          <Edit id="img" kind="image" resizable>
+            {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+          </Edit>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 96 : 78, marginTop: 18, lineHeight: 1 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 22, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>
-          {tpl === 'producto' && (
-            <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-          )}
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 96 : 78, marginTop: 18, lineHeight: 1 }}>{cur.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: 30, marginTop: 22, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>
+            {tpl === 'producto' && (
+              <div style={{ display: 'inline-block', fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+            )}
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
+          </Edit>
         </div>
       </>
     );
@@ -928,17 +1057,21 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          <Edit id="img" kind="image" resizable>
+            {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          </Edit>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 88 : 72, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 18, color: muted }}>{cur.notes}</div>
-          <div style={{ marginTop: 30, display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
-            {cur.from && <span style={{ fontFamily: sans, fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
-            <span style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 104 : 88, color: accent }}>{cur.price}</span>
-          </div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 26, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 88 : 72, marginTop: 16 }}>{cur.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: 28, marginTop: 18, color: muted }}>{cur.notes}</div>
+            <div style={{ marginTop: 30, display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
+              {cur.from && <span style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
+              <span style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 104 : 88, color: accent }}>{cur.price}</span>
+            </div>
+            <div style={{ display: 'inline-block', fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 26, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+          </Edit>
         </div>
       </>
     );
@@ -948,16 +1081,22 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     const imgTop = tall ? 220 : 90, imgH = tall ? 720 : 480, infoTop = imgTop + imgH + (tall ? 36 : 22);
     body = (
       <>
-        <div style={{ position: 'absolute', top: tall ? 130 : 60, left: 0, right: 0, textAlign: 'center', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted }}>
-          {cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span>
+        <div style={{ position: 'absolute', top: tall ? 130 : 60, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="eyebrow" style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted }}>
+            {cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span>
+          </Edit>
         </div>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          <Edit id="img" kind="image" resizable>
+            {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          </Edit>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 20, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 26, color: accent, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: 30, marginTop: 20, color: muted }}>{cur.notes}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 28, marginTop: 26, color: accent, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
+          </Edit>
         </div>
       </>
     );
@@ -968,17 +1107,23 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: tall ? 220 : 90, left: 0, right: 0, textAlign: 'center', fontSize: 90, color: accent, opacity: .5, fontFamily: serif }}>"</div>
-        <div style={{ position: 'absolute', top: tall ? 320 : 150, left: 0, right: 0, padding: '0 130px', textAlign: 'center', fontSize: qSize, lineHeight: 1.4, fontStyle: 'italic' }}>
-          {cur.quote}
+        <div style={{ position: 'absolute', top: tall ? 320 : 150, left: 0, right: 0, padding: '0 130px' }}>
+          <Edit id="quote" style={{ fontSize: qSize, lineHeight: 1.4, fontStyle: 'italic' }}>{cur.quote}</Edit>
         </div>
-        <div style={{ position: 'absolute', top: tall ? 660 : 360, left: 0, right: 0, textAlign: 'center', fontSize: 36, color: accent, letterSpacing: 6 }}>
-          {'★'.repeat(cur.stars || 5)}
+        <div style={{ position: 'absolute', top: tall ? 660 : 360, left: 0, right: 0 }}>
+          <Edit id="stars" style={{ fontSize: 36, color: accent, letterSpacing: 6 }}>{'★'.repeat(cur.stars || 5)}</Edit>
         </div>
-        <div style={{ position: 'absolute', top: tall ? 740 : 420, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
-        <div style={{ position: 'absolute', top: tall ? 786 : 462, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>
+        <div style={{ position: 'absolute', top: tall ? 740 : 420, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="who">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase', marginTop: 4 }}>{cur.location}</div>
+          </Edit>
+        </div>
         {cur.img && (
           <div style={{ position: 'absolute', bottom: tall ? 140 : 60, left: 0, right: 0, height: tall ? 340 : 220, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: .85 }}>
-            <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '40%', maxHeight: '100%' }} />
+            <Edit id="img" kind="image" resizable>
+              <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '40%', maxHeight: '100%' }} />
+            </Edit>
           </div>
         )}
       </>
@@ -993,32 +1138,38 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     body = (
       <>
         <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 160px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
+          <Edit id="img" kind="image" resizable>
+            {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.1 : 0.85} theme={theme} />}
+          </Edit>
         </div>
         <div style={{
           position: 'absolute', top: contentTop, bottom: contentBottom, left: 0, right: 0,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 90px',
         }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.28em', fontSize: tall ? 24 : 20, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 76 : 58, marginTop: 14, textAlign: 'center', lineHeight: 1.05 }}>{cur.name}</div>
-          <div style={{ width: 64, height: 1, background: accent, opacity: .6, margin: tall ? '30px 0 36px' : '20px 0 26px' }} />
-          <div style={{
-            width: '100%', maxWidth: tall ? 660 : 540, border: `1px solid ${line}`, borderRadius: 18,
-            padding: tall ? '8px 36px' : '6px 26px', background: dark ? 'rgba(255,255,255,.02)' : 'rgba(0,0,0,.015)',
-          }}>
-            {cur.rows.map((r, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH,
-                borderTop: i ? `1px solid ${line}` : 'none', margin: r.best ? `0 -${cardPad}px` : 0, padding: r.best ? `0 ${cardPad}px` : 0,
-                background: r.best ? `${accent}1a` : 'transparent', borderRadius: r.best ? 12 : 0,
-              }}>
-                <span style={{ fontFamily: sans, fontSize: tall ? 34 : 27, fontWeight: r.best ? 700 : 400, color: r.best ? accent : ink, letterSpacing: '.02em' }}>
-                  {r.best && '★ '}{r.label}
-                </span>
-                <span style={{ fontFamily: serif, fontSize: tall ? 44 : 34, fontWeight: 600, color: r.best ? accent : ink }}>{r.price}</span>
-              </div>
-            ))}
-          </div>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.28em', fontSize: tall ? 24 : 20, color: muted }}>{cur.eyebrow}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 76 : 58, marginTop: 14, lineHeight: 1.05 }}>{cur.name}</div>
+            <div style={{ width: 64, height: 1, background: accent, opacity: .6, margin: tall ? '30px auto 36px' : '20px auto 26px' }} />
+          </Edit>
+          <Edit id="table" style={{ width: '100%', maxWidth: tall ? 660 : 540 }}>
+            <div style={{
+              width: '100%', border: `1px solid ${line}`, borderRadius: 18,
+              padding: tall ? '8px 36px' : '6px 26px', background: dark ? 'rgba(255,255,255,.02)' : 'rgba(0,0,0,.015)',
+            }}>
+              {cur.rows.map((r, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH,
+                  borderTop: i ? `1px solid ${line}` : 'none', margin: r.best ? `0 -${cardPad}px` : 0, padding: r.best ? `0 ${cardPad}px` : 0,
+                  background: r.best ? `${accent}1a` : 'transparent', borderRadius: r.best ? 12 : 0,
+                }}>
+                  <span style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: tall ? 34 : 27, fontWeight: r.best ? 700 : 400, color: r.best ? accent : ink, letterSpacing: '.02em' }}>
+                    {r.best && '★ '}{r.label}
+                  </span>
+                  <span style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontSize: tall ? 44 : 34, fontWeight: 600, color: r.best ? accent : ink }}>{r.price}</span>
+                </div>
+              ))}
+            </div>
+          </Edit>
         </div>
       </>
     );
@@ -1028,20 +1179,25 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     const imgTop = tall ? 160 : 70, imgH = tall ? 700 : 460, infoTop = imgTop + imgH + (tall ? 24 : 14);
     body = (
       <>
-        <div style={{
-          position: 'absolute', top: tall ? 70 : 36, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700,
-          padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
-        }}>{cur.endsText}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+        <div style={{ position: 'absolute', top: tall ? 70 : 36, left: '50%', transform: 'translateX(-50%)' }}>
+          <Edit id="badge" style={{
+            fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700,
+            padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
+          }}>{cur.endsText}</Edit>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 84 : 68, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 16, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 96 : 80, color: accent, marginTop: 22 }}>{cur.price}</div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 22, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
+          <Edit id="img" kind="image" resizable>
+            {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+          </Edit>
+        </div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 84 : 68, marginTop: 16 }}>{cur.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: 28, marginTop: 16, color: muted }}>{cur.notes}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 96 : 80, color: accent, marginTop: 22 }}>{cur.price}</div>
+            <div style={{ display: 'inline-block', fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 22, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
+          </Edit>
         </div>
       </>
     );
@@ -1052,18 +1208,23 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     const imgTop = tall ? 200 : 100, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 40 : 24);
     body = (
       <>
-        <div style={{
-          position: 'absolute', top: tall ? 60 : 30, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em',
-        }}>{cur.activeSlide + 1} / {cur.slides.length}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {s.img ? <Img src={s.img} scale={s.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+        <div style={{ position: 'absolute', top: tall ? 60 : 30, left: '50%', transform: 'translateX(-50%)' }}>
+          <Edit id="counter" style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontSize: 22, color: muted, letterSpacing: '.2em' }}>
+            {cur.activeSlide + 1} / {cur.slides.length}
+          </Edit>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 90 : 74, marginTop: 18, lineHeight: 1 }}>{s.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 20, color: muted }}>{s.notes}</div>
-          <div style={{ fontFamily: serif, fontSize: tall ? 50 : 42, fontWeight: 600, marginTop: 24, color: accent }}>{s.price}</div>
+        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
+          <Edit id="img" kind="image" resizable>
+            {s.img ? <Img src={s.img} scale={s.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
+          </Edit>
+        </div>
+        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, padding: '0 90px' }}>
+          <Edit id="info">
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontWeight: 600, fontSize: tall ? 90 : 74, marginTop: 18, lineHeight: 1 }}>{s.name}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: 28, marginTop: 20, color: muted }}>{s.notes}</div>
+            <div style={{ fontFamily: 'var(--as-font-override, ' + serif + ')', fontSize: tall ? 50 : 42, fontWeight: 600, marginTop: 24, color: accent }}>{s.price}</div>
+          </Edit>
         </div>
       </>
     );
@@ -1071,16 +1232,20 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
 
   const extraText = tpl === 'carrusel' ? curSlide.extra : cur.extra;
   const extra = extraText ? (
-    <div style={{
-      position: 'absolute', left: 0, right: 0, bottom: tall ? 118 : 88, textAlign: 'center', padding: '0 90px',
-      fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, letterSpacing: '.02em', lineHeight: 1.4,
-    }}>
-      {extraText}
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: tall ? 118 : 88, textAlign: 'center', padding: '0 90px' }}>
+      <Edit id="extra">
+        <div style={{
+          fontFamily: 'var(--as-font-override, ' + sans + ')', fontWeight: 300, fontSize: tall ? 26 : 22,
+          color: muted, letterSpacing: '.02em', lineHeight: 1.4,
+        }}>
+          {extraText}
+        </div>
+      </Edit>
     </div>
   ) : null;
 
   return (
-    <div ref={stageRef} style={base}>
+    <div ref={stageRef} style={base} onPointerDown={() => editable && onSelect(null, null)}>
       {scene}
       {frame}
       {body}
@@ -1160,5 +1325,15 @@ const CSS = `
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
 .as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden}
 .as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.as-editable{cursor:grab}
+.as-editable:active{cursor:grabbing}
+.as-editable-on{outline:2px dashed var(--gold);outline-offset:4px;box-shadow:0 0 0 9999px rgba(0,0,0,0)}
+.as-handles{position:absolute;inset:0;pointer-events:none}
+.as-handle{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2px solid #1a1404;pointer-events:auto;touch-action:none}
+.as-handle-nw{top:-9px;left:-9px;cursor:nwse-resize}
+.as-handle-ne{top:-9px;right:-9px;cursor:nesw-resize}
+.as-handle-sw{bottom:-9px;left:-9px;cursor:nesw-resize}
+.as-handle-se{bottom:-9px;right:-9px;cursor:nwse-resize}
+.as-elpanel{position:sticky;top:0}
 @media (max-width:860px){.as-shell{grid-template-columns:1fr}.as-canvas{display:none}}
 `;
