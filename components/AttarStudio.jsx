@@ -18,10 +18,13 @@
  *   supabase  -> tu cliente browser de @supabase/supabase-js (con sesión iniciada)
  *   onExit?   -> callback opcional para cerrar/volver
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { toPng } from 'html-to-image';
 import { SCENES as BG_SCENES, makeSeed as makeBgSeed, Backdrop as ProceduralBackdrop } from './proceduralBackdrops';
 import { EditableItem, ElementPanel } from './StudioEditable';
+import { copyFor } from './studioCopy';
+import { POLICY_CHIPS } from './brandFacts';
+import { buildSuggestions } from './studioSugerencias';
 
 // ids cuya "escala" vive en un campo de contenido ya existente (compatibilidad con el slider clásico)
 // en vez de dentro de layout[id].scale
@@ -48,6 +51,14 @@ const TEMPLATES = [
 
 // Plantillas que admiten foto de producto + fondo de escena procedural
 const SCENE_CAPABLE = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown'];
+
+// Secciones de la pestaña "Sugerencias" (Fase 3, Módulo B)
+const SUGG_SECTIONS = [
+  ['lanzamientos', 'Lanzamientos'],
+  ['ultimasUnidades', 'Últimas unidades'],
+  ['populares', 'Populares'],
+  ['versusFamilia', 'Versus de familia'],
+];
 
 const THEMES = [
   { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
@@ -220,7 +231,7 @@ export default function AttarStudio({ supabase, onExit }) {
   useEffect(() => {
     if (!supabase) return;
     supabase.from('perfumes')
-      .select('id,brand,name,notes,families,image_url,inspiration,description,price_sellado,price_decant10,price_decant5,price_decant3,stock_sellado,stock_decant10,stock_decant5,stock_decant3,popularity')
+      .select('id,brand,name,notes,families,image_url,inspiration,description,price_sellado,price_decant10,price_decant5,price_decant3,stock_sellado,stock_decant10,stock_decant5,stock_decant3,popularity,created_at')
       .order('popularity', { ascending: false })
       .then(({ data }) => setProducts(data || []));
   }, [supabase]);
@@ -316,6 +327,50 @@ export default function AttarStudio({ supabase, onExit }) {
     setPerfumeId(p.id);
     setContent((c) => mapPerfumeToContent(p, c));
     setTab('design');
+  };
+
+  // ---- Fase 3: pestaña "Sugerencias" (Módulo B) ----
+  const suggestions = useMemo(() => buildSuggestions(products), [products]);
+  const useSuggestion = (s) => {
+    setTpl(s.template);
+    setPerfumeId(s.perfume.id);
+    setContent((c) => {
+      let next = mapPerfumeToContent(s.perfume, c);
+      if (s.template === 'versus' && s.perfume2) {
+        // ambos lados son perfumes propios (misma familia): el lado derecho usa el mismo
+        // generador de copy que el izquierdo, nunca el texto adversario "Otros" por defecto
+        // (ese texto describe a la competencia, no a un segundo perfume nuestro).
+        const rightCopy = copyFor('versus', s.perfume2, 0);
+        next = { ...next, versus: { ...next.versus, rHead: s.perfume2.name, rSub: s.perfume2.description || rightCopy.lSub || next.versus.rSub, rImg: s.perfume2.image_url || null } };
+      }
+      const copyPatch = copyFor(s.template, s.perfume, 0);
+      const merged = { ...next[s.template], ...copyPatch };
+      if (s.category === 'ultimas') merged.chip = s.reason; // refleja el formato real que queda, no el genérico
+      return { ...next, [s.template]: merged };
+    });
+    setTab('design');
+  };
+
+  // ---- Fase 3: copy sugerido con tono de marca (Módulo A) ----
+  const currentPerfume = products.find((p) => p.id === perfumeId) || null;
+  const [copyVariant, setCopyVariant] = useState(0);
+  useEffect(() => { setCopyVariant(0); }, [tpl, perfumeId]);
+
+  const suggestCopy = () => {
+    if (!currentPerfume) return;
+    const next = copyVariant + 1;
+    const fields = copyFor(tpl, currentPerfume, next);
+    if (tpl === 'carrusel') patchSlide(fields); else patch(fields);
+    setCopyVariant(next);
+  };
+
+  // ---- Fase 3: chip de política real (Módulo C) ----
+  // "extra" es el único campo de texto libre presente en las 10 plantillas.
+  const insertPolicyChip = (text) => {
+    const target = tpl === 'carrusel' ? curSlide : cur;
+    const sep = target.extra ? ' · ' : '';
+    const value = `${target.extra || ''}${sep}${text}`;
+    if (tpl === 'carrusel') patchSlide({ extra: value }); else patch({ extra: value });
   };
 
   const onUpload = (e, field = 'img') => {
@@ -482,7 +537,7 @@ export default function AttarStudio({ supabase, onExit }) {
         {/* CONTROLES */}
         <aside className="as-controls">
           <div className="as-tabs">
-            {[['design', 'Diseño'], ['catalog', 'Catálogo'], ['saved', 'Mis diseños']].map(([k, l]) => (
+            {[['design', 'Diseño'], ['catalog', 'Catálogo'], ['sugerencias', 'Sugerencias'], ['saved', 'Mis diseños']].map(([k, l]) => (
               <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>
             ))}
           </div>
@@ -548,6 +603,23 @@ export default function AttarStudio({ supabase, onExit }) {
                 />
               ) : (
                 <>
+                  <div className="as-card">
+                    <div className="as-subh" style={{ marginTop: 0 }}>Copy sugerido</div>
+                    {currentPerfume ? (
+                      <>
+                        <p className="as-hint" style={{ marginTop: 0 }}>Variantes con tono de marca a partir de {currentPerfume.name}. Vuelve a hacer clic para otra variante.</p>
+                        <button className="as-shuffle" onClick={suggestCopy}>✦ Sugerir copy</button>
+                      </>
+                    ) : (
+                      <p className="as-hint" style={{ marginTop: 0, marginBottom: 0 }}>Elige un perfume del Catálogo para generar copy.</p>
+                    )}
+                    <div className="as-subh">Chips de política</div>
+                    <div className="as-scenegrid">
+                      {POLICY_CHIPS.map((c) => (
+                        <button key={c.id} className="as-scenebtn" title={c.text} onClick={() => insertPolicyChip(c.text)}>{c.label}</button>
+                      ))}
+                    </div>
+                  </div>
                   <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
                           setContent={setContent} />
                   {(Object.keys(cur.layout || {}).length > 0) && (
@@ -590,6 +662,28 @@ export default function AttarStudio({ supabase, onExit }) {
                 {!filtered.length && <p className="as-empty">Sin resultados.</p>}
               </div>
             </>
+          )}
+
+          {tab === 'sugerencias' && (
+            <div className="as-sugg">
+              {SUGG_SECTIONS.map(([key, label], i) => (
+                <div key={key}>
+                  <div className="as-subh" style={{ marginTop: i === 0 ? 0 : 18 }}>{label}</div>
+                  {suggestions[key].length ? suggestions[key].map((s) => (
+                    <div key={s.key} className="as-item">
+                      <button className="as-itembody" onClick={() => useSuggestion(s)}>
+                        {s.thumb ? <img src={s.thumb} alt="" crossOrigin="anonymous" /> : <span className="ph" />}
+                        <span className="meta">
+                          <b>{s.perfume.brand} · {s.perfume.name}{s.perfume2 ? ` vs ${s.perfume2.name}` : ''}</b>
+                          <i>{s.reason}</i>
+                        </span>
+                        <span className="as-use">Usar →</span>
+                      </button>
+                    </div>
+                  )) : <p className="as-empty">Sin propuestas por ahora.</p>}
+                </div>
+              ))}
+            </div>
           )}
 
           {tab === 'saved' && (
@@ -1319,10 +1413,12 @@ const CSS = `
 .as-itembody:hover,.as-savedbody:hover{border-color:var(--gold);background:rgba(198,161,91,.07)}
 .as-itembody img,.as-savedbody img,.as-itembody .ph{width:42px;height:52px;object-fit:contain;border-radius:6px;background:rgba(0,0,0,.3);flex:0 0 auto}
 .as-savedbody img{width:48px;height:48px}
-.as-itembody .meta,.as-savedbody span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.as-itembody .meta,.as-savedbody span{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
 .as-itembody b,.as-savedbody b{font-size:13px}
 .as-itembody i,.as-savedbody i{font-size:11px;color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
+.as-sugg{display:flex;flex-direction:column}
+.as-use{flex:0 0 auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-b);white-space:nowrap}
 .as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden}
 .as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
 .as-editable{cursor:grab}
