@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 // Lee cookies y escribe en DB: nunca debe optimizarse a estático.
 export const dynamic = "force-dynamic";
 
-const SID_COOKIE = "ah_sid";          // id de sesión (httpOnly) → base del session_hash
-const DONE_COOKIE = "ah_review_done"; // marca legible por el cliente para ocultar el form
+const SID_COOKIE = "ah_sid";       // id de sesión (httpOnly) → base del session_hash
+const DONE_COOKIE = "ah_reviews";  // lista legible (CSV) de perfume_id ya reseñados por esta sesión
 const SID_MAX_AGE = 60 * 60 * 24 * 365; // 1 año
 const DONE_MAX_AGE = 60 * 60 * 24 * 180; // ~6 meses
 const IS_PROD = process.env.NODE_ENV === "production";
@@ -14,6 +14,15 @@ const IS_PROD = process.env.NODE_ENV === "production";
 async function sha256Hex(input) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Marca este perfume como reseñado en la cookie legible (CSV de ids). La usa el
+// cliente para ocultar SOLO el form de los productos ya reseñados. Los ids de
+// perfume son slugs (a-z, 0-9, -), así que la coma es un separador seguro.
+function markReviewed(cookieStore, perfumeId) {
+  const current = (cookieStore.get(DONE_COOKIE)?.value || "").split(",").filter(Boolean);
+  if (!current.includes(perfumeId)) current.push(perfumeId);
+  cookieStore.set(DONE_COOKIE, current.join(","), { maxAge: DONE_MAX_AGE, path: "/", sameSite: "lax", secure: IS_PROD });
 }
 
 export async function POST(request) {
@@ -50,17 +59,18 @@ export async function POST(request) {
   const sid = cookieStore.get(SID_COOKIE)?.value || crypto.randomUUID();
   const sessionHash = await sha256Hex(sid);
 
-  // Refuerzo server-side de "una reseña por sesión/persona".
+  // Refuerzo server-side de "una reseña por producto por sesión".
   const { data: existing } = await supabaseAdmin
     .from("reviews")
     .select("id")
     .eq("session_hash", sessionHash)
+    .eq("perfume_id", perfumeId)
     .limit(1)
     .maybeSingle();
 
   if (existing) {
-    // Ya dejó una reseña: idempotente, solo refresca la marca legible.
-    cookieStore.set(DONE_COOKIE, "1", { maxAge: DONE_MAX_AGE, path: "/", sameSite: "lax", secure: IS_PROD });
+    // Ya reseñó este producto: idempotente, solo refresca la marca legible.
+    markReviewed(cookieStore, perfumeId);
     return Response.json({ ok: true, already: true });
   }
 
@@ -75,19 +85,20 @@ export async function POST(request) {
   });
 
   if (error) {
-    // 23505 = chocó con el índice único de session_hash (carrera de doble submit):
-    // se trata como "ya enviada", no como error.
+    // 23505 = chocó con el índice único (session_hash, perfume_id) por doble
+    // submit en carrera: se trata como "ya enviada", no como error.
     if (error.code === "23505") {
-      cookieStore.set(DONE_COOKIE, "1", { maxAge: DONE_MAX_AGE, path: "/", sameSite: "lax", secure: IS_PROD });
+      markReviewed(cookieStore, perfumeId);
       return Response.json({ ok: true, already: true });
     }
     console.error("[reviews] insert error:", error);
     return Response.json({ error: "No se pudo guardar tu reseña." }, { status: 500 });
   }
 
-  // Cookies: sid httpOnly (no accesible a JS); done legible para ocultar el form.
+  // Cookies: sid httpOnly (no accesible a JS); ah_reviews legible para ocultar
+  // el form solo en los productos ya reseñados.
   cookieStore.set(SID_COOKIE, sid, { maxAge: SID_MAX_AGE, path: "/", httpOnly: true, sameSite: "lax", secure: IS_PROD });
-  cookieStore.set(DONE_COOKIE, "1", { maxAge: DONE_MAX_AGE, path: "/", sameSite: "lax", secure: IS_PROD });
+  markReviewed(cookieStore, perfumeId);
 
   return Response.json({ ok: true, pending: true });
 }

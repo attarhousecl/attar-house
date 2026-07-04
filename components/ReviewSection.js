@@ -18,11 +18,15 @@ function Stars({ rating }) {
   );
 }
 
-// La cookie ah_review_done la setea /api/reviews (no httpOnly, para poder leerla
-// aquí). Si existe, la persona ya dejó su reseña y ocultamos el formulario.
-function hasReviewedCookie() {
+// La cookie ah_reviews la setea /api/reviews (no httpOnly): un CSV con los
+// perfume_id que esta sesión ya reseñó. Ocultamos el form solo si este producto
+// está en la lista (una reseña por producto).
+function hasReviewedCookie(perfumeId) {
   if (typeof document === "undefined") return false;
-  return document.cookie.split("; ").some((c) => c.startsWith("ah_review_done="));
+  const raw = document.cookie.split("; ").find((c) => c.startsWith("ah_reviews="));
+  if (!raw) return false;
+  const list = decodeURIComponent(raw.slice("ah_reviews=".length)).split(",").filter(Boolean);
+  return list.includes(perfumeId);
 }
 
 function formatDate(iso) {
@@ -55,9 +59,9 @@ export default function ReviewSection({ perfumeId }) {
   }, [perfumeId]);
 
   useEffect(() => {
-    setDone(hasReviewedCookie());
+    setDone(hasReviewedCookie(perfumeId));
     loadReviews();
-  }, [loadReviews]);
+  }, [perfumeId, loadReviews]);
 
   const avg = reviews.length > 0 ? reviews.reduce((a, b) => a + b.rating, 0) / reviews.length : 0;
 

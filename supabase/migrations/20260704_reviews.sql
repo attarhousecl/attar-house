@@ -14,6 +14,12 @@ create table if not exists public.reviews (
 
 alter table public.reviews enable row level security;
 
+-- Grants de tabla (RLS filtra filas, pero el rol igual necesita el privilegio):
+--  - service_role (API con clave de servicio) inserta y lee; ignora RLS.
+--  - anon/authenticated solo SELECT; la policy de abajo lo limita a aprobadas.
+grant select, insert on public.reviews to service_role;
+grant select on public.reviews to anon, authenticated;
+
 -- Lectura pública SOLO de reseñas aprobadas (una reseña recién dejada NO se ve).
 drop policy if exists "read approved reviews" on public.reviews;
 create policy "read approved reviews" on public.reviews
@@ -29,6 +35,8 @@ create policy "read approved reviews" on public.reviews
 create index if not exists reviews_perfume_approved_idx
   on public.reviews (perfume_id) where approved = true;
 
--- Refuerzo duro de "una reseña por sesión/persona" (además del chequeo en la API).
-create unique index if not exists reviews_session_hash_key
-  on public.reviews (session_hash) where session_hash is not null;
+-- Refuerzo duro de "una reseña por producto por sesión" (además del chequeo en
+-- la API): la misma sesión puede reseñar productos distintos, pero no dos veces
+-- el mismo producto.
+create unique index if not exists reviews_session_perfume_key
+  on public.reviews (session_hash, perfume_id) where session_hash is not null;
