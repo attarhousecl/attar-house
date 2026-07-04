@@ -1,8 +1,10 @@
 "use client";
 
+import WhatsAppLink from "@/components/WhatsAppLink";
+
 export default function WhatsAppFloat() {
   return (
-    <a
+    <WhatsAppLink
       href="https://wa.me/56632249728?text=Hola%20Attar%20House%2C%20tengo%20una%20consulta"
       target="_blank"
       rel="noreferrer"
@@ -28,6 +30,6 @@ export default function WhatsAppFloat() {
       onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(37,211,102,0.4)"; }}
     >
       <i className="ph ph-whatsapp-logo" style={{ fontSize: "1.6rem", color: "#fff" }}></i>
-    </a>
+    </WhatsAppLink>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import Reveal from "@/components/Reveal";
+import WhatsAppLink from "@/components/WhatsAppLink";
 
 const SITE_URL = "https://attarhouse.cl";
 const storeJsonLd = {
@@ -253,10 +254,10 @@ export default function Home() {
             Retiro presencial disponible en Valdivia
           </p>
           <div className="social-links-big">
-            <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
+            <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
               <i className="ph ph-whatsapp-logo"></i>
               <span>Escríbenos por WhatsApp</span>
-            </a>
+            </WhatsAppLink>
             <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer" className="social-link-big">
               <i className="ph ph-instagram-logo"></i>
               <span>Instagram</span>

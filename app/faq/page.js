@@ -1,4 +1,5 @@
 import FaqItem from "@/components/FaqItem";
+import WhatsAppLink from "@/components/WhatsAppLink";
 
 export const metadata = {
   title: "Preguntas Frecuentes | Attar House",
@@ -64,7 +65,7 @@ export default function FaqPage() {
           <p style={{ color: "var(--text-muted)", marginBottom: "16px", fontSize: "0.9rem" }}>
             ¿Tienes otra duda? Escríbenos y te respondemos en menos de 1 hora.
           </p>
-          <a
+          <WhatsAppLink
             href="https://wa.me/56632249728"
             target="_blank"
             rel="noreferrer"
@@ -72,7 +73,7 @@ export default function FaqPage() {
             style={{ display: "inline-block" }}
           >
             <span><i className="ph ph-whatsapp-logo"></i> Escríbenos por WhatsApp</span>
-          </a>
+          </WhatsAppLink>
         </div>
       </div>
     </section>
