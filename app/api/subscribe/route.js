@@ -18,6 +18,13 @@ export async function POST(request) {
     return Response.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
+  // Honeypot: campo oculto que un humano nunca ve ni rellena. Si viene con algo,
+  // es un bot. Respondemos "ok" fingido (200) para no darle pistas de que lo
+  // detectamos, pero NO insertamos nada.
+  if (typeof body?.website === "string" && body.website.trim() !== "") {
+    return Response.json({ ok: true });
+  }
+
   const email = (body?.email || "").trim().toLowerCase().slice(0, 254);
   const source = (body?.source || "footer").slice(0, 40);
 
