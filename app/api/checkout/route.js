@@ -6,6 +6,7 @@ import { rateLimit, clientIp } from "@/lib/rateLimit";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const MAX_ITEMS = 50;
 const MAX_QTY = 50;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request) {
   // Limita creación de pedidos por IP para frenar spam.
@@ -30,6 +31,14 @@ export async function POST(request) {
   }
   if (!customer?.name || !customer?.email || !customer?.phone) {
     return Response.json({ error: "Faltan datos de contacto." }, { status: 400 });
+  }
+
+  // Normaliza y valida el formato del email en el servidor: no confiar en el
+  // cliente. Frena payloads basura de bots y evita registrar pedidos con
+  // correos inválidos a los que luego no se les puede notificar.
+  const email = String(customer.email).trim().toLowerCase().slice(0, 254);
+  if (!EMAIL_RE.test(email)) {
+    return Response.json({ error: "Ingresa un email válido." }, { status: 400 });
   }
 
   const perfumeIds = [...new Set(items.filter((i) => i.format !== "Accesorio").map((i) => i.id))];
@@ -78,7 +87,7 @@ export async function POST(request) {
     commerce_order: commerceOrder,
     status: "pending",
     customer_name: customer.name,
-    customer_email: customer.email,
+    customer_email: email,
     customer_phone: customer.phone,
     shipping: shipping || null,
     items: verifiedItems,
@@ -96,7 +105,7 @@ export async function POST(request) {
     const preference = await createPreference({
       commerceOrder,
       items: verifiedItems,
-      payerEmail: customer.email,
+      payerEmail: email,
       backUrl: `${SITE_URL}/pedido/confirmacion?order=${commerceOrder}`,
       notificationUrl: `${SITE_URL}/api/mercadopago/webhook`,
     });

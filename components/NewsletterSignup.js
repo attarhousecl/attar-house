@@ -6,6 +6,9 @@ export default function NewsletterSignup() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | ok | error
   const [msg, setMsg] = useState("");
+  // Honeypot: campo trampa oculto. Un humano no lo ve ni lo llena; los bots que
+  // rellenan todo sí. Si llega con valor, el backend lo descarta.
+  const [website, setWebsite] = useState("");
 
   async function submit(e) {
     e.preventDefault();
@@ -17,7 +20,7 @@ export default function NewsletterSignup() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "footer" }),
+        body: JSON.stringify({ email, source: "footer", website }),
       });
       const data = await res.json();
 
@@ -46,6 +49,18 @@ export default function NewsletterSignup() {
         <p role="status" aria-live="polite" style={{ color: "#d4af37", fontSize: "0.82rem", fontWeight: 600 }}>{msg}</p>
       ) : (
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {/* Honeypot anti-bot: oculto para humanos (fuera de pantalla, sin tab,
+              aria-hidden). No lo quites: es la trampa que atrapa a los bots. */}
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+          />
           <input
             type="email"
             required
