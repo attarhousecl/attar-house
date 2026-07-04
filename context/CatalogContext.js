@@ -37,6 +37,14 @@ function mapPerfume(r) {
       decant5: r.stock_decant5,
       decant3: r.stock_decant3,
     },
+    // Cantidad real por formato (fuente de verdad). Los booleanos stock_* de arriba
+    // se derivan de estos vía trigger; qty permite mostrar "Quedan N" y topar el carrito.
+    qty: {
+      sellado: r.qty_sellado ?? 0,
+      decant10: r.qty_decant10 ?? 0,
+      decant5: r.qty_decant5 ?? 0,
+      decant3: r.qty_decant3 ?? 0,
+    },
     stockLow: r.stock_low || false,
   };
 }

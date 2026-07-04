@@ -66,12 +66,16 @@ export default function ProductDetail({ id }) {
   const options = perfume
     ? Object.keys(perfume.prices)
         .filter((k) => perfume.prices[k] !== 0)
-        .map((k) => ({
-          key: k,
-          label: labelsFormatos[k] || k,
-          price: perfume.prices[k],
-          disabled: perfume.stock[k] === false,
-        }))
+        .map((k) => {
+          const available = perfume.qty?.[k] ?? 0;
+          return {
+            key: k,
+            label: labelsFormatos[k] || k,
+            price: perfume.prices[k],
+            available,
+            disabled: available <= 0,
+          };
+        })
     : [];
 
   useEffect(() => {
@@ -140,15 +144,17 @@ export default function ProductDetail({ id }) {
   const backHref = esDisenador ? "/disenador" : "/catalogo";
   const labelVolver = esDisenador ? "Volver a Diseñador" : "Volver al catálogo";
 
-  const stockCount = Object.values(perfume.stock).filter(Boolean).length;
-  const showUrgency = !esDisenador && !esNicho && stockCount <= 2;
-
   const selectedOpt = options.find((o) => o.key === selectedFormat);
   const canAddToCart = !!selectedOpt && !selectedOpt.disabled;
 
+  // "Quedan N" para el formato elegido cuando queda poco (stock real por cantidad).
+  const LOW_STOCK = 5;
+  const selectedQty = selectedOpt?.available ?? 0;
+  const showUrgency = canAddToCart && selectedQty > 0 && selectedQty <= LOW_STOCK;
+
   const handleAddToCart = () => {
     if (!canAddToCart) return;
-    addToCart(perfume, selectedFormat);
+    addToCart(perfume, selectedFormat, selectedOpt.available);
     track("add_to_cart", { perfume: perfume.name, brand: perfume.brand, format: selectedFormat, price: selectedOpt.price });
   };
 
@@ -241,7 +247,7 @@ export default function ProductDetail({ id }) {
               )}
               {showUrgency && (
                 <div style={{ background: "rgba(220,60,30,0.08)", border: "1px solid rgba(220,60,30,0.25)", borderRadius: "8px", padding: "8px 12px", marginBottom: "12px", fontSize: "0.75rem", color: "#e07060" }}>
-                  ⚠ Últimas unidades disponibles
+                  ⚠ {selectedQty === 1 ? "¡Última unidad disponible!" : `¡Solo quedan ${selectedQty} unidades!`}
                 </div>
               )}
               <button className="btn-add-cart-gold" onClick={handleAddToCart} disabled={!canAddToCart}>
