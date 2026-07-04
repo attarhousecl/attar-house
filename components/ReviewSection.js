@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/context/ToastContext";
 
 function Stars({ rating }) {
@@ -17,24 +18,23 @@ function Stars({ rating }) {
   );
 }
 
-// Carga reseñas validando la forma (evita ratings fuera de rango / objetos corruptos).
-function loadReviews(perfumeId) {
-  let all = {};
+// La cookie ah_reviews la setea /api/reviews (no httpOnly): un CSV con los
+// perfume_id que esta sesión ya reseñó. Ocultamos el form solo si este producto
+// está en la lista (una reseña por producto).
+function hasReviewedCookie(perfumeId) {
+  if (typeof document === "undefined") return false;
+  const raw = document.cookie.split("; ").find((c) => c.startsWith("ah_reviews="));
+  if (!raw) return false;
+  const list = decodeURIComponent(raw.slice("ah_reviews=".length)).split(",").filter(Boolean);
+  return list.includes(perfumeId);
+}
+
+function formatDate(iso) {
   try {
-    all = JSON.parse(localStorage.getItem("attar_reviews")) || {};
+    return new Date(iso).toLocaleDateString("es-CL", { year: "numeric", month: "short", day: "numeric" });
   } catch {
-    // ignore malformed localStorage data
+    return "";
   }
-  const list = Array.isArray(all[perfumeId]) ? all[perfumeId] : [];
-  return list.filter(
-    (r) =>
-      r &&
-      typeof r.author === "string" &&
-      typeof r.text === "string" &&
-      Number.isFinite(r.rating) &&
-      r.rating >= 1 &&
-      r.rating <= 5
-  );
 }
 
 export default function ReviewSection({ perfumeId }) {
@@ -42,41 +42,63 @@ export default function ReviewSection({ perfumeId }) {
   const [rating, setRating] = useState(0);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+  const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
 
-  useEffect(() => {
-    setReviews(loadReviews(perfumeId));
+  // Solo se leen reseñas APROBADAS: la RLS de Supabase (approved = true) lo
+  // garantiza aunque el filtro del cliente cambie.
+  const loadReviews = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("author_name, rating, comment, created_at")
+      .eq("perfume_id", perfumeId)
+      .eq("approved", true)
+      .order("created_at", { ascending: false });
+    if (!error && Array.isArray(data)) setReviews(data);
   }, [perfumeId]);
+
+  useEffect(() => {
+    setDone(hasReviewedCookie(perfumeId));
+    loadReviews();
+  }, [perfumeId, loadReviews]);
 
   const avg = reviews.length > 0 ? reviews.reduce((a, b) => a + b.rating, 0) / reviews.length : 0;
 
-  const submit = () => {
+  const submit = async () => {
     if (!name.trim() || !text.trim() || rating === 0) {
       showToast("⚠️ Completa todos los campos y selecciona una puntuación.");
       return;
     }
-
-    let all = {};
+    setSubmitting(true);
     try {
-      all = JSON.parse(localStorage.getItem("attar_reviews")) || {};
-    } catch {
-      // ignore malformed localStorage data
-    }
-    const newReview = {
-      author: name.trim(),
-      rating,
-      text: text.trim(),
-      date: new Date().toLocaleDateString("es-CL", { year: "numeric", month: "short", day: "numeric" }),
-    };
-    const updated = [newReview, ...(all[perfumeId] || [])];
-    all[perfumeId] = updated;
-    localStorage.setItem("attar_reviews", JSON.stringify(all));
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perfumeId, name: name.trim(), text: text.trim(), rating }),
+      });
+      const data = await res.json().catch(() => ({}));
 
-    setReviews(updated);
-    setRating(0);
-    setName("");
-    setText("");
-    showToast("✓ ¡Gracias por tu reseña!");
+      if (!res.ok) {
+        showToast(`⚠️ ${data.error || "No se pudo enviar tu reseña."}`);
+        return;
+      }
+
+      // La reseña queda PENDIENTE de moderación: no se agrega a la lista visible.
+      setDone(true);
+      setRating(0);
+      setName("");
+      setText("");
+      showToast(
+        data.already
+          ? "Ya dejaste tu reseña, ¡gracias!"
+          : "✓ ¡Gracias! Tu reseña quedó pendiente de aprobación."
+      );
+    } catch {
+      showToast("⚠️ No se pudo enviar tu reseña. Intenta más tarde.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -100,12 +122,12 @@ export default function ReviewSection({ perfumeId }) {
           <div className="review-card" key={i}>
             <div className="review-card-header">
               <div>
-                <div className="review-author">{rv.author}</div>
+                <div className="review-author">{rv.author_name}</div>
                 <Stars rating={rv.rating} />
               </div>
-              <div className="review-date">{rv.date}</div>
+              <div className="review-date">{formatDate(rv.created_at)}</div>
             </div>
-            <div className="review-text">{rv.text}</div>
+            <div className="review-text">{rv.comment}</div>
           </div>
         ))
       ) : (
@@ -114,44 +136,53 @@ export default function ReviewSection({ perfumeId }) {
         </p>
       )}
 
-      <div className="review-form">
-        <h5>Deja tu opinión</h5>
-        <div className="review-form-stars" role="radiogroup" aria-label="Puntuación">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <button
-              type="button"
-              key={i}
-              className="review-form-star"
-              role="radio"
-              aria-checked={rating === i}
-              aria-label={`${i} estrella${i > 1 ? "s" : ""}`}
-              style={{ color: i <= rating ? "var(--gold-primary)" : "var(--gold-dark)", background: "none", border: "none", padding: 0, fontSize: "1.4rem", lineHeight: 1, cursor: "pointer" }}
-              onClick={() => setRating(i)}
-            >
-              ★
-            </button>
-          ))}
+      {done ? (
+        <div
+          className="review-form"
+          style={{ color: "var(--text-muted)", fontSize: "0.9rem", textAlign: "center" }}
+        >
+          Ya dejaste tu reseña, ¡gracias! 🙌
         </div>
-        <input
-          type="text"
-          className="review-name-input"
-          placeholder="Tu nombre"
-          maxLength={40}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <textarea
-          className="review-text-input"
-          placeholder="¿Qué te pareció esta fragancia?"
-          rows={3}
-          maxLength={300}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <button className="btn-submit-review" onClick={submit}>
-          Publicar Reseña
-        </button>
-      </div>
+      ) : (
+        <div className="review-form">
+          <h5>Deja tu opinión</h5>
+          <div className="review-form-stars" role="radiogroup" aria-label="Puntuación">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <button
+                type="button"
+                key={i}
+                className="review-form-star"
+                role="radio"
+                aria-checked={rating === i}
+                aria-label={`${i} estrella${i > 1 ? "s" : ""}`}
+                style={{ color: i <= rating ? "var(--gold-primary)" : "var(--gold-dark)", background: "none", border: "none", padding: 0, fontSize: "1.4rem", lineHeight: 1, cursor: "pointer" }}
+                onClick={() => setRating(i)}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            className="review-name-input"
+            placeholder="Tu nombre"
+            maxLength={40}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <textarea
+            className="review-text-input"
+            placeholder="¿Qué te pareció esta fragancia?"
+            rows={3}
+            maxLength={300}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="btn-submit-review" onClick={submit} disabled={submitting}>
+            {submitting ? "Enviando..." : "Publicar Reseña"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
