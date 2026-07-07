@@ -1,15 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function ProductCard({ perfume, variant = "catalog", index = 0 }) {
   const [imgError, setImgError] = useState(false);
-  const [wished, setWished] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try { return JSON.parse(localStorage.getItem("ah_wishlist") || "[]").includes(perfume.id); } catch { return false; }
-  });
+  // Se inicia en false (coincide con el render del servidor) y se lee de
+  // localStorage tras montar, para no provocar desajuste de hidratación.
+  // Reactivo al evento global: si el mismo perfume se marca/desmarca en otra
+  // tarjeta o en el detalle, este corazón se actualiza en vivo.
+  const [wished, setWished] = useState(false);
+  useEffect(() => {
+    const read = () => {
+      try { setWished(JSON.parse(localStorage.getItem("ah_wishlist") || "[]").includes(perfume.id)); }
+      catch { setWished(false); }
+    };
+    read();
+    window.addEventListener("ah-wishlist-change", read);
+    return () => window.removeEventListener("ah-wishlist-change", read);
+  }, [perfume.id]);
 
   const isDesigner = variant === "designer";
   const isNicho = variant === "nicho";
