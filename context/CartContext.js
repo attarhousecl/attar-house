@@ -20,8 +20,20 @@ export function CartProvider({ children }) {
     try {
       const stored = JSON.parse(localStorage.getItem("attar_cart"));
       if (Array.isArray(stored)) {
-        // Filtra ítems con id inválido (datos viejos de localStorage)
-        setCart(stored.filter((i) => i.id != null));
+        // Filtra ítems corruptos o de versiones viejas del carrito. Exige id,
+        // format (string) y precio/cantidad numéricos: un item sin format haría
+        // reventar total/decantTotal (i.format.startsWith) y tumbaría la tienda.
+        setCart(
+          stored.filter(
+            (i) =>
+              i &&
+              i.id != null &&
+              typeof i.format === "string" &&
+              Number.isFinite(i.price) &&
+              Number.isFinite(i.quantity) &&
+              i.quantity > 0
+          )
+        );
       }
     } catch {
       // ignore malformed localStorage data
