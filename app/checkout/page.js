@@ -5,13 +5,11 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useToast } from "@/context/ToastContext";
+import { COMUNAS_POR_REGION, isValidComuna } from "@/lib/chileComunas";
+import { isValidPhoneCL, isAllowedEmail } from "@/lib/checkoutValidation";
 
-const REGIONES = [
-  "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", "Coquimbo",
-  "Valparaíso", "Metropolitana de Santiago", "Libertador General Bernardo O'Higgins",
-  "Maule", "Ñuble", "Biobío", "La Araucanía", "Los Ríos", "Los Lagos",
-  "Aysén del General Carlos Ibáñez del Campo", "Magallanes y de la Antártica Chilena",
-];
+// El orden (norte a sur) y los nombres coinciden con las llaves de COMUNAS_POR_REGION.
+const REGIONES = Object.keys(COMUNAS_POR_REGION);
 
 export default function CheckoutPage() {
   const { cart, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
@@ -24,9 +22,11 @@ export default function CheckoutPage() {
     region: "",
     comuna: "",
     direccion: "",
-    notas: "",
   });
   const [loading, setLoading] = useState(false);
+
+  // Comunas disponibles según la región elegida (desplegable dependiente).
+  const comunasDisponibles = COMUNAS_POR_REGION[form.region] || [];
 
   useEffect(() => {
     if (arabDB.length > 0 && !freeGift) {
@@ -35,13 +35,32 @@ export default function CheckoutPage() {
   }, [arabDB, freeGift, setFreeGift]);
 
   const handleChange = (e) => {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    // Al cambiar de región, la comuna anterior deja de ser válida: se limpia.
+    if (name === "region") {
+      setForm((f) => ({ ...f, region: value, comuna: "" }));
+      return;
+    }
+    setForm((f) => ({ ...f, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
       showToast("⚠️ Completa tu nombre, correo y teléfono.");
+      return;
+    }
+    if (!isAllowedEmail(form.email)) {
+      showToast("⚠️ Ingresa un correo válido (Gmail, Hotmail, Outlook, iCloud u otro real).");
+      return;
+    }
+    if (!isValidPhoneCL(form.phone)) {
+      showToast("⚠️ Ingresa un celular chileno válido (9 XXXX XXXX).");
+      return;
+    }
+    // Comuna es opcional, pero si se ingresa debe existir y coincidir con la región.
+    if (form.comuna && !isValidComuna(form.comuna, form.region)) {
+      showToast("⚠️ Selecciona una comuna válida para tu región.");
       return;
     }
 
@@ -57,7 +76,6 @@ export default function CheckoutPage() {
             region: form.region,
             comuna: form.comuna,
             direccion: form.direccion,
-            notas: form.notas,
           },
           freeGift: freeGiftEligible ? freeGift : null,
         }),
@@ -168,6 +186,9 @@ export default function CheckoutPage() {
                   name="phone"
                   className="form-input"
                   type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="9 1234 5678"
                   value={form.phone}
                   onChange={handleChange}
                   required
@@ -187,14 +208,21 @@ export default function CheckoutPage() {
               </div>
               <div>
                 <label className="form-label" htmlFor="comuna">Comuna</label>
-                <input
+                <select
                   id="comuna"
                   name="comuna"
-                  className="form-input"
-                  type="text"
+                  className="form-select"
                   value={form.comuna}
                   onChange={handleChange}
-                />
+                  disabled={!form.region}
+                >
+                  <option value="">
+                    {form.region ? "Selecciona tu comuna" : "Elige región primero"}
+                  </option>
+                  {comunasDisponibles.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -207,16 +235,6 @@ export default function CheckoutPage() {
               value={form.direccion}
               onChange={handleChange}
             />
-
-            <label className="form-label" htmlFor="notas">Notas adicionales (opcional)</label>
-            <textarea
-              id="notas"
-              name="notas"
-              className="form-textarea"
-              rows={3}
-              value={form.notas}
-              onChange={handleChange}
-            ></textarea>
 
             <button className="btn-add-cart-gold" type="submit" disabled={loading}>
               {loading ? "Procesando..." : "Pagar con Mercado Pago"}

@@ -2,11 +2,12 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { createPreference } from "@/lib/mercadopago";
 import { accesoriosDB } from "@/lib/catalogData";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
+import { isAllowedEmail, isValidPhoneCL, formatPhoneCL } from "@/lib/checkoutValidation";
+import { isValidComuna } from "@/lib/chileComunas";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const MAX_ITEMS = 50;
 const MAX_QTY = 50;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request) {
   // Limita creación de pedidos por IP para frenar spam.
@@ -33,13 +34,33 @@ export async function POST(request) {
     return Response.json({ error: "Faltan datos de contacto." }, { status: 400 });
   }
 
-  // Normaliza y valida el formato del email en el servidor: no confiar en el
-  // cliente. Frena payloads basura de bots y evita registrar pedidos con
-  // correos inválidos a los que luego no se les puede notificar.
+  // Validaciones anti-bot en el servidor: NO confiar en el cliente (un bot no usa
+  // el formulario, le pega directo aquí). Frenan payloads basura y datos falsos.
+  //
+  // Email: proveedores preferidos (Gmail, Hotmail, Outlook, iCloud) + red de
+  // seguridad que acepta otros dominios reales y bloquea desechables/typos.
   const email = String(customer.email).trim().toLowerCase().slice(0, 254);
-  if (!EMAIL_RE.test(email)) {
-    return Response.json({ error: "Ingresa un email válido." }, { status: 400 });
+  if (!isAllowedEmail(email)) {
+    return Response.json({ error: "Ingresa un correo válido (Gmail, Hotmail, Outlook, iCloud u otro real)." }, { status: 400 });
   }
+
+  // Teléfono: celular chileno válido (formato +56 9 XXXX XXXX).
+  if (!isValidPhoneCL(customer.phone)) {
+    return Response.json({ error: "Ingresa un celular chileno válido (9 XXXX XXXX)." }, { status: 400 });
+  }
+  const phone = formatPhoneCL(customer.phone);
+  const name = String(customer.name).trim().slice(0, 120);
+
+  // Envío: se persisten SOLO campos conocidos (se descarta cualquier extra que
+  // mande un bot, p. ej. "notas"). Si viene comuna, debe existir de verdad y
+  // calzar con la región (coherencia región/comuna).
+  const region = String(shipping?.region || "").trim().slice(0, 80);
+  const comuna = String(shipping?.comuna || "").trim().slice(0, 80);
+  const direccion = String(shipping?.direccion || "").trim().slice(0, 200);
+  if (comuna && !isValidComuna(comuna, region)) {
+    return Response.json({ error: "Selecciona una comuna válida para tu región." }, { status: 400 });
+  }
+  const cleanShipping = region || comuna || direccion ? { region, comuna, direccion } : null;
 
   const perfumeIds = [...new Set(items.filter((i) => i.format !== "Accesorio").map((i) => i.id))];
 
@@ -86,10 +107,10 @@ export async function POST(request) {
   const { error: insertError } = await supabaseAdmin.from("orders").insert({
     commerce_order: commerceOrder,
     status: "pending",
-    customer_name: customer.name,
+    customer_name: name,
     customer_email: email,
-    customer_phone: customer.phone,
-    shipping: shipping || null,
+    customer_phone: phone,
+    shipping: cleanShipping,
     items: verifiedItems,
     free_gift: freeGift || null,
     subtotal,
