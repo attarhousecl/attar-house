@@ -187,7 +187,7 @@ export default function Home() {
               <div className="yield-card">
                 <h4>3ml</h4>
                 <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~45 Sprays
+                  ~30 Sprays
                 </div>
                 <p>
                   Ideal para llevar en el bolsillo y probar la fragancia a fondo durante 1 a 2
@@ -197,7 +197,7 @@ export default function Home() {
               <div className="yield-card">
                 <h4>5ml</h4>
                 <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~75 Sprays
+                  ~50 Sprays
                 </div>
                 <p>
                   Perfecto para usar una fragancia de manera continua durante 3 a 4 semanas.
@@ -206,7 +206,7 @@ export default function Home() {
               <div className="yield-card">
                 <h4>10ml</h4>
                 <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~150 Sprays
+                  ~100 Sprays
                 </div>
                 <p>
                   La mejor opción precio/cantidad. Te durará entre 1.5 a 2 meses de uso
