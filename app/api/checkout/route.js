@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { createPreference } from "@/lib/mercadopago";
 import { accesoriosDB } from "@/lib/catalogData";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
-import { isAllowedEmail, isValidPhoneCL, formatPhoneCL } from "@/lib/checkoutValidation";
+import { isAllowedEmail, isValidPhoneCL, formatPhoneCL, isValidDireccion } from "@/lib/checkoutValidation";
 import { isValidComuna } from "@/lib/chileComunas";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
@@ -59,6 +59,11 @@ export async function POST(request) {
   const direccion = String(shipping?.direccion || "").trim().slice(0, 200);
   if (comuna && !isValidComuna(comuna, region)) {
     return Response.json({ error: "Selecciona una comuna válida para tu región." }, { status: 400 });
+  }
+  // Dirección: si viene, debe tener calle y número (no verifica existencia real,
+  // eso requeriría una API de mapas; frena basura de bots).
+  if (direccion && !isValidDireccion(direccion)) {
+    return Response.json({ error: "Ingresa una dirección con calle y número (ej: Av. Picarte 1234)." }, { status: 400 });
   }
   const cleanShipping = region || comuna || direccion ? { region, comuna, direccion } : null;
 
