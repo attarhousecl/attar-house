@@ -26,6 +26,12 @@
 Thumbs.db
 *.pem
 
+# notas/briefs y herramientas de trabajo locales (no van al repo)
+.impeccable/
+BRIEF_*.md
+MARKETING.md
+PRODUCT.md
+
 # debug
 npm-debug.log*
 yarn-debug.log*

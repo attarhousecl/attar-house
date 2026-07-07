@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import WhatsAppLink from "@/components/WhatsAppLink";
 
 const STATUS_LABEL = { paid: "✅ Pagado", pending: "⏳ Pendiente", rejected: "❌ Rechazado", error: "⚠️ Error" };
 const STATUS_COLOR = { paid: "#27ae60", pending: "#d4af37", rejected: "#c0392b", error: "#c0392b" };
@@ -64,7 +65,7 @@ export default function MisPedidosPage() {
             <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
               <div style={{ fontSize: "2rem", marginBottom: "12px" }}>🔍</div>
               <p>No encontramos pedidos con ese número o email.</p>
-              <p style={{ fontSize: "0.78rem", marginTop: "8px" }}>¿Tienes dudas? <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Escríbenos por WhatsApp</a></p>
+              <p style={{ fontSize: "0.78rem", marginTop: "8px" }}>¿Tienes dudas? <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Escríbenos por WhatsApp</WhatsAppLink></p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -100,7 +101,7 @@ export default function MisPedidosPage() {
                   )}
                   {order.status === "paid" && (
                     <div style={{ marginTop: "14px", background: "rgba(39,174,96,0.08)", border: "1px solid rgba(39,174,96,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "0.78rem", color: "#27ae60" }}>
-                      ¡Pago confirmado! Pronto recibirás un mensaje con los datos de despacho. <a href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Consultar por WhatsApp</a>
+                      ¡Pago confirmado! Pronto recibirás un mensaje con los datos de despacho. <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Consultar por WhatsApp</WhatsAppLink>
                     </div>
                   )}
                 </div>
