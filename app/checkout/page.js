@@ -6,7 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useToast } from "@/context/ToastContext";
 import { COMUNAS_POR_REGION, isValidComuna } from "@/lib/chileComunas";
-import { isValidPhoneCL, isAllowedEmail } from "@/lib/checkoutValidation";
+import { isValidPhoneCL, isAllowedEmail, isValidDireccion } from "@/lib/checkoutValidation";
 
 // El orden (norte a sur) y los nombres coinciden con las llaves de COMUNAS_POR_REGION.
 const REGIONES = Object.keys(COMUNAS_POR_REGION);
@@ -61,6 +61,11 @@ export default function CheckoutPage() {
     // Comuna es opcional, pero si se ingresa debe existir y coincidir con la región.
     if (form.comuna && !isValidComuna(form.comuna, form.region)) {
       showToast("⚠️ Selecciona una comuna válida para tu región.");
+      return;
+    }
+    // Dirección es opcional, pero si se ingresa debe tener calle y número.
+    if (form.direccion && !isValidDireccion(form.direccion)) {
+      showToast("⚠️ Ingresa una dirección con calle y número (ej: Av. Picarte 1234).");
       return;
     }
 
@@ -232,6 +237,8 @@ export default function CheckoutPage() {
               name="direccion"
               className="form-input"
               type="text"
+              autoComplete="street-address"
+              placeholder="Calle y número (ej: Av. Picarte 1234)"
               value={form.direccion}
               onChange={handleChange}
             />
