@@ -41,8 +41,8 @@ const TEMPLATES = [
   { id: 'carrusel',    label: 'Carrusel' },
 ];
 
-// Plantillas que admiten foto de producto + fondo de escena procedural
-const SCENE_CAPABLE = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown'];
+// Todas las plantillas admiten fondo de escena procedural + texto libre movible
+const SCENE_CAPABLE = ['producto', 'versus', 'tabla', 'promo', 'lanzamiento', 'inspirado', 'testimonio', 'comparativa', 'countdown', 'carrusel'];
 
 const THEMES = [
   { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
@@ -101,14 +101,28 @@ const mapPerfumeToContent = (p, c) => {
   };
 };
 
+// Capas de texto libre movibles + oscurecido de fondo, comunes a todas las plantillas
+const FREE = { texts: [], scrim: 0 };
+
+let TEXT_SEQ = 0;
+const newText = (over = {}) => ({
+  id: 't' + (TEXT_SEQ++) + Math.random().toString(36).slice(2, 7),
+  text: 'Texto nuevo',
+  x: 50, y: 50, size: 46, width: 80,
+  color: 'ink', font: 'serif', weight: 600, align: 'center',
+  spacing: 0, line: 1.15, upper: false, rotate: 0, pill: false,
+  ...over,
+});
+
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
     rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '', imgScale: 1, rImgScale: 1,
+    bg: 'solido', bgSeed: null, ...FREE,
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
-    img: null, extra: '', imgScale: 1,
+    img: null, extra: '', imgScale: 1, bg: 'solido', bgSeed: null, ...FREE,
     rows: [
       { feat: 'Fragancias originales', o: 'x' },
       { feat: 'Asesoría personal', o: 'x' },
@@ -117,16 +131,16 @@ const defaultContent = () => ({
       { feat: 'Envío gratis sobre el monto', o: 'dash' },
     ],
   },
-  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
+  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
   testimonio: {
     quote: '"Llegó antes de lo esperado y el aroma dura todo el día. Mi favorito hasta ahora."',
-    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '', imgScale: 1,
+    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '', imgScale: 1, bg: 'solido', bgSeed: null, ...FREE,
   },
   comparativa: {
-    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
+    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE,
     rows: [
       { label: '3ml decant', price: '', best: false },
       { label: '5ml decant', price: '', best: false },
@@ -136,10 +150,10 @@ const defaultContent = () => ({
   },
   countdown: {
     eyebrow: 'Oferta relámpago', name: 'Nombre del perfume', notes: '—', endsText: 'Termina en 24 horas',
-    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
+    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE,
   },
   carrusel: {
-    activeSlide: 0,
+    activeSlide: 0, bg: 'solido', bgSeed: null, ...FREE,
     slides: [
       { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
       { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
@@ -242,6 +256,14 @@ export default function AttarStudio({ supabase, onExit }) {
     slides[i] = { ...slides[i], ...fields };
     return { ...c, carrusel: { ...c.carrusel, slides } };
   });
+  // arrastrar una capa de texto sobre la vista previa -> actualiza su posición
+  const dragText = useCallback((id, x, y) => {
+    setContent((c) => {
+      const t = c[tpl];
+      if (!t || !t.texts) return c;
+      return { ...c, [tpl]: { ...t, texts: t.texts.map((l) => (l.id === id ? { ...l, x, y } : l)) } };
+    });
+  }, [tpl]);
   const cur = content[tpl];
   const curSlide = tpl === 'carrusel' ? cur.slides[cur.activeSlide] : null;
 
@@ -461,12 +483,20 @@ export default function AttarStudio({ supabase, onExit }) {
                     ))}
                   </div>
                   {cur.bg !== 'solido' && (
-                    <button className="as-shuffle" onClick={shuffleBg}>🔀 Generar variación</button>
+                    <>
+                      <button className="as-shuffle" onClick={shuffleBg}>🔀 Generar variación</button>
+                      <div className="as-field" style={{ marginTop: 12, marginBottom: 0 }}>
+                        <label>Oscurecer fondo · {cur.scrim || 0}%</label>
+                        <input type="range" min="0" max="85" step="5" value={cur.scrim || 0}
+                          onChange={(e) => patch({ scrim: parseInt(e.target.value, 10) })} className="as-range" />
+                      </div>
+                    </>
                   )}
                 </div>
               )}
               <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
                       setContent={setContent} />
+              <TextLayers cur={cur} patch={patch} />
             </>
           )}
 
@@ -525,7 +555,7 @@ export default function AttarStudio({ supabase, onExit }) {
         <section className="as-canvas" ref={areaRef}>
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
-                   theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} />
+                   theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} onDragText={dragText} />
           </div>
         </section>
       </div>
@@ -578,6 +608,123 @@ function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="as-range"
       />
+    </div>
+  );
+}
+
+const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#ffffff', 'Blanco'], ['#111111', 'Negro']];
+const TEXT_WEIGHTS = [[300, 'Fina'], [400, 'Normal'], [600, 'Media'], [700, 'Negrita']];
+const TEXT_ALIGN = [['left', 'Izq'], ['center', 'Centro'], ['right', 'Der']];
+
+function TextLayers({ cur, patch }) {
+  const texts = cur.texts || [];
+  const setTexts = (t) => patch({ texts: t });
+  const add = () => setTexts([...texts, newText({ y: texts.length ? 62 : 50 })]);
+  const update = (id, f) => setTexts(texts.map((l) => (l.id === id ? { ...l, ...f } : l)));
+  const remove = (id) => setTexts(texts.filter((l) => l.id !== id));
+  const reorder = (id, dir) => {
+    const i = texts.findIndex((l) => l.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= texts.length) return;
+    const arr = texts.slice();
+    const [it] = arr.splice(i, 1);
+    arr.splice(j, 0, it);
+    setTexts(arr);
+  };
+  return (
+    <div className="as-card">
+      <div className="as-subh" style={{ marginTop: 0 }}>Capas de texto</div>
+      <p className="as-hint" style={{ marginTop: 0, marginBottom: 12 }}>
+        Agrega textos y arrastralos directamente sobre la vista previa, o ajusta con las barras. Ideales para llenar los espacios vacios.
+      </p>
+      {texts.map((l, i) => (
+        <TextLayer key={l.id} layer={l} idx={i} total={texts.length}
+          onChange={(f) => update(l.id, f)} onRemove={() => remove(l.id)} onReorder={(d) => reorder(l.id, d)} />
+      ))}
+      {!texts.length && <p className="as-hint" style={{ marginTop: 0, marginBottom: 12 }}>Aun no hay textos.</p>}
+      <button className="as-addrow" onClick={add}>+ Agregar texto</button>
+    </div>
+  );
+}
+
+function TextLayer({ layer, idx, total, onChange, onRemove, onReorder }) {
+  const [open, setOpen] = useState(true);
+  const label = (layer.text || '').trim().replace(/\s+/g, ' ').slice(0, 22) || 'Texto';
+  return (
+    <div className="as-layer">
+      <div className="as-layerhead">
+        <button className="as-layertoggle" onClick={() => setOpen((o) => !o)}>
+          <span className="as-layercaret">{open ? '▾' : '▸'}</span>
+          <b>{idx + 1}.</b> <i>{label}</i>
+        </button>
+        <button className="as-mini" title="Subir capa" disabled={idx === 0} onClick={() => onReorder(-1)}>↑</button>
+        <button className="as-mini" title="Bajar capa" disabled={idx === total - 1} onClick={() => onReorder(1)}>↓</button>
+        <button className="as-mini del" title="Eliminar" onClick={onRemove}>×</button>
+      </div>
+      {open && (
+        <div className="as-layerbody">
+          <div className="as-field">
+            <label>Texto</label>
+            <textarea value={layer.text} onChange={(e) => onChange({ text: e.target.value })} />
+          </div>
+          <div className="as-field">
+            <label>Color</label>
+            <div className="as-seg wrap">
+              {TEXT_COLORS.map(([v, l]) => (
+                <button key={v} className={layer.color === v ? 'on' : ''} onClick={() => onChange({ color: v })}>{l}</button>
+              ))}
+            </div>
+            <input type="color" className="as-colorin"
+              value={/^#/.test(layer.color) ? layer.color : '#c6a15b'}
+              onChange={(e) => onChange({ color: e.target.value })} />
+          </div>
+          <div className="as-field">
+            <label>Fuente</label>
+            <div className="as-seg wrap">
+              <button className={layer.font === 'serif' ? 'on' : ''} onClick={() => onChange({ font: 'serif' })}>Serif</button>
+              <button className={layer.font === 'sans' ? 'on' : ''} onClick={() => onChange({ font: 'sans' })}>Sans</button>
+            </div>
+          </div>
+          <div className="as-field">
+            <label>Grosor</label>
+            <div className="as-seg wrap">
+              {TEXT_WEIGHTS.map(([v, l]) => (
+                <button key={v} className={layer.weight === v ? 'on' : ''} onClick={() => onChange({ weight: v })}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="as-field">
+            <label>Alineacion</label>
+            <div className="as-seg wrap">
+              {TEXT_ALIGN.map(([v, l]) => (
+                <button key={v} className={layer.align === v ? 'on' : ''} onClick={() => onChange({ align: v })}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="as-togglerow">
+            <button className={`as-chiptoggle ${layer.upper ? 'on' : ''}`} onClick={() => onChange({ upper: !layer.upper })}>MAYUS</button>
+            <button className={`as-chiptoggle ${layer.pill ? 'on' : ''}`} onClick={() => onChange({ pill: !layer.pill })}>Fondo</button>
+          </div>
+          <LayerRange label="Horizontal" suf="%" min={0} max={100} step={1} value={layer.x} on={(v) => onChange({ x: v })} />
+          <LayerRange label="Vertical" suf="%" min={0} max={100} step={1} value={layer.y} on={(v) => onChange({ y: v })} />
+          <LayerRange label="Tamano" suf="px" min={16} max={160} step={2} value={layer.size} on={(v) => onChange({ size: v })} />
+          <LayerRange label="Ancho" suf="%" min={20} max={100} step={2} value={layer.width} on={(v) => onChange({ width: v })} />
+          <LayerRange label="Espaciado" suf="" min={0} max={50} step={1} value={layer.spacing} on={(v) => onChange({ spacing: v })} />
+          <LayerRange label="Rotacion" suf="°" min={-45} max={45} step={1} value={layer.rotate} on={(v) => onChange({ rotate: v })} />
+          <LayerRange label="Interlineado" suf="" min={90} max={200} step={5}
+            value={Math.round((layer.line || 1.2) * 100)} on={(v) => onChange({ line: v / 100 })} last />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LayerRange({ label, suf, min, max, step, value, on, last }) {
+  return (
+    <div className="as-field" style={last ? { marginBottom: 0 } : undefined}>
+      <label>{label} · {value}{suf}</label>
+      <input type="range" min={min} max={max} step={step} value={value}
+        onChange={(e) => on(parseFloat(e.target.value))} className="as-range" />
     </div>
   );
 }
@@ -786,7 +933,53 @@ const Mark = ({ type, color }) => {
   return <svg width="40" height="40" viewBox="0 0 24 24" {...c}><path d="M6 12h12" /></svg>;
 };
 
-function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1 }) {
+// Capa de texto libre: absoluta por %, arrastrable sobre la vista previa.
+function TextRender({ layer, w, h, scale, ink, accent, muted, serif, sans, onDrag }) {
+  const color = layer.color === 'ink' ? ink
+    : layer.color === 'accent' ? accent
+    : layer.color === 'muted' ? muted
+    : layer.color;
+  const font = layer.font === 'sans' ? sans : serif;
+  const onPointerDown = (e) => {
+    if (!onDrag) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const sx = e.clientX, sy = e.clientY, ox = layer.x ?? 50, oy = layer.y ?? 50, s = scale || 1;
+    const el = e.currentTarget;
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+    const move = (ev) => {
+      const nx = Math.max(0, Math.min(100, ox + ((ev.clientX - sx) / s) / w * 100));
+      const ny = Math.max(0, Math.min(100, oy + ((ev.clientY - sy) / s) / h * 100));
+      onDrag(layer.id, Math.round(nx * 10) / 10, Math.round(ny * 10) / 10);
+    };
+    const up = (ev) => {
+      try { el.releasePointerCapture(ev.pointerId); } catch (err) { /* noop */ }
+      el.removeEventListener('pointermove', move);
+      el.removeEventListener('pointerup', up);
+    };
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+  };
+  return (
+    <div onPointerDown={onPointerDown} style={{
+      position: 'absolute', left: (layer.x ?? 50) + '%', top: (layer.y ?? 50) + '%',
+      transform: 'translate(-50%,-50%) rotate(' + (layer.rotate || 0) + 'deg)',
+      width: (layer.width ?? 80) + '%', textAlign: layer.align || 'center',
+      fontFamily: font, fontWeight: layer.weight || 600, fontSize: layer.size ?? 40,
+      color, lineHeight: layer.line || 1.2, whiteSpace: 'pre-line',
+      letterSpacing: ((layer.spacing || 0) / 100) + 'em',
+      textTransform: layer.upper ? 'uppercase' : 'none',
+      cursor: onDrag ? 'move' : 'default', touchAction: 'none',
+      padding: layer.pill ? '.35em .75em' : 0,
+      background: layer.pill ? 'rgba(0,0,0,.42)' : 'transparent',
+      borderRadius: layer.pill ? 16 : 0,
+    }}>
+      {layer.text}
+    </div>
+  );
+}
+
+function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1, onDragText }) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
   const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
@@ -801,6 +994,9 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden', fontFamily: serif,
   };
   const scene = hasScene ? <ProceduralBackdrop seed={cur.bgSeed} width={w} height={h} uid="-as" /> : null;
+  const scrim = (hasScene && cur.scrim) ? (
+    <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: (cur.scrim || 0) / 100, pointerEvents: 'none' }} />
+  ) : null;
   const frame = (
     <svg style={{ position: 'absolute', inset: m, pointerEvents: 'none' }} width={w - m * 2} height={h - m * 2}>
       <rect x="0.5" y="0.5" width={w - m * 2 - 1} height={h - m * 2 - 1} fill="none"
@@ -1079,12 +1275,20 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     </div>
   ) : null;
 
+  // Capas de texto libre: absolutas por %, arrastrables sobre la vista previa.
+  const textLayers = (cur.texts || []).map((l) => (
+    <TextRender key={l.id} layer={l} w={w} h={h} scale={scale}
+      ink={ink} accent={accent} muted={muted} serif={serif} sans={sans} onDrag={onDragText} />
+  ));
+
   return (
     <div ref={stageRef} style={base}>
       {scene}
+      {scrim}
       {frame}
       {body}
       {extra}
+      {textLayers}
       {foot}
     </div>
   );
@@ -1160,5 +1364,19 @@ const CSS = `
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
 .as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden}
 .as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.as-seg.wrap{display:flex;flex-wrap:wrap;width:100%;border-radius:8px}
+.as-seg.wrap button{flex:1 0 auto}
+.as-colorin{margin-top:7px;width:100%;height:30px;border:1px solid var(--line);border-radius:7px;background:none;padding:2px;cursor:pointer}
+.as-layer{border:1px solid var(--line);border-radius:9px;margin-bottom:10px;overflow:hidden}
+.as-layerhead{display:flex;align-items:center;gap:5px;padding:7px 8px;background:rgba(0,0,0,.2)}
+.as-layertoggle{flex:1;display:flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--cream);cursor:pointer;text-align:left;font-size:12px;min-width:0}
+.as-layertoggle i{color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-layercaret{color:var(--gold);font-size:11px}
+.as-layerhead .as-mini{width:28px;height:28px;font-size:12px}
+.as-layerhead .as-mini:disabled{opacity:.35;cursor:default}
+.as-layerbody{padding:11px 10px 12px}
+.as-togglerow{display:flex;gap:6px;margin-bottom:13px}
+.as-chiptoggle{flex:1;border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:7px;padding:8px;font-size:11px;letter-spacing:.08em;cursor:pointer}
+.as-chiptoggle.on{border-color:var(--gold);color:var(--gold);background:rgba(198,161,91,.12)}
 @media (max-width:860px){.as-shell{grid-template-columns:1fr}.as-canvas{display:none}}
 `;
