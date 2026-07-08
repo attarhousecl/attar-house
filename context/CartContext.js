@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "./ToastContext";
 import { labelsFormatos } from "./CatalogContext";
+import { packDiscount as computePackDiscount, packQualifies } from "@/lib/packDiscount";
 
 const CartContext = createContext(null);
 
@@ -91,7 +92,13 @@ export function CartProvider({ children }) {
     });
   };
 
-  const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  // Descuento Pack Descubrimiento (10% si hay >=3 decants de 10ml). Se calcula
+  // dinámicamente con el helper compartido; el servidor aplica la MISMA regla al
+  // cobrar, así que el total del carrito coincide con lo que cobra Mercado Pago.
+  const packDiscount = computePackDiscount(cart);
+  const packEligible = packQualifies(cart);
+  const total = subtotal - packDiscount;
   const decantTotal = cart.reduce(
     (sum, i) => sum + (i.format.startsWith("decant") ? i.price * i.quantity : 0),
     0
@@ -108,6 +115,9 @@ export function CartProvider({ children }) {
         addItem,
         addAccesorio,
         updateQty,
+        subtotal,
+        packDiscount,
+        packEligible,
         total,
         decantTotal,
         itemCount,

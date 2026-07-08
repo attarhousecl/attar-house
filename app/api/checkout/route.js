@@ -4,6 +4,7 @@ import { accesoriosDB } from "@/lib/catalogData";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 import { isAllowedEmail, isValidPhoneCL, formatPhoneCL, isValidDireccion } from "@/lib/checkoutValidation";
 import { isValidComuna } from "@/lib/chileComunas";
+import { packQualifies, effectiveUnitPrice } from "@/lib/packDiscount";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const MAX_ITEMS = 50;
@@ -101,8 +102,14 @@ export async function POST(request) {
     }
   }
 
+  // Descuento Pack Descubrimiento: MISMA regla que el cliente (helper compartido),
+  // pero recalculada aquí sobre los precios verificados de la BD (no se confía en
+  // el precio que manda el navegador). Así el 10% del pack SÍ se cobra en Mercado
+  // Pago y el total coincide con lo que vio el cliente en el carrito.
+  const packQ = packQualifies(verifiedItems);
+  const pricedItems = verifiedItems.map((i) => ({ ...i, price: effectiveUnitPrice(i, packQ) }));
   const subtotal = verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const total = subtotal;
+  const total = pricedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   // Sufijo aleatorio para que el número de pedido NO sea adivinable/enumerable
   // (evita que alguien vea el contenido de otros pedidos en la página de confirmación).
@@ -116,7 +123,7 @@ export async function POST(request) {
     customer_email: email,
     customer_phone: phone,
     shipping: cleanShipping,
-    items: verifiedItems,
+    items: pricedItems,
     free_gift: freeGift || null,
     subtotal,
     total,
@@ -130,7 +137,7 @@ export async function POST(request) {
   try {
     const preference = await createPreference({
       commerceOrder,
-      items: verifiedItems,
+      items: pricedItems,
       payerEmail: email,
       backUrl: `${SITE_URL}/pedido/confirmacion?order=${commerceOrder}`,
       notificationUrl: `${SITE_URL}/api/mercadopago/webhook`,

@@ -12,7 +12,7 @@ import { isValidPhoneCL, isAllowedEmail, isValidDireccion } from "@/lib/checkout
 const REGIONES = Object.keys(COMUNAS_POR_REGION);
 
 export default function CheckoutPage() {
-  const { cart, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
+  const { cart, subtotal, packDiscount, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
   const { arabDB } = useCatalog();
   const { showToast } = useToast();
   const [form, setForm] = useState({
@@ -150,6 +150,18 @@ export default function CheckoutPage() {
                   ))}
                 </select>
               </div>
+            )}
+            {packDiscount > 0 && (
+              <>
+                <div className="checkout-item" style={{ color: "var(--text-muted)" }}>
+                  <span>Subtotal</span>
+                  <span>${subtotal.toLocaleString("es-CL")}</span>
+                </div>
+                <div className="checkout-item" style={{ color: "#25D366" }}>
+                  <span>🎁 Descuento pack (10%)</span>
+                  <span>-${packDiscount.toLocaleString("es-CL")}</span>
+                </div>
+              </>
             )}
             <div className="checkout-total">
               <span>Total:</span>
