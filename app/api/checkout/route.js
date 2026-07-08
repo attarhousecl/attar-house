@@ -38,11 +38,11 @@ export async function POST(request) {
   // Validaciones anti-bot en el servidor: NO confiar en el cliente (un bot no usa
   // el formulario, le pega directo aquí). Frenan payloads basura y datos falsos.
   //
-  // Email: proveedores preferidos (Gmail, Hotmail, Outlook, iCloud) + red de
-  // seguridad que acepta otros dominios reales y bloquea desechables/typos.
+  // Email: allowlist estricto de los 5 grandes proveedores (Gmail, Hotmail,
+  // Outlook, iCloud, Yahoo). Cualquier otro dominio se rechaza — ver lib/checkoutValidation.
   const email = String(customer.email).trim().toLowerCase().slice(0, 254);
   if (!isAllowedEmail(email)) {
-    return Response.json({ error: "Ingresa un correo válido (Gmail, Hotmail, Outlook, iCloud u otro real)." }, { status: 400 });
+    return Response.json({ error: "Ingresa un correo de Gmail, Hotmail, Outlook, iCloud o Yahoo." }, { status: 400 });
   }
 
   // Teléfono: celular chileno válido (formato +56 9 XXXX XXXX).
