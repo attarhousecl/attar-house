@@ -46,8 +46,11 @@ export default function PackPage() {
 
   function agregarAlCarrito() {
     if (!listo) return;
+    // Se agrega a precio COMPLETO: el 10% lo aplica el carrito de forma dinámica
+    // (>=3 decants de 10ml) y el servidor lo re-aplica al cobrar. Así, si el
+    // cliente luego quita ítems y baja de 3, el descuento se ajusta solo.
     selected.forEach(p => {
-      addItem({ id: p.id, name: p.name, format: FORMAT, price: Math.round(p.prices[FORMAT] * (1 - PACK_DISCOUNT)), quantity: 1 });
+      addItem({ id: p.id, name: p.name, format: FORMAT, price: p.prices[FORMAT], quantity: 1 });
     });
     showToast(`Pack de ${selected.length} decants agregado con 10% off 🎉`);
     setSelected([]);

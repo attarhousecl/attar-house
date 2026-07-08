@@ -8,7 +8,7 @@ import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 export default function CartDrawer() {
   const [open, setOpen] = useState(false);
   const closeBtnRef = useRef(null);
-  const { cart, updateQty, total, decantTotal, itemCount, freeShippingEligible, freeGiftEligible, freeGift, setFreeGift, SHIPPING_THRESHOLD, GIFT_THRESHOLD } =
+  const { cart, updateQty, subtotal, packDiscount, total, decantTotal, itemCount, freeShippingEligible, freeGiftEligible, freeGift, setFreeGift, SHIPPING_THRESHOLD, GIFT_THRESHOLD } =
     useCart();
   const { arabDB } = useCatalog();
 
@@ -43,6 +43,10 @@ export default function CartDrawer() {
       t += `▪ ${i.quantity}x ${i.name} (${displayFormat}) - $${sub.toLocaleString("es-CL")}\n`;
     });
 
+    if (packDiscount > 0) {
+      t += `\nSubtotal: $${subtotal.toLocaleString("es-CL")}\n`;
+      t += `🎁 Descuento pack (10%): -$${packDiscount.toLocaleString("es-CL")}\n`;
+    }
     t += `\n*Total Estimado: $${total.toLocaleString("es-CL")}*\n`;
 
     if (freeShippingEligible) t += `🚚 *¡Mi pedido califica para ENVÍO GRATIS!*\n`;
@@ -180,6 +184,18 @@ export default function CartDrawer() {
 
         {cart.length > 0 && (
           <div className="cart-footer">
+            {packDiscount > 0 && (
+              <div style={{ fontSize: "0.82rem", marginBottom: "8px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--text-muted)", marginBottom: "4px" }}>
+                  <span>Subtotal</span>
+                  <span>${subtotal.toLocaleString("es-CL")}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", color: "#25D366" }}>
+                  <span>🎁 Descuento pack (10%)</span>
+                  <span>-${packDiscount.toLocaleString("es-CL")}</span>
+                </div>
+              </div>
+            )}
             <div className="cart-total">
               <span>Total:</span>
               <span style={{ color: "var(--gold-primary)" }}>${total.toLocaleString("es-CL")}</span>
