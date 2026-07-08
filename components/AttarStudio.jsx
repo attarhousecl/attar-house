@@ -41,8 +41,8 @@ const TEMPLATES = [
   { id: 'carrusel',    label: 'Carrusel' },
 ];
 
-// Plantillas que admiten foto de producto + fondo de escena procedural
-const SCENE_CAPABLE = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown'];
+// Todas las plantillas admiten fondo de escena procedural + texto libre movible
+const SCENE_CAPABLE = ['producto', 'versus', 'tabla', 'promo', 'lanzamiento', 'inspirado', 'testimonio', 'comparativa', 'countdown', 'carrusel'];
 
 const THEMES = [
   { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
@@ -101,14 +101,18 @@ const mapPerfumeToContent = (p, c) => {
   };
 };
 
+// Campos de texto libre movible, comunes a todas las plantillas
+const FREE = { freeText: '', freeX: 50, freeY: 50, freeSize: 34 };
+
 const defaultContent = () => ({
   versus: {
     lHead: 'Attar House', lSub: 'Aroma potente y duradero. Asesoría real, no algoritmo.',
     rHead: 'Otros', rSub: 'Aromas que se desvanecen rápido.', img: null, rImg: null, extra: '', imgScale: 1, rImgScale: 1,
+    bg: 'solido', bgSeed: null, ...FREE,
   },
   tabla: {
     title: 'Por qué somos tu mejor opción',
-    img: null, extra: '', imgScale: 1,
+    img: null, extra: '', imgScale: 1, bg: 'solido', bgSeed: null, ...FREE,
     rows: [
       { feat: 'Fragancias originales', o: 'x' },
       { feat: 'Asesoría personal', o: 'x' },
@@ -117,16 +121,16 @@ const defaultContent = () => ({
       { feat: 'Envío gratis sobre el monto', o: 'dash' },
     ],
   },
-  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
-  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1 },
+  producto: { eyebrow: 'Casa', name: 'Elige un perfume', notes: '—', meta: 'Decant · Sellado', chip: 'Disponible en Valdivia', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  promo:    { eyebrow: 'Oferta', name: 'Nombre del perfume', notes: '—', from: '', price: '', chip: 'Solo esta semana', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  lanzamiento: { eyebrow: 'Nuevo en Attar House', name: 'Nombre del perfume', notes: '—', meta: 'Ya disponible', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
+  inspirado: { eyebrow: 'Inspirado en', target: 'Fragancia original', name: 'Nuestra versión', notes: '—', meta: 'Desde · decant', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE },
   testimonio: {
     quote: '"Llegó antes de lo esperado y el aroma dura todo el día. Mi favorito hasta ahora."',
-    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '', imgScale: 1,
+    name: 'Camila R.', location: 'Valdivia', stars: 5, img: null, extra: '', imgScale: 1, bg: 'solido', bgSeed: null, ...FREE,
   },
   comparativa: {
-    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
+    eyebrow: 'Formatos', name: 'Elige un perfume', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE,
     rows: [
       { label: '3ml decant', price: '', best: false },
       { label: '5ml decant', price: '', best: false },
@@ -136,10 +140,10 @@ const defaultContent = () => ({
   },
   countdown: {
     eyebrow: 'Oferta relámpago', name: 'Nombre del perfume', notes: '—', endsText: 'Termina en 24 horas',
-    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1,
+    price: '', chip: 'Stock limitado', img: null, bg: 'solido', bgSeed: null, extra: '', imgScale: 1, ...FREE,
   },
   carrusel: {
-    activeSlide: 0,
+    activeSlide: 0, bg: 'solido', bgSeed: null, ...FREE,
     slides: [
       { eyebrow: 'Casa', name: 'Perfume 1', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
       { eyebrow: 'Casa', name: 'Perfume 2', notes: '—', price: '', img: null, extra: '', imgScale: 1 },
@@ -467,6 +471,7 @@ export default function AttarStudio({ supabase, onExit }) {
               )}
               <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
                       setContent={setContent} />
+              <FreeTextControls cur={cur} patch={patch} />
             </>
           )}
 
@@ -578,6 +583,41 @@ function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="as-range"
       />
+    </div>
+  );
+}
+
+function FreeTextControls({ cur, patch }) {
+  const has = !!(cur.freeText && cur.freeText.trim());
+  return (
+    <div className="as-card">
+      <div className="as-subh" style={{ marginTop: 0 }}>Texto libre</div>
+      <p className="as-hint" style={{ marginTop: 0, marginBottom: 10 }}>
+        Escribe algo y muevelo con las barras para llenar los espacios vacios.
+      </p>
+      <div className="as-field" style={{ marginBottom: has ? 13 : 0 }}>
+        <label>Texto</label>
+        <textarea value={cur.freeText || ''} onChange={(e) => patch({ freeText: e.target.value })} />
+      </div>
+      {has && (
+        <>
+          <div className="as-field">
+            <label>Horizontal (izq - der) - {cur.freeX ?? 50}%</label>
+            <input type="range" min="0" max="100" step="1" value={cur.freeX ?? 50}
+              onChange={(e) => patch({ freeX: parseInt(e.target.value, 10) })} className="as-range" />
+          </div>
+          <div className="as-field">
+            <label>Vertical (arriba - abajo) - {cur.freeY ?? 50}%</label>
+            <input type="range" min="0" max="100" step="1" value={cur.freeY ?? 50}
+              onChange={(e) => patch({ freeY: parseInt(e.target.value, 10) })} className="as-range" />
+          </div>
+          <div className="as-field" style={{ marginBottom: 0 }}>
+            <label>Tamano - {cur.freeSize ?? 34}px</label>
+            <input type="range" min="16" max="130" step="2" value={cur.freeSize ?? 34}
+              onChange={(e) => patch({ freeSize: parseInt(e.target.value, 10) })} className="as-range" />
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1079,12 +1119,25 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
     </div>
   ) : null;
 
+  // Texto libre movible: se coloca por porcentaje sobre el lienzo para llenar huecos.
+  const free = (cur.freeText && cur.freeText.trim()) ? (
+    <div style={{
+      position: 'absolute', left: `${cur.freeX ?? 50}%`, top: `${cur.freeY ?? 50}%`,
+      transform: 'translate(-50%,-50%)', width: '86%', textAlign: 'center',
+      fontFamily: serif, fontWeight: 600, fontSize: cur.freeSize ?? 34, color: ink,
+      lineHeight: 1.2, whiteSpace: 'pre-line', letterSpacing: '.01em',
+    }}>
+      {cur.freeText}
+    </div>
+  ) : null;
+
   return (
     <div ref={stageRef} style={base}>
       {scene}
       {frame}
       {body}
       {extra}
+      {free}
       {foot}
     </div>
   );
