@@ -51,7 +51,7 @@ export default function CheckoutPage() {
       return;
     }
     if (!isAllowedEmail(form.email)) {
-      showToast("⚠️ Ingresa un correo válido (Gmail, Hotmail, Outlook, iCloud u otro real).");
+      showToast("⚠️ Ingresa un correo de Gmail, Hotmail, Outlook, iCloud o Yahoo.");
       return;
     }
     if (!isValidPhoneCL(form.phone)) {
