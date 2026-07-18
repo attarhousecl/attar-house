@@ -9,7 +9,9 @@ import ProductGrid from "@/components/ProductGrid";
 const PREGUNTAS = [
   {
     id: "ocasion",
-    pregunta: "¿Para qué ocasión buscas la fragancia?",
+    titulo: "La ocasión",
+    pregunta: "¿Para qué momento buscas la fragancia?",
+    ayuda: "Piensa en dónde la usarías más seguido.",
     opciones: [
       { label: "Uso diario", emoji: "☀️", value: "diario" },
       { label: "Salir de noche", emoji: "🌙", value: "noche" },
@@ -19,17 +21,21 @@ const PREGUNTAS = [
   },
   {
     id: "intensidad",
+    titulo: "La intensidad",
     pregunta: "¿Qué tan intenso te gusta el perfume?",
+    ayuda: "De una brisa suave a una estela que deja huella.",
     opciones: [
       { label: "Suave y fresco", emoji: "🌿", value: "suave" },
       { label: "Equilibrado", emoji: "⚖️", value: "equilibrado" },
       { label: "Intenso y duradero", emoji: "🔥", value: "intenso" },
-      { label: "Muy potente, que deje huella", emoji: "💣", value: "brutal" },
+      { label: "Muy potente", emoji: "💣", value: "brutal" },
     ],
   },
   {
     id: "familia",
+    titulo: "El aroma",
     pregunta: "¿Qué tipo de aroma prefieres?",
+    ayuda: "Elige la familia que más te llame.",
     opciones: [
       { label: "Amaderado / Oud", emoji: "🌳", value: ["Amaderado"] },
       { label: "Dulce / Gourmand", emoji: "🍯", value: ["Dulce", "Gourmand", "Vainilla"] },
@@ -41,7 +47,9 @@ const PREGUNTAS = [
   },
   {
     id: "genero",
+    titulo: "Para quién",
     pregunta: "¿El perfume es para ti o para regalar?",
+    ayuda: "Nos ayuda a afinar la selección.",
     opciones: [
       { label: "Para mí (Masculino)", emoji: "👨", value: "Masculino" },
       { label: "Para mí (Femenino)", emoji: "👩", value: "Femenino" },
@@ -51,10 +59,12 @@ const PREGUNTAS = [
   },
   {
     id: "presupuesto",
+    titulo: "El presupuesto",
     pregunta: "¿Cuánto quieres invertir en un decant?",
+    ayuda: "Siempre puedes partir por un formato pequeño.",
     opciones: [
       { label: "Menos de $4.000", emoji: "💰", value: "bajo" },
-      { label: "$4.000 – $7.000", emoji: "💰💰", value: "medio" },
+      { label: "$4.000 – $7.000", emoji: "💰", value: "medio" },
       { label: "Más de $7.000", emoji: "💎", value: "alto" },
       { label: "El precio no importa", emoji: "🌟", value: "sin-limite" },
     ],
@@ -111,13 +121,25 @@ function computeResultados(perfumes, respuestas) {
   return base.slice(0, 6).map((r) => r.perfume);
 }
 
+// Etiqueta legible de una respuesta para los chips de resumen.
+function labelDeRespuesta(pregunta, valor) {
+  const op = pregunta.opciones.find((o) =>
+    Array.isArray(o.value) && Array.isArray(valor)
+      ? o.value.join() === valor.join()
+      : o.value === valor
+  );
+  return op ? `${op.emoji} ${op.label}` : null;
+}
+
 const QUIZ_STORE_KEY = "attar_quiz_state";
 
 export default function QuizPage() {
   const { perfumes } = useCatalog();
+  const [empezado, setEmpezado] = useState(false);
   const [paso, setPaso] = useState(0);
   const [respuestas, setRespuestas] = useState({});
   const [resultados, setResultados] = useState(null);
+  const [saliendo, setSaliendo] = useState(false);
   const [pendingIds, setPendingIds] = useState(null);
   // Respuestas a la espera de que el catálogo termine de cargar para calcular.
   const [pendingCompute, setPendingCompute] = useState(null);
@@ -127,7 +149,7 @@ export default function QuizPage() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(QUIZ_STORE_KEY) || "null");
       if (saved?.respuestas) setRespuestas(saved.respuestas);
-      if (saved?.ids?.length) setPendingIds(saved.ids);
+      if (saved?.ids?.length) { setPendingIds(saved.ids); setEmpezado(true); }
     } catch {}
   }, []);
 
@@ -163,14 +185,19 @@ export default function QuizPage() {
     const nuevas = { ...respuestas, [PREGUNTAS[paso].id]: valor };
     setRespuestas(nuevas);
 
-    if (paso < PREGUNTAS.length - 1) {
-      setPaso(paso + 1);
-    } else if (perfumes.length === 0) {
-      // Catálogo todavía cargando: espera a tenerlo antes de mostrar resultados.
-      setPendingCompute(nuevas);
-    } else {
-      finalizar(nuevas);
-    }
+    // Pequeña pausa para que se vea la selección antes de avanzar.
+    setSaliendo(true);
+    setTimeout(() => {
+      setSaliendo(false);
+      if (paso < PREGUNTAS.length - 1) {
+        setPaso(paso + 1);
+      } else if (perfumes.length === 0) {
+        // Catálogo todavía cargando: espera a tenerlo antes de mostrar resultados.
+        setPendingCompute(nuevas);
+      } else {
+        finalizar(nuevas);
+      }
+    }, 260);
   }
 
   function reiniciar() {
@@ -179,28 +206,41 @@ export default function QuizPage() {
     setResultados(null);
     setPendingIds(null);
     setPendingCompute(null);
+    setEmpezado(true);
     try { sessionStorage.removeItem(QUIZ_STORE_KEY); } catch {}
   }
 
+  // ---------- Resultados ----------
   if (resultados) {
+    const chips = PREGUNTAS.map((p) => labelDeRespuesta(p, respuestas[p.id])).filter(Boolean);
     return (
-      <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px" }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>✨</div>
-            <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Tus fragancias recomendadas</h1>
-            <p style={{ color: "#666", fontSize: "0.88rem" }}>Basado en tus preferencias, estos perfumes son para ti</p>
+      <div className="quiz-page">
+        <div className="quiz-wrap quiz-wrap-wide">
+          <div className="quiz-head">
+            <div className="kicker">Quiz de fragancias</div>
+            <h1 className="quiz-title">Tu selección personalizada</h1>
+            <p className="quiz-sub">Según tus respuestas, estas fragancias son para ti.</p>
+            {chips.length > 0 && (
+              <div className="quiz-chips">
+                {chips.map((c) => (
+                  <span key={c} className="quiz-chip">{c}</span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: "40px" }}>
             <ProductGrid perfumes={resultados} variant="catalog" />
           </div>
 
-          <div style={{ textAlign: "center", display: "flex", gap: "16px", justifyContent: "center" }}>
-            <button onClick={reiniciar} style={{ background: "transparent", border: "1px solid #333", color: "#888", borderRadius: "8px", padding: "12px 24px", cursor: "pointer", fontSize: "0.85rem" }}>
-              Volver a intentar
+          <div className="quiz-result-actions">
+            <button onClick={reiniciar} className="quiz-btn-ghost">
+              ↺ Volver a hacer el quiz
             </button>
-            <Link href="/catalogo" style={{ background: "#d4af37", color: "#000", borderRadius: "8px", padding: "12px 24px", textDecoration: "none", fontWeight: 700, fontSize: "0.85rem" }}>
+            <Link href="/pack" className="quiz-btn-ghost">
+              🎁 Armar mi pack con estos
+            </Link>
+            <Link href="/catalogo" className="btn-gold-solid">
               Ver catálogo completo
             </Link>
           </div>
@@ -212,54 +252,119 @@ export default function QuizPage() {
   // Terminó el quiz pero el catálogo aún carga: pantalla de espera (no resultados vacíos).
   if (pendingCompute) {
     return (
-      <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>✨</div>
-          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Preparando tus recomendaciones…</h1>
-          <p style={{ color: "#666", fontSize: "0.88rem" }}>Estamos analizando tus respuestas.</p>
+      <div className="quiz-page quiz-center">
+        <div className="quiz-head" style={{ textAlign: "center" }}>
+          <div className="quiz-emoji">✨</div>
+          <h1 className="quiz-title">Preparando tus recomendaciones…</h1>
+          <p className="quiz-sub">Estamos analizando tus respuestas.</p>
         </div>
       </div>
     );
   }
 
+  // ---------- Bienvenida ----------
+  if (!empezado) {
+    return (
+      <div className="quiz-page quiz-center">
+        <div className="quiz-wrap">
+          <div className="quiz-head" style={{ textAlign: "center" }}>
+            <div className="quiz-emoji">🔮</div>
+            <div className="kicker">Quiz de fragancias</div>
+            <h1 className="quiz-title">Descubre tu aroma en 5 preguntas</h1>
+            <p className="quiz-sub">
+              Cuéntanos cómo te gusta oler y te recomendamos los decants perfectos para
+              partir. Toma menos de 1 minuto y puedes repetirlo cuando quieras.
+            </p>
+          </div>
+          <div className="quiz-welcome-actions">
+            <button onClick={() => setEmpezado(true)} className="btn-gold-solid">
+              Comenzar
+            </button>
+            <Link href="/catalogo" className="quiz-btn-ghost">
+              Prefiero explorar solo
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- Preguntas ----------
   const pregunta = PREGUNTAS[paso];
+  const seleccionado = respuestas[pregunta.id];
 
   return (
-    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", minHeight: "100vh", padding: "40px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ maxWidth: "560px", width: "100%" }}>
-        <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver</Link>
-
-        <div style={{ textAlign: "center", margin: "24px 0 32px" }}>
-          <p style={{ color: "#888", fontSize: "0.75rem", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "4px" }}>Pregunta {paso + 1} de {PREGUNTAS.length}</p>
-          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "1.6rem", margin: "0 0 8px" }}>Quiz de Fragancias</h1>
-          <p style={{ color: "#e0e0e0", fontSize: "1rem", margin: 0 }}>{pregunta.pregunta}</p>
+    <div className="quiz-page quiz-center">
+      <div className="quiz-wrap">
+        {/* Progreso: pasos navegables (solo hacia atrás o ya respondidos) */}
+        <div className="quiz-progress" role="list" aria-label="Progreso del quiz">
+          {PREGUNTAS.map((p, i) => {
+            const respondida = respuestas[p.id] !== undefined;
+            const activa = i === paso;
+            const alcanzable = i < paso || respondida;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="listitem"
+                className={`quiz-step ${activa ? "active" : ""} ${respondida ? "done" : ""}`}
+                disabled={!alcanzable || activa}
+                onClick={() => alcanzable && setPaso(i)}
+                aria-label={`Paso ${i + 1}: ${p.titulo}${respondida ? " (respondida)" : ""}`}
+              >
+                <span className="quiz-step-dot">{respondida && !activa ? "✓" : i + 1}</span>
+                <span className="quiz-step-label">{p.titulo}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="quiz-bar" aria-hidden="true">
+          <div className="quiz-bar-fill" style={{ width: `${((paso + 1) / PREGUNTAS.length) * 100}%` }} />
         </div>
 
-        {/* Progress bar */}
-        <div style={{ height: "3px", background: "#1a1a1a", borderRadius: "2px", marginBottom: "32px", overflow: "hidden" }}>
-          <div style={{ height: "100%", width: `${((paso + 1) / PREGUNTAS.length) * 100}%`, background: "#d4af37", transition: "width 0.4s ease" }} />
-        </div>
+        <div className={`quiz-card ${saliendo ? "leaving" : ""}`} key={pregunta.id}>
+          <div className="quiz-head">
+            <div className="kicker">Pregunta {paso + 1} de {PREGUNTAS.length}</div>
+            <h1 className="quiz-question">{pregunta.pregunta}</h1>
+            <p className="quiz-help">{pregunta.ayuda}</p>
+          </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {pregunta.opciones.map(op => (
-            <button
-              key={op.label}
-              onClick={() => elegir(op.value)}
-              style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: "12px", padding: "18px 22px", display: "flex", alignItems: "center", gap: "16px", cursor: "pointer", textAlign: "left", transition: "border-color 0.2s, background 0.2s", color: "#e0e0e0", fontSize: "0.95rem" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "#d4af37"; e.currentTarget.style.background = "rgba(212,175,55,0.06)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "#1a1a1a"; e.currentTarget.style.background = "#111"; }}
-            >
-              <span style={{ fontSize: "1.5rem" }}>{op.emoji}</span>
-              <span>{op.label}</span>
-            </button>
-          ))}
-        </div>
+          <div className="quiz-options">
+            {pregunta.opciones.map((op) => {
+              const isSel = Array.isArray(op.value) && Array.isArray(seleccionado)
+                ? op.value.join() === seleccionado.join()
+                : op.value === seleccionado;
+              return (
+                <button
+                  key={op.label}
+                  type="button"
+                  className={`quiz-option ${isSel ? "selected" : ""}`}
+                  onClick={() => elegir(op.value)}
+                  aria-pressed={isSel}
+                >
+                  <span className="quiz-option-emoji" aria-hidden="true">{op.emoji}</span>
+                  <span className="quiz-option-label">{op.label}</span>
+                  <span className="quiz-option-check" aria-hidden="true">✓</span>
+                </button>
+              );
+            })}
+          </div>
 
-        {paso > 0 && (
-          <button onClick={() => setPaso(paso - 1)} style={{ marginTop: "20px", background: "none", border: "none", color: "#888", cursor: "pointer", fontSize: "0.8rem", display: "block", margin: "20px auto 0" }}>
-            ← Pregunta anterior
-          </button>
-        )}
+          <div className="quiz-nav">
+            {paso > 0 ? (
+              <button onClick={() => setPaso(paso - 1)} className="quiz-btn-ghost">
+                ← Anterior
+              </button>
+            ) : (
+              <Link href="/" className="quiz-btn-ghost">← Salir</Link>
+            )}
+            {seleccionado !== undefined && paso < PREGUNTAS.length - 1 && (
+              <button onClick={() => setPaso(paso + 1)} className="quiz-btn-ghost">
+                Siguiente →
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -63,13 +63,13 @@ export default function SocialProof() {
         zIndex: 997,
         maxWidth: "290px",
         background: "rgba(17,17,17,0.97)",
-        border: "1px solid rgba(212,175,55,0.3)",
+        border: "1px solid rgba(var(--accent-rgb), 0.3)",
         borderRadius: "12px",
         padding: "12px 14px",
         display: "flex",
         gap: "12px",
         alignItems: "center",
-        boxShadow: "0 8px 28px rgba(0,0,0,0.5)",
+        boxShadow: "0 8px 28px rgba(var(--shadow-rgb), 0.5)",
         backdropFilter: "blur(8px)",
         transform: visible ? "translateY(0)" : "translateY(140%)",
         opacity: visible ? 1 : 0,
@@ -80,9 +80,9 @@ export default function SocialProof() {
       <div style={{ fontSize: "1.4rem", flexShrink: 0 }}>🛍️</div>
       <div style={{ fontFamily: "var(--font-montserrat), sans-serif", lineHeight: 1.35 }}>
         <div style={{ fontSize: "0.8rem", color: "#e8e8e8", fontWeight: 600 }}>
-          Alguien compró <span style={{ color: "#d4af37" }}>{venta.product}</span>
+          Alguien compró <span style={{ color: "var(--accent)" }}>{venta.product}</span>
         </div>
-        <div style={{ fontSize: "0.68rem", color: "#888", marginTop: "2px" }}>
+        <div style={{ fontSize: "0.68rem", color: "var(--text-soft)", marginTop: "2px" }}>
           📍 {venta.city} · {tiempoRelativo(venta.at)}
         </div>
       </div>

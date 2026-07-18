@@ -110,10 +110,10 @@ export default function FilterBar({
     alignItems: "center",
     gap: "6px",
     padding: "8px 14px",
-    background: isActive ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.04)",
-    border: `1px solid ${isActive ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.1)"}`,
+    background: isActive ? "rgba(var(--accent-rgb), 0.15)" : "rgba(var(--ink-rgb), 0.04)",
+    border: `1px solid ${isActive ? "rgba(var(--accent-rgb), 0.5)" : "rgba(var(--ink-rgb), 0.1)"}`,
     borderRadius: "8px",
-    color: isActive ? "#d4af37" : "#aaa",
+    color: isActive ? "var(--accent)" : "var(--text-muted)",
     fontSize: "0.8rem",
     cursor: "pointer",
     whiteSpace: "nowrap",
@@ -127,12 +127,12 @@ export default function FilterBar({
     top: "calc(100% + 6px)",
     left: 0,
     background: "#141414",
-    border: "1px solid rgba(255,255,255,0.12)",
+    border: "1px solid rgba(var(--ink-rgb), 0.12)",
     borderRadius: "10px",
     padding: "6px",
     zIndex: 200,
     minWidth: "180px",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+    boxShadow: "0 8px 32px rgba(var(--shadow-rgb), 0.6)",
   };
 
   const optStyle = (isActive) => ({
@@ -140,8 +140,8 @@ export default function FilterBar({
     width: "100%",
     textAlign: "left",
     padding: "8px 12px",
-    background: isActive ? "rgba(212,175,55,0.12)" : "transparent",
-    color: isActive ? "#d4af37" : "#ccc",
+    background: isActive ? "rgba(var(--accent-rgb), 0.12)" : "transparent",
+    color: isActive ? "var(--accent)" : "var(--text-muted)",
     border: "none",
     borderRadius: "6px",
     fontSize: "0.82rem",
@@ -162,11 +162,11 @@ export default function FilterBar({
           aria-label="Buscar en el catálogo"
           style={{
             width: "100%",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(var(--ink-rgb), 0.04)",
+            border: "1px solid rgba(var(--ink-rgb), 0.1)",
             borderRadius: "10px",
             padding: "10px 16px",
-            color: "#e0e0e0",
+            color: "var(--text-main)",
             fontSize: "0.88rem",
             fontFamily: "inherit",
             boxSizing: "border-box",
@@ -281,8 +281,8 @@ export default function FilterBar({
               aria-label={`Quitar filtro ${c.label}`}
               style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
-                background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.4)",
-                color: "#d4af37", borderRadius: "16px", padding: "4px 10px",
+                background: "rgba(var(--accent-rgb), 0.12)", border: "1px solid rgba(var(--accent-rgb), 0.4)",
+                color: "var(--accent)", borderRadius: "16px", padding: "4px 10px",
                 fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.3px",
               }}
             >

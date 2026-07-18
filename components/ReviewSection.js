@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 
 function Stars({ rating }) {
   const rounded = Math.round(rating);
@@ -19,7 +22,7 @@ function Stars({ rating }) {
 }
 
 // La cookie ah_reviews la setea /api/reviews (no httpOnly): un CSV con los
-// perfume_id que esta sesión ya reseñó. Ocultamos el form solo si este producto
+// perfume_id que este usuario ya reseñó. Ocultamos el form solo si este producto
 // está en la lista (una reseña por producto).
 function hasReviewedCookie(perfumeId) {
   if (typeof document === "undefined") return false;
@@ -40,11 +43,12 @@ function formatDate(iso) {
 export default function ReviewSection({ perfumeId }) {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
-  const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
+  const { user, loading: authLoading, displayName, getToken } = useAuth();
+  const pathname = usePathname();
 
   // Solo se leen reseñas APROBADAS: la RLS de Supabase (approved = true) lo
   // garantiza aunque el filtro del cliente cambie.
@@ -66,16 +70,24 @@ export default function ReviewSection({ perfumeId }) {
   const avg = reviews.length > 0 ? reviews.reduce((a, b) => a + b.rating, 0) / reviews.length : 0;
 
   const submit = async () => {
-    if (!name.trim() || !text.trim() || rating === 0) {
-      showToast("⚠️ Completa todos los campos y selecciona una puntuación.");
+    if (!text.trim() || rating === 0) {
+      showToast("⚠️ Escribe tu comentario y selecciona una puntuación.");
       return;
     }
     setSubmitting(true);
     try {
+      const token = await getToken();
+      if (!token) {
+        showToast("⚠️ Inicia sesión para dejar tu reseña.");
+        return;
+      }
       const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ perfumeId, name: name.trim(), text: text.trim(), rating }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ perfumeId, text: text.trim(), rating }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -87,7 +99,6 @@ export default function ReviewSection({ perfumeId }) {
       // La reseña queda PENDIENTE de moderación: no se agrega a la lista visible.
       setDone(true);
       setRating(0);
-      setName("");
       setText("");
       showToast(
         data.already
@@ -143,9 +154,27 @@ export default function ReviewSection({ perfumeId }) {
         >
           Ya dejaste tu reseña, ¡gracias! 🙌
         </div>
+      ) : authLoading ? null : !user ? (
+        <div className="review-form review-login-gate">
+          <h5>Deja tu opinión</h5>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: "14px" }}>
+            Para dejar reseñas necesitas una cuenta: así todas las opiniones son de
+            clientes reales.
+          </p>
+          <Link
+            href={`/cuenta?next=${encodeURIComponent(pathname || "/")}`}
+            className="btn-submit-review"
+            style={{ display: "inline-block", textDecoration: "none" }}
+          >
+            Iniciar sesión o crear cuenta
+          </Link>
+        </div>
       ) : (
         <div className="review-form">
           <h5>Deja tu opinión</h5>
+          <p style={{ color: "var(--text-soft)", fontSize: "0.78rem", marginBottom: "12px" }}>
+            Publicarás como <strong style={{ color: "var(--text-main)" }}>{displayName}</strong>.
+          </p>
           <div className="review-form-stars" role="radiogroup" aria-label="Puntuación">
             {[1, 2, 3, 4, 5].map((i) => (
               <button
@@ -155,21 +184,13 @@ export default function ReviewSection({ perfumeId }) {
                 role="radio"
                 aria-checked={rating === i}
                 aria-label={`${i} estrella${i > 1 ? "s" : ""}`}
-                style={{ color: i <= rating ? "var(--gold-primary)" : "var(--gold-dark)", background: "none", border: "none", padding: 0, fontSize: "1.4rem", lineHeight: 1, cursor: "pointer" }}
+                style={{ color: i <= rating ? "var(--gold-light)" : "var(--text-soft)", background: "none", border: "none", padding: 0, fontSize: "1.4rem", lineHeight: 1, cursor: "pointer" }}
                 onClick={() => setRating(i)}
               >
                 ★
               </button>
             ))}
           </div>
-          <input
-            type="text"
-            className="review-name-input"
-            placeholder="Tu nombre"
-            maxLength={40}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <textarea
             className="review-text-input"
             placeholder="¿Qué te pareció esta fragancia?"

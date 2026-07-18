@@ -95,13 +95,13 @@ export default function SearchBox() {
             aria-label="Buscar perfumes"
             style={{
               width: "100%", maxWidth: "620px",
-              background: "#0e0e0e", border: "1px solid rgba(212,175,55,0.25)",
+              background: "var(--bg-card)", border: "1px solid rgba(var(--accent-rgb), 0.25)",
               borderRadius: "16px", overflow: "hidden",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+              boxShadow: "0 24px 60px rgba(var(--shadow-rgb), 0.6)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", borderBottom: "1px solid rgba(var(--ink-rgb), 0.06)" }}>
               <i className="ph ph-magnifying-glass" style={{ color: "var(--gold-primary)", fontSize: "1.3rem" }}></i>
               <input
                 ref={inputRef}
@@ -112,12 +112,12 @@ export default function SearchBox() {
                 placeholder="Busca por nombre, marca, nota o inspiración..."
                 style={{
                   flex: 1, background: "transparent", border: "none", outline: "none",
-                  color: "#e0e0e0", fontSize: "1rem", fontFamily: "inherit",
+                  color: "var(--text-main)", fontSize: "1rem", fontFamily: "inherit",
                 }}
               />
               <button
                 onClick={() => setOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#777", fontSize: "1.4rem", cursor: "pointer", lineHeight: 1 }}
+                style={{ background: "transparent", border: "none", color: "var(--text-soft)", fontSize: "1.4rem", cursor: "pointer", lineHeight: 1 }}
                 aria-label="Cerrar"
               >
                 ×
@@ -126,11 +126,11 @@ export default function SearchBox() {
 
             <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
               {q.trim().length < 2 ? (
-                <p style={{ padding: "28px 20px", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
+                <p style={{ padding: "28px 20px", color: "var(--text-soft)", fontSize: "0.85rem", textAlign: "center" }}>
                   Escribe al menos 2 letras para buscar
                 </p>
               ) : results.length === 0 ? (
-                <p style={{ padding: "28px 20px", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
+                <p style={{ padding: "28px 20px", color: "var(--text-soft)", fontSize: "0.85rem", textAlign: "center" }}>
                   No encontramos nada para &ldquo;{q}&rdquo;. Prueba otra palabra.
                 </p>
               ) : (
@@ -142,12 +142,12 @@ export default function SearchBox() {
                     aria-selected={active === idx}
                     style={{
                       display: "flex", alignItems: "center", gap: "14px", width: "100%",
-                      padding: "12px 20px", background: active === idx ? "rgba(212,175,55,0.1)" : "transparent", border: "none",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      padding: "12px 20px", background: active === idx ? "rgba(var(--accent-rgb), 0.1)" : "transparent", border: "none",
+                      borderBottom: "1px solid rgba(var(--ink-rgb), 0.04)", cursor: "pointer",
                       textAlign: "left", fontFamily: "inherit",
                     }}
                   >
-                    <div style={{ width: "44px", height: "44px", flexShrink: 0, borderRadius: "8px", overflow: "hidden", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: "44px", height: "44px", flexShrink: 0, borderRadius: "8px", overflow: "hidden", background: "var(--bg-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {p.imageUrl ? (
                         <Image src={p.imageUrl} alt={p.name} width={44} height={44} style={{ width: "44px", height: "44px", objectFit: "cover" }} />
                       ) : (
@@ -155,7 +155,7 @@ export default function SearchBox() {
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.7rem", color: "#777", textTransform: "uppercase", letterSpacing: "0.5px" }}>{p.brand}</div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{p.brand}</div>
                       <div style={{ fontSize: "0.92rem", color: "#e8e8e8", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                     </div>
                     {(() => {

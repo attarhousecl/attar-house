@@ -1,5 +1,7 @@
 import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
+import HeroVideo from "@/components/HeroVideo";
+import DecantExplorer from "@/components/DecantExplorer";
 import Reveal from "@/components/Reveal";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
@@ -40,62 +42,39 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd).replace(/</g, "\\u003c") }}
       />
-      <section id="inicio" className="page-section active">
+      <section id="inicio" className="hero">
+        <HeroVideo />
+        <div className="hero-veil" aria-hidden="true"></div>
         <div className="hero-content">
-          <div className="custom-logo-hero">
-            <div className="monogram">
-              A<span>H</span>
-            </div>
-            <div className="logo-text">ATTAR HOUSE</div>
-          </div>
+          <div className="hero-kicker mono">Casa de descubrimiento · Valdivia</div>
 
-          <h1
-            style={{
-              position: "absolute",
-              width: "1px",
-              height: "1px",
-              overflow: "hidden",
-              clip: "rect(0,0,0,0)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Alta Perfumería Árabe en Valdivia | Attar House
+          <h1 className="hero-title">
+            Huele antes de comprar.
+            <span className="sr-only"> Alta perfumería árabe y decants en Valdivia | Attar House</span>
           </h1>
 
-          <h2
-            className="serif"
-            style={{
-              fontSize: "1.7rem",
-              color: "var(--gold-primary)",
-              marginBottom: "18px",
-              fontWeight: 400,
-              fontStyle: "italic",
-              opacity: 0.85,
-            }}
-          >
-            &quot;No son perfumes, es presencia.&quot;
-          </h2>
-
-          <p>
-            Perfumería árabe, de nicho y diseñador <strong>100% original</strong>. Pruébala en
-            decant desde 3ml y descubre tu firma antes de invertir en el frasco completo.
+          <p className="hero-sub">
+            Decants desde 3ml de perfumería árabe, de nicho y diseñador,{" "}
+            <strong>100% original</strong>. Descubre tu firma antes de invertir en el
+            frasco completo.
           </p>
 
           <div className="hero-actions">
             <Link href="/catalogo" className="btn-gold-solid">
-              Ver Catálogo
+              Ver catálogo
             </Link>
-            <Link href="/quiz" className="btn-primary">
-              <span>🔮 Descubre tu aroma</span>
+            <Link href="/quiz" className="btn-hero-ghost">
+              <span>🔮 Descubrir mi aroma</span>
             </Link>
           </div>
 
           <div className="hero-trust">
             <span><i className="ph ph-seal-check"></i> 100% Originales</span>
             <span><i className="ph ph-truck"></i> Envío a todo Chile</span>
-            <span><i className="ph ph-hand-heart"></i> Testers disponibles</span>
+            <span><i className="ph ph-lock"></i> Pago con Mercado Pago</span>
           </div>
         </div>
+        <div className="hero-scroll mono" aria-hidden="true">↓ Desliza para descubrir</div>
       </section>
 
       <FeaturedProducts />
@@ -138,83 +117,36 @@ export default function Home() {
 
       <section id="decants" className="page-section home-section active">
         <div className="container">
-          <h2 className="section-title serif">¿Qué es un Decant?</h2>
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            La forma inteligente de probar
+          </div>
+          <h2 className="section-title serif">¿Qué es un decant?</h2>
           <p className="section-subtitle">
-            Es la forma más inteligente de probar alta perfumería. Consiste en transferir la
-            fragancia original a un frasco más pequeño, ideal para conocer un aroma en tu
-            piel.{" "}
+            Transferimos la fragancia original y sellada a un atomizador de vidrio más
+            pequeño, con jeringas estériles y perfectamente etiquetado.{" "}
             <strong>
-              Una vez que encuentres tu perfume ideal, también puedes adquirir el frasco
-              sellado de fábrica con nosotros.
+              Cuando encuentres tu perfume ideal, también puedes llevarte el frasco sellado
+              de fábrica con nosotros.
             </strong>
           </p>
-          <Reveal className="decant-steps">
-            <div className="step-card">
-              <i className="ph ph-flask step-icon"></i>
-              <h3 className="serif">1. Perfume Original</h3>
-              <p>
-                Trabajamos exclusivamente con botellas 100% originales y selladas.
-                Garantizamos la autenticidad de cada gota.
-              </p>
+
+          <Reveal className="de-steps">
+            <div className="de-step">
+              <i className="ph ph-flask" aria-hidden="true"></i>
+              <span><strong>Original sellado</strong> · botellas 100% auténticas</span>
             </div>
-            <div className="step-card">
-              <i className="ph ph-needle step-icon"></i>
-              <h3 className="serif">2. Extracción Precisa</h3>
-              <p>
-                Extraemos el líquido utilizando jeringas estériles, evitando que el perfume
-                entre en contacto con el aire para no alterar sus notas.
-              </p>
+            <div className="de-step">
+              <i className="ph ph-needle" aria-hidden="true"></i>
+              <span><strong>Extracción precisa</strong> · jeringas estériles, sin contacto con el aire</span>
             </div>
-            <div className="step-card">
-              <i className="ph ph-spray-bottle step-icon"></i>
-              <h3 className="serif">3. Envasado Premium</h3>
-              <p>
-                Traspasamos el perfume a atomizadores de vidrio de alta calidad de 3ml, 5ml o
-                10ml, perfectamente etiquetados.
-              </p>
+            <div className="de-step">
+              <i className="ph ph-spray-bottle" aria-hidden="true"></i>
+              <span><strong>Envasado premium</strong> · atomizador de vidrio etiquetado</span>
             </div>
           </Reveal>
 
-          <div className="yield-guide">
-            <h2 className="section-title serif" style={{ fontSize: "2.2rem" }}>
-              Rendimiento por Formato
-            </h2>
-            <p className="section-subtitle" style={{ marginBottom: "30px" }}>
-              ¿Cuánto dura cada decant? Aquí tienes una guía aproximada de atomizaciones
-              (sprays).
-            </p>
-            <div className="yield-grid">
-              <div className="yield-card">
-                <h4>3ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~30 Sprays
-                </div>
-                <p>
-                  Ideal para llevar en el bolsillo y probar la fragancia a fondo durante 1 a 2
-                  semanas.
-                </p>
-              </div>
-              <div className="yield-card">
-                <h4>5ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~50 Sprays
-                </div>
-                <p>
-                  Perfecto para usar una fragancia de manera continua durante 3 a 4 semanas.
-                </p>
-              </div>
-              <div className="yield-card">
-                <h4>10ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~100 Sprays
-                </div>
-                <p>
-                  La mejor opción precio/cantidad. Te durará entre 1.5 a 2 meses de uso
-                  regular.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="de-hint mono">Elige un formato para ver cuánto te rinde</p>
+          <DecantExplorer />
         </div>
       </section>
 
