@@ -16,7 +16,7 @@ export default function CheckoutPage() {
   const { cart, subtotal, packDiscount, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
   const { arabDB } = useCatalog();
   const { showToast } = useToast();
-  const { user, loading: authLoading, displayName } = useAuth();
+  const { user, loading: authLoading, displayName, phone } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -27,16 +27,17 @@ export default function CheckoutPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  // Con sesión iniciada, precarga nombre y correo del perfil (el correo del
-  // pedido queda ligado a la cuenta y aparece en su historial).
+  // Con sesión iniciada, precarga nombre, correo y celular del perfil (el
+  // correo del pedido queda ligado a la cuenta y aparece en su historial).
   useEffect(() => {
     if (!user) return;
     setForm((f) => ({
       ...f,
       name: f.name || displayName || "",
       email: f.email || user.email || "",
+      phone: f.phone || phone || "",
     }));
-  }, [user, displayName]);
+  }, [user, displayName, phone]);
 
   // Comunas disponibles según la región elegida (desplegable dependiente).
   const comunasDisponibles = COMUNAS_POR_REGION[form.region] || [];

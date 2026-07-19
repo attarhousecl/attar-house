@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { isValidPhoneCL } from "@/lib/checkoutValidation";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
 const STATUS_LABEL = { paid: "Pagado", pending: "Pendiente", rejected: "Rechazado", error: "Error" };
@@ -22,6 +23,7 @@ function AuthForm() {
   const { showToast } = useToast();
   const [modo, setModo] = useState("login"); // login | registro
   const [nombre, setNombre] = useState("");
+  const [celular, setCelular] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [msg, setMsg] = useState(null);
@@ -32,6 +34,9 @@ function AuthForm() {
     setMsg(null);
     if (!email.trim() || !pass) { setMsg({ tipo: "error", texto: "Completa tu correo y contraseña." }); return; }
     if (modo === "registro" && !nombre.trim()) { setMsg({ tipo: "error", texto: "Cuéntanos tu nombre." }); return; }
+    // El celular es OBLIGATORIO en la cuenta: se usa para coordinar despachos.
+    if (modo === "registro" && !celular.trim()) { setMsg({ tipo: "error", texto: "Necesitamos tu celular para coordinar tus pedidos." }); return; }
+    if (modo === "registro" && !isValidPhoneCL(celular)) { setMsg({ tipo: "error", texto: "Ingresa un celular chileno válido (ej: 9 1234 5678)." }); return; }
     if (pass.length < 6) { setMsg({ tipo: "error", texto: "La contraseña debe tener al menos 6 caracteres." }); return; }
 
     setEnviando(true);
@@ -44,7 +49,7 @@ function AuthForm() {
           showToast("✓ ¡Bienvenido de vuelta!");
         }
       } else {
-        const { session, error } = await signUp(nombre.trim(), email.trim(), pass);
+        const { session, error } = await signUp(nombre.trim(), email.trim(), pass, celular.trim());
         if (error) {
           const m = error.message || "";
           let texto = "No pudimos crear tu cuenta. Intenta nuevamente.";
@@ -96,14 +101,25 @@ function AuthForm() {
 
       <form onSubmit={submit} className="account-form">
         {modo === "registro" && (
-          <div>
-            <label className="form-label" htmlFor="acc-nombre">Nombre</label>
-            <input
-              id="acc-nombre" className="form-input" type="text" maxLength={60}
-              value={nombre} onChange={(e) => setNombre(e.target.value)}
-              autoComplete="name" placeholder="Tu nombre"
-            />
-          </div>
+          <>
+            <div>
+              <label className="form-label" htmlFor="acc-nombre">Nombre</label>
+              <input
+                id="acc-nombre" className="form-input" type="text" maxLength={60}
+                value={nombre} onChange={(e) => setNombre(e.target.value)}
+                autoComplete="name" placeholder="Tu nombre"
+              />
+            </div>
+            <div>
+              <label className="form-label" htmlFor="acc-celular">Celular</label>
+              <input
+                id="acc-celular" className="form-input" type="tel" maxLength={15}
+                inputMode="numeric" autoComplete="tel"
+                value={celular} onChange={(e) => setCelular(e.target.value)}
+                placeholder="9 1234 5678"
+              />
+            </div>
+          </>
         )}
         <div>
           <label className="form-label" htmlFor="acc-email">Correo</label>
@@ -133,9 +149,60 @@ function AuthForm() {
   );
 }
 
+// Cuentas creadas antes de que el celular fuera obligatorio: se pide aquí.
+function PhoneRequired() {
+  const { updateProfile } = useAuth();
+  const { showToast } = useToast();
+  const [celular, setCelular] = useState("");
+  const [msg, setMsg] = useState(null);
+  const [guardando, setGuardando] = useState(false);
+
+  async function guardar(e) {
+    e.preventDefault();
+    setMsg(null);
+    if (!isValidPhoneCL(celular)) {
+      setMsg("Ingresa un celular chileno válido (ej: 9 1234 5678).");
+      return;
+    }
+    setGuardando(true);
+    const { error } = await updateProfile({ phone: celular.trim() });
+    setGuardando(false);
+    if (error) {
+      setMsg("No pudimos guardar tu celular. Intenta nuevamente.");
+    } else {
+      showToast("✓ Celular guardado");
+    }
+  }
+
+  return (
+    <form onSubmit={guardar} className="account-phone-required">
+      <div className="account-phone-head">
+        <i className="ph ph-device-mobile" aria-hidden="true"></i>
+        <div>
+          <strong>Falta tu celular</strong>
+          <p>Tu cuenta debe tener un celular para coordinar despachos y avisarte de tus pedidos.</p>
+        </div>
+      </div>
+      <div className="account-phone-row">
+        <input
+          className="form-input" type="tel" maxLength={15}
+          inputMode="numeric" autoComplete="tel"
+          value={celular} onChange={(e) => setCelular(e.target.value)}
+          placeholder="9 1234 5678" aria-label="Celular"
+          style={{ marginBottom: 0 }}
+        />
+        <button type="submit" className="btn-gold-solid account-phone-save" disabled={guardando}>
+          {guardando ? "Guardando…" : "Guardar"}
+        </button>
+      </div>
+      {msg && <div className="account-msg error" style={{ marginTop: "10px", marginBottom: 0 }}>{msg}</div>}
+    </form>
+  );
+}
+
 // ---------- Panel del cliente ----------
 function AccountPanel() {
-  const { user, displayName, signOut, getToken } = useAuth();
+  const { user, displayName, phone, signOut, getToken } = useAuth();
   const [orders, setOrders] = useState(null); // null = cargando
 
   useEffect(() => {
@@ -162,12 +229,17 @@ function AccountPanel() {
         <div>
           <div className="kicker">Mi cuenta</div>
           <h1 className="account-title">Hola, {displayName} 👋</h1>
-          <p className="account-email mono">{user.email}</p>
+          <p className="account-email mono">
+            {user.email}
+            {phone ? ` · 📱 ${phone}` : ""}
+          </p>
         </div>
         <button type="button" className="quiz-btn-ghost" onClick={signOut}>
           Cerrar sesión
         </button>
       </div>
+
+      {!phone && <PhoneRequired />}
 
       <div className="account-grid">
         <Link href="/catalogo" className="account-shortcut">

@@ -37,14 +37,22 @@ export function AuthProvider({ children }) {
     return { user: data?.user || null, error };
   }, []);
 
-  const signUp = useCallback(async (name, email, password) => {
+  // La cuenta de cliente SIEMPRE lleva correo + celular: el teléfono viaja en
+  // user_metadata y se usa para prellenar checkout y coordinar despachos.
+  const signUp = useCallback(async (name, email, password, phone) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name, phone } },
     });
     // Si el proyecto exige confirmación por correo, no hay session todavía.
     return { user: data?.user || null, session: data?.session || null, error };
+  }, []);
+
+  // Actualiza datos del perfil (ej: agregar celular a cuentas antiguas).
+  const updateProfile = useCallback(async (data) => {
+    const { error } = await supabase.auth.updateUser({ data });
+    return { error };
   }, []);
 
   const signOut = useCallback(async () => {
@@ -59,9 +67,12 @@ export function AuthProvider({ children }) {
 
   const displayName =
     user?.user_metadata?.full_name || (user?.email ? user.email.split("@")[0] : "");
+  const phone = user?.user_metadata?.phone || "";
 
   return (
-    <AuthContext.Provider value={{ user, loading, displayName, signIn, signUp, signOut, getToken }}>
+    <AuthContext.Provider
+      value={{ user, loading, displayName, phone, signIn, signUp, signOut, getToken, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
