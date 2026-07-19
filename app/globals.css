@@ -903,7 +903,7 @@ main { flex: 1; margin-top: var(--header-h, 94px); }
 .detail-notes h4 { font-family: var(--font-montserrat), sans-serif; font-size: 0.75rem; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 2px; margin-bottom: 15px; }
 .detail-brand { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
 .detail-action-col { position: sticky; top: 120px; }
-.purchase-box { background: rgba(var(--shadow-rgb), 0.5); border: 1px solid rgba(var(--accent-rgb), 0.2); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(var(--shadow-rgb), 0.5);}
+.purchase-box { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(var(--shadow-rgb), 0.1);}
 /* Ficha — selector de formato premium (reemplaza el <select>) */
 .format-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .format-option {

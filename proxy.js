@@ -30,7 +30,15 @@ export async function proxy(request) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
+  // Los CLIENTES de la tienda también tienen sesión Supabase (reseñas/pedidos):
+  // al panel solo entran los correos admin (env ADMIN_EMAILS; por defecto el
+  // del dueño). Debe coincidir con la lista de lib/adminAuth.js.
+  const adminEmails = (process.env.ADMIN_EMAILS || "attarhousecl@gmail.com")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!user || !adminEmails.includes((user.email || "").toLowerCase())) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 

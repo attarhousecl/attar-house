@@ -384,6 +384,7 @@ export default function AdminClient() {
             { label: "📦 Stock", action: () => setActiveTab("stock"), active: activeTab === "stock" },
             { label: "➕ Agregar", action: () => setActiveTab("agregar"), active: activeTab === "agregar" },
             { label: "📋 Pedidos", action: () => router.push("/admin/pedidos"), active: false },
+            { label: "⭐ Reseñas", action: () => router.push("/admin/resenas"), active: false },
             { label: "💰 Contabilidad", action: () => router.push("/admin/contabilidad"), active: false },
             { label: "🎯 Objetivos", action: () => router.push("/admin/objetivos"), active: false },
             { label: "🏷️ Etiquetas", action: () => router.push("/admin/etiquetas"), active: false },
