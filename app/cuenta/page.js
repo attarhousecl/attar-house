@@ -46,9 +46,17 @@ function AuthForm() {
       } else {
         const { session, error } = await signUp(nombre.trim(), email.trim(), pass);
         if (error) {
-          const texto = /already/i.test(error.message || "")
-            ? "Ese correo ya tiene una cuenta. Prueba iniciar sesión."
-            : "No pudimos crear tu cuenta. Intenta nuevamente.";
+          const m = error.message || "";
+          let texto = "No pudimos crear tu cuenta. Intenta nuevamente.";
+          if (/already/i.test(m)) {
+            texto = "Ese correo ya tiene una cuenta. Prueba iniciar sesión.";
+          } else if (/rate limit/i.test(m) || error.status === 429) {
+            texto = "Alcanzamos el límite de correos de confirmación por ahora. Espera unos minutos (hasta 1 hora) y vuelve a intentarlo.";
+          } else if (/invalid/i.test(m) && /email/i.test(m)) {
+            texto = "Ese correo no parece válido. Revísalo e intenta de nuevo.";
+          } else if (/password/i.test(m)) {
+            texto = "La contraseña no cumple los requisitos (mínimo 6 caracteres).";
+          }
           setMsg({ tipo: "error", texto });
         } else if (!session) {
           setMsg({ tipo: "ok", texto: "Te enviamos un correo para confirmar tu cuenta. Revísalo y vuelve a iniciar sesión." });
