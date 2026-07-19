@@ -1,13 +1,7 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import QuizExperience from "@/components/QuizExperience";
-
-// Página del quiz: toda la experiencia vive en components/QuizExperience.js
-// (también se usa embebida en el home).
+// El quiz ahora vive embebido en la página principal (sección #quiz).
+// Esta ruta queda solo para no romper enlaces guardados o compartidos.
 export default function QuizPage() {
-  return (
-    <div className="quiz-page quiz-center">
-      <QuizExperience />
-    </div>
-  );
+  redirect("/#quiz");
 }

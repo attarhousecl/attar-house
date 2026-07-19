@@ -64,7 +64,7 @@ export default function Home() {
             <Link href="/catalogo" className="btn-gold-solid">
               Ver catálogo
             </Link>
-            <Link href="/quiz" className="btn-hero-ghost">
+            <Link href="/#quiz" className="btn-hero-ghost">
               <span>🔮 Descubrir mi aroma</span>
             </Link>
           </div>

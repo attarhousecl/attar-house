@@ -8,7 +8,6 @@ import SearchBox from "@/components/SearchBox";
 const LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/catalogo", label: "Catálogo" },
-  { href: "/quiz", label: "Quiz" },
   { href: "/pack", label: "Pack" },
   { href: "/accesorios", label: "Accesorios" },
   { href: "/faq", label: "FAQ" },
@@ -34,7 +33,8 @@ function ThemeToggle() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
-    try { localStorage.setItem("ah_theme", next); } catch {}
+    // Solo por la visita actual: al entrar de nuevo, el sitio parte en claro.
+    try { sessionStorage.setItem("ah_theme", next); } catch {}
   };
 
   return (

@@ -6,9 +6,8 @@ import { track } from "@vercel/analytics";
 import { useCatalog } from "@/context/CatalogContext";
 import ProductGrid from "@/components/ProductGrid";
 
-// Experiencia completa del quiz. Se usa en dos lugares:
-// - Home (embed): parte directo en la pregunta 1, sin pantalla de bienvenida.
-// - /quiz (página): con bienvenida y layout centrado.
+// Experiencia completa del quiz, embebida en la página principal (#quiz).
+// Con embed=true parte directo en la pregunta 1 (la ruta /quiz solo redirige aquí).
 const PREGUNTAS = [
   {
     id: "ocasion",

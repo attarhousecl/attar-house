@@ -18,7 +18,9 @@ const isDev = process.env.NODE_ENV !== "production";
 // Mejora futura: pasar a CSP basado en nonce vía proxy.js.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://staticimgly.com${isDev ? " 'unsafe-eval'" : ""}`,
+  // En dev, @vercel/analytics carga script.debug.js desde va.vercel-scripts.com
+  // (en producción usa /_vercel/insights, cubierto por 'self').
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://staticimgly.com${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
   "img-src 'self' data: blob: https:",

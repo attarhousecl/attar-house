@@ -166,7 +166,7 @@ function AccountPanel() {
           <i className="ph ph-magnifying-glass" aria-hidden="true"></i>
           <span>Explorar el catálogo</span>
         </Link>
-        <Link href="/quiz" className="account-shortcut">
+        <Link href="/#quiz" className="account-shortcut">
           <i className="ph ph-sparkle" aria-hidden="true"></i>
           <span>Descubrir mi aroma</span>
         </Link>

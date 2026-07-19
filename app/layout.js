@@ -61,13 +61,22 @@ export const viewport = {
   colorScheme: "light dark",
 };
 
-// Aplica el tema guardado ANTES de pintar (evita el destello de tema incorrecto).
-// Claro (Blanco Humo) es el tema principal; oscuro es "bosque".
-const THEME_INIT = `(function(){try{var t=localStorage.getItem("ah_theme");if(t!=="dark")t="light";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
+// El sitio SIEMPRE abre en tema claro (Blanco Humo). El toggle a oscuro
+// "bosque" se recuerda solo durante la visita (sessionStorage): al volver a
+// entrar, se parte de nuevo en claro. Se aplica ANTES de pintar para evitar
+// el destello de tema incorrecto en recargas dentro de la misma visita.
+const THEME_INIT = `(function(){try{var t=sessionStorage.getItem("ah_theme");if(t!=="dark")t="light";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${archivo.variable} ${plexMono.variable}`} data-theme="light">
+    // suppressHydrationWarning: data-theme lo ajusta el script anterior a React
+    // según la sesión; ese desajuste puntual con el SSR es intencional.
+    <html
+      lang="es"
+      className={`${archivo.variable} ${plexMono.variable}`}
+      data-theme="light"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         {/* Preconnect al CDN de iconos (Phosphor) para adelantar su handshake.
