@@ -1022,10 +1022,51 @@ main { flex: 1; margin-top: var(--header-h, 94px); }
 
 /* --- CONTACTO Y FAQ --- */
 .contact-box { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 16px; padding: 50px; text-align: center; max-width: 600px; margin: 0 auto; }
-.social-links-big { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
-.social-link-big { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-main); transition: color 0.3s; }
-.social-link-big i { font-size: 3rem; color: var(--gold-primary); }
-.social-link-big:hover { color: var(--gold-primary); }
+/* --- CONVERSEMOS (contacto del home) --- */
+.contact-panel {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    max-width: 860px; margin: 0 auto;
+    background: var(--bg-card); border: 1px solid var(--border-gold);
+    border-radius: var(--card-radius); padding: 32px;
+}
+.contact-info { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
+.contact-row { display: flex; align-items: flex-start; gap: 14px; text-align: left; }
+.contact-row-icon {
+    flex: none; width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--exito-suave); color: var(--accent);
+    font-size: 1.3rem;
+}
+.contact-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.contact-row-text strong { color: var(--text-main); font-size: 0.94rem; font-weight: 600; }
+.contact-row-text span { color: var(--text-soft); font-size: 0.8rem; }
+
+.contact-actions { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+.contact-btn {
+    display: flex; align-items: center; gap: 14px;
+    border-radius: 12px; padding: 16px 18px; text-align: left;
+    border: 1px solid var(--border-gold);
+    background: var(--bg-surface);
+    color: var(--text-main);
+    transition: transform 0.2s var(--transition-smooth), box-shadow 0.25s, border-color 0.25s;
+}
+.contact-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.1); }
+.contact-btn > i:first-child { font-size: 1.7rem; flex: none; }
+.contact-btn-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.contact-btn-text strong { font-size: 0.94rem; font-weight: 600; }
+.contact-btn-text span { font-size: 0.78rem; opacity: 0.85; }
+.contact-btn-arrow { flex: none; font-size: 1.1rem; transition: transform 0.25s var(--transition-smooth); }
+.contact-btn:hover .contact-btn-arrow { transform: translateX(4px); }
+/* WhatsApp: sólido verde, texto claro en ambos temas */
+.contact-btn-wa { background: var(--whatsapp); border-color: var(--whatsapp); color: #fff; }
+.contact-btn-wa:hover { box-shadow: 0 10px 26px rgba(29, 168, 81, 0.35); }
+/* Instagram: borde con acento copihue */
+.contact-btn-ig:hover { border-color: var(--copihue); }
+.contact-btn-ig > i:first-child { color: var(--copihue); }
+
+@media (max-width: 767px) {
+    .contact-panel { grid-template-columns: 1fr; padding: 24px 20px; gap: 26px; }
+}
 
 .faq-item { background: var(--bg-surface); border: 1px solid var(--border-gold); border-radius: 12px; margin-bottom: 15px; transition: all 0.3s; text-align: left; }
 .faq-question { width: 100%; padding: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--text-main); font-size: 1rem; background: none; border: none; cursor: pointer; font-family: var(--font-montserrat), sans-serif; text-align: left; }
@@ -1075,9 +1116,6 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(var(--i
 .testimonial-text { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; font-style: italic; flex: 1; }
 .testimonial-author { font-size: 0.8rem; color: var(--gold-primary); font-weight: 500; }
 
-/* WhatsApp destacado */
-.social-link-whatsapp { background: var(--whatsapp) !important; border-color: var(--whatsapp) !important; color: #fff !important; font-size: 1rem !important; padding: 16px 32px !important; }
-.social-link-whatsapp:hover { opacity: 0.9; transform: translateY(-2px); }
 
 /* ==========================================
    RELACIONADOS (ficha)

@@ -167,25 +167,68 @@ export default function Home() {
       </section>
 
       <section id="contacto" className="page-section home-section active">
-        <div className="container" style={{ textAlign: "center" }}>
+        <div className="container">
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            Estamos para ayudarte
+          </div>
           <h2 className="section-title serif">Conversemos</h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "8px" }}>
-            <i className="ph ph-clock" style={{ color: "var(--gold-primary)" }}></i>{" "}
-            Respondemos en menos de 1 hora · Lunes a Sábado 10:00–21:00
+          <p className="section-subtitle" style={{ marginBottom: "40px" }}>
+            ¿Dudas sobre una fragancia o tu pedido? Te asesoramos como en la tienda.
           </p>
-          <p style={{ color: "var(--text-muted)", marginBottom: "40px" }}>
-            <i className="ph ph-map-pin" style={{ color: "var(--gold-primary)" }}></i>{" "}
-            Retiro presencial disponible en Valdivia
-          </p>
-          <div className="social-links-big">
-            <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
-              <i className="ph ph-whatsapp-logo"></i>
-              <span>Escríbenos por WhatsApp</span>
-            </WhatsAppLink>
-            <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer" className="social-link-big">
-              <i className="ph ph-instagram-logo"></i>
-              <span>Instagram</span>
-            </a>
+
+          <div className="contact-panel">
+            <div className="contact-info">
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-chat-circle-text" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Respondemos en menos de 1 hora</strong>
+                  <span>Atención personalizada, sin bots</span>
+                </span>
+              </div>
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-clock" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Lunes a Sábado</strong>
+                  <span className="mono">10:00 – 21:00</span>
+                </span>
+              </div>
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-map-pin" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Retiro presencial en Valdivia</strong>
+                  <span>Coordinamos día y hora contigo</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="contact-actions">
+              <WhatsAppLink
+                href="https://wa.me/56632249728"
+                target="_blank"
+                rel="noreferrer"
+                className="contact-btn contact-btn-wa"
+              >
+                <i className="ph ph-whatsapp-logo" aria-hidden="true"></i>
+                <span className="contact-btn-text">
+                  <strong>Escríbenos por WhatsApp</strong>
+                  <span>+56 63 224 9728</span>
+                </span>
+                <i className="ph ph-arrow-right contact-btn-arrow" aria-hidden="true"></i>
+              </WhatsAppLink>
+              <a
+                href="https://instagram.com/attar_housecl"
+                target="_blank"
+                rel="noreferrer"
+                className="contact-btn contact-btn-ig"
+              >
+                <i className="ph ph-instagram-logo" aria-hidden="true"></i>
+                <span className="contact-btn-text">
+                  <strong>Síguenos en Instagram</strong>
+                  <span>@attar_housecl</span>
+                </span>
+                <i className="ph ph-arrow-right contact-btn-arrow" aria-hidden="true"></i>
+              </a>
+            </div>
           </div>
         </div>
       </section>
