@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
 const PRIORIDADES = ["Alta", "Media", "Baja"];
-const PRIORIDAD_COLOR = { Alta: "#c0392b", Media: "#d4af37", Baja: "#555" };
+const PRIORIDAD_COLOR = { Alta: "#E89166", Media: "#8DD8A0", Baja: "#5C6B64" };
 const FILTROS = ["Todos", "Pendientes", "Completados"];
 
 export default function ObjetivosPage() {
@@ -78,7 +78,7 @@ export default function ObjetivosPage() {
           <button style={S.backBtn} onClick={() => router.push("/admin")}>← Admin</button>
           <h1 style={S.h1}>🎯 Objetivos</h1>
         </div>
-        <div style={{ fontSize: "0.8rem", color: "#666" }}>
+        <div style={{ fontSize: "0.8rem", color: "#6B7A73" }}>
           {hechos}/{total} completados
         </div>
       </header>
@@ -88,12 +88,12 @@ export default function ObjetivosPage() {
         {/* Barra de progreso */}
         {total > 0 && (
           <div style={{ marginBottom: "28px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.75rem", color: "#666" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.75rem", color: "#6B7A73" }}>
               <span>Progreso general</span>
-              <span style={{ color: pct === 100 ? "#27ae60" : "#d4af37", fontWeight: 700 }}>{pct}%</span>
+              <span style={{ color: pct === 100 ? "#8DD8A0" : "#8DD8A0", fontWeight: 700 }}>{pct}%</span>
             </div>
-            <div style={{ height: "6px", background: "#1a1a1a", borderRadius: "3px" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: pct === 100 ? "#27ae60" : "#d4af37", borderRadius: "3px", transition: "width 0.5s" }} />
+            <div style={{ height: "6px", background: "#1A2420", borderRadius: "3px" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: pct === 100 ? "#8DD8A0" : "#8DD8A0", borderRadius: "3px", transition: "width 0.5s" }} />
             </div>
           </div>
         )}
@@ -122,7 +122,7 @@ export default function ObjetivosPage() {
           {FILTROS.map((f) => (
             <button key={f} onClick={() => setFiltro(f)} style={{ ...S.filtroBtn, ...(filtro === f ? S.filtroBtnActive : {}) }}>
               {f}
-              <span style={{ marginLeft: "6px", fontSize: "0.7rem", color: filtro === f ? "#000" : "#555" }}>
+              <span style={{ marginLeft: "6px", fontSize: "0.7rem", color: filtro === f ? "#0F1613" : "#5C6B64" }}>
                 {f === "Todos" ? total : f === "Pendientes" ? total - hechos : hechos}
               </span>
             </button>
@@ -141,15 +141,15 @@ export default function ObjetivosPage() {
             {visibles.map((obj) => (
               <div key={obj.id} style={{ ...S.objRow, opacity: obj.completado ? 0.55 : 1 }}>
                 <button
-                  style={{ ...S.checkbox, borderColor: obj.completado ? "#27ae60" : "#333", background: obj.completado ? "#27ae60" : "transparent" }}
+                  style={{ ...S.checkbox, borderColor: obj.completado ? "#8DD8A0" : "#2A3A32", background: obj.completado ? "#8DD8A0" : "transparent" }}
                   onClick={() => toggleCompletado(obj)}
                   title={obj.completado ? "Marcar como pendiente" : "Marcar como completado"}
                 >
-                  {obj.completado && <span style={{ color: "#000", fontSize: "0.75rem", fontWeight: 900 }}>✓</span>}
+                  {obj.completado && <span style={{ color: "#0F1613", fontSize: "0.75rem", fontWeight: 900 }}>✓</span>}
                 </button>
 
                 <div style={{ flex: 1 }}>
-                  <div style={{ ...S.objTexto, textDecoration: obj.completado ? "line-through" : "none", color: obj.completado ? "#444" : "#e0e0e0" }}>
+                  <div style={{ ...S.objTexto, textDecoration: obj.completado ? "line-through" : "none", color: obj.completado ? "#41504A" : "#FDFCFA" }}>
                     {obj.texto}
                   </div>
                   <div style={{ marginTop: "3px" }}>
@@ -167,13 +167,13 @@ export default function ObjetivosPage() {
 
         {/* Mensaje motivacional cuando todo está hecho */}
         {total > 0 && pct === 100 && (
-          <div style={{ textAlign: "center", padding: "24px", color: "#27ae60", fontSize: "1rem", fontWeight: 600 }}>
+          <div style={{ textAlign: "center", padding: "24px", color: "#8DD8A0", fontSize: "1rem", fontWeight: 600 }}>
             🏆 ¡Todos los objetivos completados! Es hora de ponerse nuevos.
           </div>
         )}
       </div>
 
-      {toast && <div style={{ ...S.toast, background: toast.err ? "#c0392b" : "#d4af37", color: toast.err ? "#fff" : "#000" }}>{toast.text}</div>}
+      {toast && <div style={{ ...S.toast, background: toast.err ? "#E89166" : "#8DD8A0", color: toast.err ? "#FDFCFA" : "#0F1613" }}>{toast.text}</div>}
       <SpinStyle />
     </div>
   );
@@ -184,25 +184,25 @@ function SpinStyle() {
 }
 
 const S = {
-  page:    { fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh" },
+  page:    { fontFamily: "var(--font-archivo), sans-serif", background: "#0F1613", color: "#FDFCFA", minHeight: "100vh" },
   center:  { display: "flex", alignItems: "center", justifyContent: "center", padding: "60px" },
-  spinner: { width: "28px", height: "28px", border: "2px solid #333", borderTopColor: "#d4af37", borderRadius: "50%", animation: "obj-spin 0.7s linear infinite" },
-  header:  { background: "#111", borderBottom: "1px solid #2a2a2a", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
-  h1:      { fontSize: "1.05rem", color: "#d4af37", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
-  backBtn: { background: "none", border: "1px solid #333", color: "#888", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
+  spinner: { width: "28px", height: "28px", border: "2px solid #2A3A32", borderTopColor: "#8DD8A0", borderRadius: "50%", animation: "obj-spin 0.7s linear infinite" },
+  header:  { background: "#151D1A", borderBottom: "1px solid #1F2B27", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
+  h1:      { fontSize: "1.05rem", color: "#8DD8A0", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
+  backBtn: { background: "none", border: "1px solid #2A3A32", color: "#7A8985", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
   content: { padding: "24px", maxWidth: "720px", margin: "0 auto" },
   addForm: { display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" },
-  input:   { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "10px 14px", color: "#e0e0e0", fontSize: "0.9rem", outline: "none", fontFamily: "inherit", boxSizing: "border-box" },
-  btnAdd:  { background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "10px 20px", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" },
+  input:   { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "8px", padding: "10px 14px", color: "#FDFCFA", fontSize: "0.9rem", outline: "none", fontFamily: "inherit", boxSizing: "border-box" },
+  btnAdd:  { background: "#8DD8A0", color: "#0F1613", border: "none", borderRadius: "8px", padding: "10px 20px", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" },
   filtros: { display: "flex", gap: "8px", marginBottom: "20px" },
-  filtroBtn: { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#888", borderRadius: "20px", padding: "6px 16px", fontSize: "0.8rem", cursor: "pointer" },
-  filtroBtnActive: { background: "#d4af37", border: "1px solid #d4af37", color: "#000", fontWeight: 700 },
+  filtroBtn: { background: "#1A2420", border: "1px solid #1F2B27", color: "#7A8985", borderRadius: "20px", padding: "6px 16px", fontSize: "0.8rem", cursor: "pointer" },
+  filtroBtnActive: { background: "#8DD8A0", border: "1px solid #8DD8A0", color: "#0F1613", fontWeight: 700 },
   lista:   { display: "flex", flexDirection: "column", gap: "8px" },
-  objRow:  { display: "flex", alignItems: "flex-start", gap: "14px", background: "#111", border: "1px solid #1a1a1a", borderRadius: "10px", padding: "14px 16px", transition: "opacity 0.3s" },
-  checkbox: { width: "22px", height: "22px", borderRadius: "6px", border: "2px solid #333", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginTop: "1px", transition: "all 0.2s" },
+  objRow:  { display: "flex", alignItems: "flex-start", gap: "14px", background: "#151D1A", border: "1px solid #1A2420", borderRadius: "10px", padding: "14px 16px", transition: "opacity 0.3s" },
+  checkbox: { width: "22px", height: "22px", borderRadius: "6px", border: "2px solid #2A3A32", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginTop: "1px", transition: "all 0.2s" },
   objTexto: { fontSize: "0.92rem", lineHeight: 1.4 },
   prioTag:  { fontSize: "0.67rem", border: "1px solid", borderRadius: "10px", padding: "1px 8px", textTransform: "uppercase", letterSpacing: "0.5px" },
-  btnDel:  { background: "none", border: "none", color: "#333", fontSize: "0.8rem", cursor: "pointer", padding: "2px 4px", flexShrink: 0, marginTop: "2px", transition: "color 0.2s" },
-  empty:   { textAlign: "center", color: "#444", padding: "48px 0", fontSize: "0.9rem" },
+  btnDel:  { background: "none", border: "none", color: "#2A3A32", fontSize: "0.8rem", cursor: "pointer", padding: "2px 4px", flexShrink: 0, marginTop: "2px", transition: "color 0.2s" },
+  empty:   { textAlign: "center", color: "#41504A", padding: "48px 0", fontSize: "0.9rem" },
   toast:   { position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)", padding: "10px 20px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600, zIndex: 9999, whiteSpace: "nowrap" },
 };

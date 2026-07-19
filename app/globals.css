@@ -102,36 +102,41 @@
     color-scheme: dark;
 }
 
-/* El panel admin conserva su piel original (dorado sobre negro): el tema
-   claro/oscuro es SOLO para lo que ve el cliente. */
+/* El panel admin usa la piel "bosque oscuro" del sistema de marca, fija
+   (no cambia con el toggle claro/oscuro de la tienda). */
 .admin-scope {
-    --bg-base: #030303;
-    --bg-surface: #0a0a0a;
-    --bg-card: #111111;
-    --text-main: #FFFFFF;
-    --text-muted: #A0A0A0;
-    --text-soft: #777777;
-    --gold-primary: #D4AF37;
-    --gold-light: #F3E5AB;
-    --gold-dark: #997A15;
-    --gold-glow: rgba(212, 175, 55, 0.15);
-    --border-gold: rgba(212, 175, 55, 0.2);
-    --border-gold-hover: rgba(212, 175, 55, 0.5);
-    --accent: #D4AF37;
-    --accent-hover: #F3E5AB;
-    --accent-active: #997A15;
-    --accent-contrast: #030303;
-    --accent-rgb: 212, 175, 55;
-    --ink-rgb: 255, 255, 255;
+    --bg-base: #0F1613;
+    --bg-surface: #151D1A;
+    --bg-card: #1A2420;
+    --text-main: #FDFCFA;
+    --text-muted: #C5CAC7;
+    --text-soft: #7A8985;
+    --gold-primary: #8DD8A0;
+    --gold-light: #F0A855;
+    --gold-dark: #2D6745;
+    --gold-glow: rgba(141, 216, 160, 0.12);
+    --border-gold: #1F2B27;
+    --border-gold-hover: rgba(141, 216, 160, 0.45);
+    --accent: #8DD8A0;
+    --accent-hover: #A5E2B4;
+    --accent-active: #79C68C;
+    --accent-contrast: #0F1613;
+    --accent-rgb: 141, 216, 160;
+    --ink-rgb: 253, 252, 250;
     --shadow-rgb: 0, 0, 0;
-    --input-bg: rgba(255, 255, 255, 0.03);
-    --danger: #ff4d4d;
+    --input-bg: rgba(253, 252, 250, 0.05);
+    --exito: #8DD8A0;   --exito-suave: rgba(141, 216, 160, 0.12);
+    --alerta: #F0A855;  --alerta-suave: rgba(240, 168, 85, 0.12);
+    --error: #E89166;   --error-suave: rgba(232, 145, 102, 0.12);
+    --danger: #E89166;
     --whatsapp: #25D366;
-    --card-radius: 18px;
+    --card-radius: 12px;
     color-scheme: dark;
     background: var(--bg-base);
     color: var(--text-main);
 }
+/* En /admin no existe el header de la tienda: el contenido parte arriba. */
+main:has(.admin-scope) { margin-top: 0 !important; padding-bottom: 0 !important; }
 
 /* --- RESET Y BASE --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }

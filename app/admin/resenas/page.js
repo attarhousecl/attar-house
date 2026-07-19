@@ -80,7 +80,7 @@ export default function ResenasPage() {
           <button style={S.backBtn} onClick={() => router.push("/admin")}>← Admin</button>
           <h1 style={S.h1}>⭐ Reseñas</h1>
         </div>
-        <div style={{ fontSize: "0.8rem", color: pendientes.length > 0 ? "#d4af37" : "#27ae60", fontWeight: 700 }}>
+        <div style={{ fontSize: "0.8rem", color: pendientes.length > 0 ? "#F0A855" : "#8DD8A0", fontWeight: 700 }}>
           {pendientes.length > 0 ? `${pendientes.length} pendiente${pendientes.length !== 1 ? "s" : ""} de aprobación` : "Sin pendientes"}
         </div>
       </header>
@@ -98,12 +98,12 @@ export default function ResenasPage() {
           ))}
         </div>
 
-        {error && <p style={{ color: "#c0392b", fontSize: "0.85rem", marginBottom: "16px" }}>{error}</p>}
+        {error && <p style={{ color: "#E89166", fontSize: "0.85rem", marginBottom: "16px" }}>{error}</p>}
 
         {loading ? (
-          <p style={{ color: "#666" }}>Cargando reseñas…</p>
+          <p style={{ color: "#6B7A73" }}>Cargando reseñas…</p>
         ) : visibles.length === 0 ? (
-          <p style={{ color: "#666", padding: "30px 0", textAlign: "center" }}>
+          <p style={{ color: "#6B7A73", padding: "30px 0", textAlign: "center" }}>
             {filtro === "Pendientes" ? "🎉 No hay reseñas esperando aprobación." : "No hay reseñas en esta vista."}
           </p>
         ) : (
@@ -112,12 +112,12 @@ export default function ResenasPage() {
               <div key={r.id} style={S.card}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px", flexWrap: "wrap" }}>
                   <div>
-                    <div style={{ fontSize: "0.72rem", color: "#888", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "3px" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#7A8985", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "3px" }}>
                       {r.perfumes?.brand ? `${r.perfumes.brand} · ` : ""}{r.perfumes?.name || r.perfume_id}
                     </div>
-                    <div style={{ fontSize: "0.92rem", color: "#e0e0e0", fontWeight: 600 }}>
+                    <div style={{ fontSize: "0.92rem", color: "#FDFCFA", fontWeight: 600 }}>
                       {r.author_name}{" "}
-                      <span style={{ color: "#d4af37", fontSize: "0.85rem", letterSpacing: "2px" }}>
+                      <span style={{ color: "#8DD8A0", fontSize: "0.85rem", letterSpacing: "2px" }}>
                         {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
                       </span>
                     </div>
@@ -126,11 +126,11 @@ export default function ResenasPage() {
                     <span style={r.approved ? S.badgeOk : S.badgePend}>
                       {r.approved ? "Pública" : "Pendiente"}
                     </span>
-                    <div style={{ fontSize: "0.7rem", color: "#666", marginTop: "5px" }}>{fmt(r.created_at)}</div>
+                    <div style={{ fontSize: "0.7rem", color: "#6B7A73", marginTop: "5px" }}>{fmt(r.created_at)}</div>
                   </div>
                 </div>
 
-                <p style={{ color: "#bbb", fontSize: "0.88rem", lineHeight: 1.6, margin: "10px 0 14px" }}>{r.comment}</p>
+                <p style={{ color: "#C5CAC7", fontSize: "0.88rem", lineHeight: 1.6, margin: "10px 0 14px" }}>{r.comment}</p>
 
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   {r.approved ? (
@@ -149,7 +149,7 @@ export default function ResenasPage() {
                   >
                     Eliminar
                   </button>
-                  {busy === r.id && <span style={{ color: "#666", fontSize: "0.78rem", alignSelf: "center" }}>Aplicando…</span>}
+                  {busy === r.id && <span style={{ color: "#6B7A73", fontSize: "0.78rem", alignSelf: "center" }}>Aplicando…</span>}
                 </div>
               </div>
             ))}
@@ -161,44 +161,44 @@ export default function ResenasPage() {
 }
 
 const S = {
-  page: { minHeight: "100vh", background: "#0a0a0a", color: "#e0e0e0", fontFamily: "'Segoe UI', sans-serif" },
+  page: { minHeight: "100vh", background: "#0F1613", color: "#FDFCFA", fontFamily: "var(--font-archivo), sans-serif" },
   header: {
     display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px",
-    padding: "16px 24px", borderBottom: "1px solid #2a2a2a", background: "#111",
+    padding: "16px 24px", borderBottom: "1px solid #1F2B27", background: "#151D1A",
     position: "sticky", top: 0, zIndex: 10,
   },
-  h1: { fontSize: "1.15rem", margin: 0, color: "#d4af37" },
+  h1: { fontSize: "1.15rem", margin: 0, color: "#8DD8A0" },
   backBtn: {
-    background: "transparent", border: "1px solid #2a2a2a", color: "#888",
+    background: "transparent", border: "1px solid #1F2B27", color: "#7A8985",
     borderRadius: "6px", padding: "6px 12px", cursor: "pointer", fontSize: "0.8rem",
   },
   content: { padding: "24px", maxWidth: "860px", margin: "0 auto" },
   filtro: {
-    background: "transparent", border: "1px solid #2a2a2a", color: "#888",
+    background: "transparent", border: "1px solid #1F2B27", color: "#7A8985",
     borderRadius: "20px", padding: "7px 16px", cursor: "pointer", fontSize: "0.8rem",
   },
-  filtroActivo: { background: "#d4af37", borderColor: "#d4af37", color: "#000", fontWeight: 700 },
-  card: { background: "#111", border: "1px solid #1f1f1f", borderRadius: "12px", padding: "18px 20px" },
+  filtroActivo: { background: "#8DD8A0", border: "1px solid #8DD8A0", color: "#0F1613", fontWeight: 700 },
+  card: { background: "#151D1A", border: "1px solid #1F2B27", borderRadius: "12px", padding: "18px 20px" },
   badgeOk: {
-    fontSize: "0.68rem", fontWeight: 700, color: "#27ae60", background: "rgba(39,174,96,0.12)",
-    border: "1px solid rgba(39,174,96,0.35)", padding: "4px 12px", borderRadius: "20px",
+    fontSize: "0.68rem", fontWeight: 700, color: "#8DD8A0", background: "rgba(141,216,160, 0.12)",
+    border: "1px solid rgba(141,216,160, 0.35)", padding: "4px 12px", borderRadius: "20px",
     textTransform: "uppercase", letterSpacing: "0.5px",
   },
   badgePend: {
-    fontSize: "0.68rem", fontWeight: 700, color: "#d4af37", background: "rgba(212,175,55,0.1)",
-    border: "1px solid rgba(212,175,55,0.35)", padding: "4px 12px", borderRadius: "20px",
+    fontSize: "0.68rem", fontWeight: 700, color: "#F0A855", background: "rgba(240,168,85, 0.1)",
+    border: "1px solid rgba(240,168,85, 0.35)", padding: "4px 12px", borderRadius: "20px",
     textTransform: "uppercase", letterSpacing: "0.5px",
   },
   btnAprobar: {
-    background: "#27ae60", border: "none", color: "#fff", fontWeight: 700,
+    background: "#8DD8A0", border: "none", color: "#0F1613", fontWeight: 700,
     borderRadius: "8px", padding: "9px 18px", cursor: "pointer", fontSize: "0.82rem",
   },
   btnGhost: {
-    background: "transparent", border: "1px solid #2a2a2a", color: "#bbb",
+    background: "transparent", border: "1px solid #1F2B27", color: "#C5CAC7",
     borderRadius: "8px", padding: "9px 18px", cursor: "pointer", fontSize: "0.82rem",
   },
   btnEliminar: {
-    background: "transparent", border: "1px solid rgba(192,57,43,0.5)", color: "#c0392b",
+    background: "transparent", border: "1px solid rgba(232,145,102, 0.5)", color: "#E89166",
     borderRadius: "8px", padding: "9px 18px", cursor: "pointer", fontSize: "0.82rem",
   },
 };

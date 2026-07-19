@@ -612,7 +612,7 @@ function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
   );
 }
 
-const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#ffffff', 'Blanco'], ['#111111', 'Negro']];
+const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#FDFCFA', 'Blanco'], ['#151D1A', 'Negro']];
 const TEXT_WEIGHTS = [[300, 'Fina'], [400, 'Normal'], [600, 'Media'], [700, 'Negrita']];
 const TEXT_ALIGN = [['left', 'Izq'], ['center', 'Centro'], ['right', 'Der']];
 
@@ -990,12 +990,12 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   const hasScene = SCENE_CAPABLE.includes(tpl) && cur.bg && cur.bg !== 'solido' && cur.bgSeed;
 
   const base = {
-    width: w, height: h, background: hasScene ? '#000' : bg, color: ink, position: 'absolute', top: 0, left: 0,
+    width: w, height: h, background: hasScene ? '#0F1613' : bg, color: ink, position: 'absolute', top: 0, left: 0,
     transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden', fontFamily: serif,
   };
   const scene = hasScene ? <ProceduralBackdrop seed={cur.bgSeed} width={w} height={h} uid="-as" /> : null;
   const scrim = (hasScene && cur.scrim) ? (
-    <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: (cur.scrim || 0) / 100, pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', inset: 0, background: '#0F1613', opacity: (cur.scrim || 0) / 100, pointerEvents: 'none' }} />
   ) : null;
   const frame = (
     <svg style={{ position: 'absolute', inset: m, pointerEvents: 'none' }} width={w - m * 2} height={h - m * 2}>

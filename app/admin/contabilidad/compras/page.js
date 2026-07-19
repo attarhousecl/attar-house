@@ -128,7 +128,7 @@ export default function ComprasPage() {
           <Field label="Costo total CLP"><input style={S.input} type="number" min="0" placeholder="ej. 90000" value={form.costo_total} onChange={set("costo_total")} required /></Field>
           <Field label="Proveedor"><input style={S.input} type="text" placeholder="ej. Multimarcas Mayorista" value={form.proveedor} onChange={set("proveedor")} /></Field>
           <Field label="Costo por botella">
-            <div style={{ ...S.input, color: "#d4af37", fontWeight: 700, background: "#0f0f0f", display: "flex", alignItems: "center" }}>
+            <div style={{ ...S.input, color: "#8DD8A0", fontWeight: 700, background: "#0f0f0f", display: "flex", alignItems: "center" }}>
               {form.costo_total && form.cantidad ? `$${Math.round(parseInt(form.costo_total) / parseInt(form.cantidad)).toLocaleString("es-CL")}` : "—"}
             </div>
           </Field>
@@ -163,13 +163,13 @@ export default function ComprasPage() {
                   <tr key={x.id} style={i % 2 === 0 ? S.trEven : S.trOdd}>
                     <td style={S.td}>{x.fecha}</td>
                     <td style={S.td}>{x.perfume}</td>
-                    <td style={{ ...S.td, color: "#888" }}>{x.marca}</td>
+                    <td style={{ ...S.td, color: "#7A8985" }}>{x.marca}</td>
                     <td style={S.td}><span style={S.badge}>{x.categoria}</span></td>
                     <td style={S.td}>{x.cantidad}</td>
-                    <td style={{ ...S.td, color: "#c0392b", fontWeight: 600 }}>${(x.costo_total || 0).toLocaleString("es-CL")}</td>
-                    <td style={{ ...S.td, color: "#777" }}>${costoUnitario(x).toLocaleString("es-CL")}</td>
+                    <td style={{ ...S.td, color: "#E89166", fontWeight: 600 }}>${(x.costo_total || 0).toLocaleString("es-CL")}</td>
+                    <td style={{ ...S.td, color: "#7A8985" }}>${costoUnitario(x).toLocaleString("es-CL")}</td>
                     <td style={S.td}>{x.proveedor || "—"}</td>
-                    <td style={{ ...S.td, color: "#555", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{x.notas || "—"}</td>
+                    <td style={{ ...S.td, color: "#5C6B64", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{x.notas || "—"}</td>
                     <td style={S.td}><button style={S.btnDel} onClick={() => eliminar(x.id)}>🗑</button></td>
                   </tr>
                 ))}
@@ -179,7 +179,7 @@ export default function ComprasPage() {
         )}
       </div>
 
-      {toast && <div style={{ ...S.toast, background: toast.err ? "#c0392b" : "#d4af37", color: toast.err ? "#fff" : "#000" }}>{toast.text}</div>}
+      {toast && <div style={{ ...S.toast, background: toast.err ? "#E89166" : "#8DD8A0", color: toast.err ? "#FDFCFA" : "#0F1613" }}>{toast.text}</div>}
       <SpinStyle />
     </div>
   );
@@ -188,7 +188,7 @@ export default function ComprasPage() {
 function Field({ label, children, span }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "6px", ...(span ? { gridColumn: "1 / -1" } : {}) }}>
-      <label style={{ fontSize: "0.68rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</label>
+      <label style={{ fontSize: "0.68rem", color: "#8A9690", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</label>
       {children}
     </div>
   );
@@ -199,28 +199,28 @@ function SpinStyle() {
 }
 
 const S = {
-  page:    { fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh" },
+  page:    { fontFamily: "var(--font-archivo), sans-serif", background: "#0F1613", color: "#FDFCFA", minHeight: "100vh" },
   center:  { display: "flex", alignItems: "center", justifyContent: "center", padding: "60px" },
-  spinner: { width: "28px", height: "28px", border: "2px solid #333", borderTopColor: "#d4af37", borderRadius: "50%", animation: "contab-spin 0.7s linear infinite" },
-  header:  { background: "#111", borderBottom: "1px solid #2a2a2a", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
-  h1:      { fontSize: "1.05rem", color: "#d4af37", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
-  backBtn: { background: "none", border: "1px solid #333", color: "#888", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
-  navBtn:  { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#d4af37", borderRadius: "6px", padding: "7px 14px", fontSize: "0.8rem", cursor: "pointer" },
+  spinner: { width: "28px", height: "28px", border: "2px solid #2A3A32", borderTopColor: "#8DD8A0", borderRadius: "50%", animation: "contab-spin 0.7s linear infinite" },
+  header:  { background: "#151D1A", borderBottom: "1px solid #1F2B27", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
+  h1:      { fontSize: "1.05rem", color: "#8DD8A0", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
+  backBtn: { background: "none", border: "1px solid #2A3A32", color: "#7A8985", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
+  navBtn:  { background: "#1A2420", border: "1px solid #1F2B27", color: "#8DD8A0", borderRadius: "6px", padding: "7px 14px", fontSize: "0.8rem", cursor: "pointer" },
   content: { padding: "24px", maxWidth: "1100px", margin: "0 auto" },
-  sectionTitle: { fontSize: "0.8rem", color: "#d4af37", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #1a1a1a", paddingBottom: "8px", marginBottom: "16px", marginTop: "4px" },
+  sectionTitle: { fontSize: "0.8rem", color: "#8DD8A0", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #1A2420", paddingBottom: "8px", marginBottom: "16px", marginTop: "4px" },
   formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" },
-  input:   { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "6px", padding: "9px 12px", color: "#e0e0e0", fontSize: "0.86rem", outline: "none", fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
-  btnPrimary:   { background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "10px 20px", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer" },
-  btnSecondary: { background: "#1a1a1a", color: "#d4af37", border: "1px solid #333", borderRadius: "8px", padding: "10px 20px", fontSize: "0.86rem", cursor: "pointer" },
-  empty:   { color: "#444", padding: "32px 0" },
-  totalPill: { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "8px 14px", fontSize: "0.82rem", color: "#c0392b", whiteSpace: "nowrap" },
+  input:   { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "6px", padding: "9px 12px", color: "#FDFCFA", fontSize: "0.86rem", outline: "none", fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
+  btnPrimary:   { background: "#8DD8A0", color: "#0F1613", border: "none", borderRadius: "8px", padding: "10px 20px", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer" },
+  btnSecondary: { background: "#1A2420", color: "#8DD8A0", border: "1px solid #2A3A32", borderRadius: "8px", padding: "10px 20px", fontSize: "0.86rem", cursor: "pointer" },
+  empty:   { color: "#41504A", padding: "32px 0" },
+  totalPill: { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "8px", padding: "8px 14px", fontSize: "0.82rem", color: "#E89166", whiteSpace: "nowrap" },
   tableWrap: { overflowX: "auto" },
   table:   { width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" },
-  th:      { padding: "9px 12px", textAlign: "left", color: "#555", fontSize: "0.67rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #1a1a1a", whiteSpace: "nowrap" },
-  td:      { padding: "9px 12px", color: "#ccc", borderBottom: "1px solid #111" },
+  th:      { padding: "9px 12px", textAlign: "left", color: "#5C6B64", fontSize: "0.67rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #1A2420", whiteSpace: "nowrap" },
+  td:      { padding: "9px 12px", color: "#C5CAC7", borderBottom: "1px solid #151D1A" },
   trEven:  { background: "#0f0f0f" },
-  trOdd:   { background: "#111" },
-  badge:   { background: "#1a1500", color: "#d4af37", border: "1px solid #3a3000", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem" },
-  btnDel:  { background: "none", border: "1px solid #3a1a1a", color: "#c0392b", borderRadius: "5px", padding: "3px 8px", cursor: "pointer", fontSize: "0.75rem" },
+  trOdd:   { background: "#151D1A" },
+  badge:   { background: "#1E2C24", color: "#8DD8A0", border: "1px solid #2D6745", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem" },
+  btnDel:  { background: "none", border: "1px solid #3a1a1a", color: "#E89166", borderRadius: "5px", padding: "3px 8px", cursor: "pointer", fontSize: "0.75rem" },
   toast:   { position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)", padding: "10px 20px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600, zIndex: 9999, whiteSpace: "nowrap" },
 };

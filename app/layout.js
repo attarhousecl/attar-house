@@ -3,6 +3,7 @@ import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 import Nav from "@/components/Nav";
 import SplashIntro from "@/components/SplashIntro";
+import StoreChrome from "@/components/StoreChrome";
 
 // Fuentes del sistema de marca (Marca.html): Archivo para todo el texto y
 // títulos, IBM Plex Mono para etiquetas/precios/datos técnicos. Self-hosted
@@ -91,12 +92,16 @@ export default function RootLayout({ children }) {
           <AuthProvider>
           <CatalogProvider>
             <CartProvider>
-              <Nav />
+              <StoreChrome>
+                <Nav />
+              </StoreChrome>
               <main id="main-content">{children}</main>
-              <CartDrawer />
-              <WhatsAppFloat />
-              <SocialProof />
-              <Footer />
+              <StoreChrome>
+                <CartDrawer />
+                <WhatsAppFloat />
+                <SocialProof />
+                <Footer />
+              </StoreChrome>
             </CartProvider>
           </CatalogProvider>
           </AuthProvider>

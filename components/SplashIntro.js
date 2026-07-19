@@ -15,6 +15,8 @@ export default function SplashIntro() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
+    // El splash es de la tienda: en el panel /admin no se muestra.
+    if (window.location.pathname.startsWith("/admin")) { setShow(false); return; }
     let seen = false;
     try { seen = sessionStorage.getItem(SEEN_KEY) === "1"; } catch {}
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
