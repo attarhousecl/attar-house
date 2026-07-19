@@ -50,6 +50,19 @@ export default function SplashIntro() {
 
   return (
     <div className={`splash ${leaving ? "splash-leave" : ""}`} aria-hidden="true">
+      {/* El video de marca también vive detrás del spray (solo adorno). */}
+      <video
+        className="splash-video"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        tabIndex={-1}
+      >
+        <source src="/videos/perfume.mp4" type="video/mp4" />
+      </video>
+      <div className="splash-veil" aria-hidden="true"></div>
       <div className="splash-inner">
         <svg viewBox="0 0 100 100" className="splash-monogram" aria-hidden="true">
           <path d="M16 92 V48 L50 14 L84 48 V92" fill="none" stroke="currentColor" strokeWidth="13" />

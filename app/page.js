@@ -2,6 +2,7 @@ import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import HeroVideo from "@/components/HeroVideo";
 import DecantExplorer from "@/components/DecantExplorer";
+import QuizExperience from "@/components/QuizExperience";
 import Reveal from "@/components/Reveal";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
@@ -79,39 +80,30 @@ export default function Home() {
 
       <FeaturedProducts />
 
-      <section className="home-block">
+      <section id="quiz" className="home-block">
         <div className="container">
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            🔮 Quiz de fragancias
+          </div>
           <h2 className="section-title serif">Encuentra tu aroma ideal</h2>
-          <p className="section-subtitle">
-            ¿No sabes por dónde empezar? Te ayudamos a elegir y a probar sin arriesgar.
+          <p className="section-subtitle" style={{ marginBottom: "36px" }}>
+            Responde 5 preguntas rápidas aquí mismo y te recomendamos las fragancias que
+            más van contigo.
           </p>
-          <Reveal className="home-highlights">
-            <Link href="/quiz" className="highlight-panel">
-              <span className="hp-watermark" aria-hidden="true">🔮</span>
-              <span className="hp-icon" aria-hidden="true">🔮</span>
-              <h3>Quiz de Fragancias</h3>
-              <p>
-                Responde 5 preguntas rápidas sobre tu estilo y ocasión, y te recomendamos
-                las fragancias que más van contigo.
-              </p>
-              <span className="hp-link">
-                Hacer el quiz <i className="ph ph-arrow-right"></i>
-              </span>
-            </Link>
+          <div className="home-quiz-shell">
+            <QuizExperience embed />
+          </div>
 
-            <Link href="/pack" className="highlight-panel">
-              <span className="hp-watermark" aria-hidden="true">🎁</span>
-              <span className="hp-icon" aria-hidden="true">🎁</span>
-              <h3>Pack Descubrimiento</h3>
-              <p>
-                Arma tu propio set eligiendo de 3 a 5 decants de 10ml y llévate un{" "}
-                <strong style={{ color: "var(--gold-light)" }}>10% de descuento</strong> en todo el pack.
-              </p>
-              <span className="hp-link">
-                Armar mi pack <i className="ph ph-arrow-right"></i>
-              </span>
-            </Link>
-          </Reveal>
+          <Link href="/pack" className="pack-banner">
+            <span className="pack-banner-icon" aria-hidden="true">🎁</span>
+            <span className="pack-banner-text">
+              <strong>Pack Descubrimiento</strong>
+              <span>Elige 3 a 5 decants de 10ml y llévate un 10% de descuento en todo el pack.</span>
+            </span>
+            <span className="pack-banner-cta">
+              Armar mi pack <i className="ph ph-arrow-right" aria-hidden="true"></i>
+            </span>
+          </Link>
         </div>
       </section>
 

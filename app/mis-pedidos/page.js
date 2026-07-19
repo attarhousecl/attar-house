@@ -42,8 +42,6 @@ export default function MisPedidosPage() {
   return (
     <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "var(--bg-base)", color: "var(--text-main)", minHeight: "100vh", padding: "40px 20px" }}>
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
-        <Link href="/" style={{ color: "var(--accent)", fontSize: "0.8rem", textDecoration: "none" }}>← Volver al inicio</Link>
-
         <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "2rem", color: "var(--accent)", margin: "20px 0 8px" }}>Mis Pedidos</h1>
         <p style={{ color: "var(--text-soft)", fontSize: "0.88rem", marginBottom: "10px" }}>Ingresa tu número de pedido (lo encuentras en tu correo de confirmación, ej: AH…) para ver el estado.</p>
         <p style={{ color: "var(--text-soft)", fontSize: "0.82rem", marginBottom: "32px" }}>

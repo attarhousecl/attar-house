@@ -107,6 +107,12 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Con el menú abierto, la página de fondo no debe hacer scroll.
+  useEffect(() => {
+    document.documentElement.classList.toggle("menu-lock", open);
+    return () => document.documentElement.classList.remove("menu-lock");
+  }, [open]);
+
   return (
     <header
       className={`site-header ${scrolled ? "scrolled" : ""} ${overHero ? "over-hero" : ""} ${open ? "menu-open" : ""}`}
