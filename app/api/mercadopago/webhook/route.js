@@ -75,19 +75,43 @@ async function handleNotification(request) {
 
     // Solo al APROBARSE el pago, y solo una vez (idempotente ante reintentos del webhook).
     if (newStatus === "paid" && order && !order.confirmation_sent) {
+      // Descuento de stock atómico, atado al pago confirmado (no a la creación del
+      // pedido, para no descontar pedidos que nunca se pagan). Es idempotente: la
+      // RPC no re-descuenta si order.stock_decremented ya es true.
+      let stockFailures = [];
+      if (!order.stock_decremented) {
+        const { data: stockRes, error: stockErr } = await supabaseAdmin.rpc(
+          "descontar_stock_pedido",
+          { p_commerce_order: order.commerce_order }
+        );
+        if (stockErr) {
+          console.error("[webhook] descontar_stock_pedido error:", stockErr);
+        } else if (Array.isArray(stockRes?.failures)) {
+          stockFailures = stockRes.failures;
+        }
+      }
+
       // Escapa los valores del cliente: el mensaje va con parse_mode HTML a Telegram,
       // así que datos como customer_name podrían inyectar etiquetas/enlaces falsos.
       const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       const items = (order.items || [])
         .map((i) => `• ${esc(i.name)} (${esc(i.format)}) ×${i.quantity} — $${(i.price * i.quantity).toLocaleString("es-CL")}`)
         .join("\n");
+      // Si algún ítem se agotó entre el pago y la confirmación, el pago YA se cobró:
+      // no se falla, se avisa al dueño para resolverlo a mano (la orden queda con
+      // stock_issue = true en la base).
+      const stockWarn = stockFailures.length
+        ? `\n\n⚠️ <b>Stock insuficiente</b> (revisar y reponer):\n` +
+          stockFailures.map((f) => `• ${esc(f.name)} (${esc(f.format)}) ×${f.quantity}`).join("\n")
+        : "";
       await sendTelegramAlert(
         `🛒 <b>Nuevo pedido pagado</b>\n` +
         `📋 <code>${esc(order.commerce_order)}</code>\n` +
         `👤 ${esc(order.customer_name)} · ${esc(order.customer_phone)}\n` +
         `📧 ${esc(order.customer_email)}\n\n` +
         `${items}\n\n` +
-        `💰 <b>Total: $${(order.total || 0).toLocaleString("es-CL")}</b>`
+        `💰 <b>Total: $${(order.total || 0).toLocaleString("es-CL")}</b>` +
+        stockWarn
       );
 
       // Correo de confirmación al cliente — SOLO con el pago aprobado.

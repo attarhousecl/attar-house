@@ -46,15 +46,27 @@ export function CartProvider({ children }) {
     if (hydrated) localStorage.setItem("attar_cart", JSON.stringify(cart));
   }, [cart, hydrated]);
 
-  const addToCart = (perfume, formatKey) => {
+  // `max` = unidades disponibles del formato (perfume.qty[formatKey]). Tope de UX:
+  // no deja agregar más de lo que hay. La validación dura igual es del lado servidor.
+  const addToCart = (perfume, formatKey, max) => {
     const price = perfume.prices[formatKey];
     const formatLabel = labelsFormatos[formatKey] || formatKey;
+    const cap = Number.isFinite(max) ? max : Infinity;
     const existing = cart.find((i) => i.name === perfume.name && i.format === formatKey);
+
+    if (existing && existing.quantity >= cap) {
+      showToast(`Solo quedan ${cap} de ${perfume.name} (${formatLabel})`);
+      return;
+    }
 
     setCart((prev) => {
       const ex = prev.find((i) => i.name === perfume.name && i.format === formatKey);
-      if (ex) return prev.map((i) => (i === ex ? { ...i, quantity: i.quantity + 1 } : i));
-      return [...prev, { id: perfume.id, name: perfume.name, format: formatKey, price, quantity: 1 }];
+      if (ex) {
+        return prev.map((i) =>
+          i === ex ? { ...i, quantity: i.quantity + 1, stockMax: cap } : i
+        );
+      }
+      return [...prev, { id: perfume.id, name: perfume.name, format: formatKey, price, quantity: 1, stockMax: cap }];
     });
 
     if (existing) {
@@ -86,7 +98,14 @@ export function CartProvider({ children }) {
   const updateQty = (idx, mod) => {
     setCart((prev) => {
       const next = [...prev];
-      next[idx] = { ...next[idx], quantity: next[idx].quantity + mod };
+      const item = next[idx];
+      const cap = Number.isFinite(item.stockMax) ? item.stockMax : Infinity;
+      const target = item.quantity + mod;
+      if (mod > 0 && target > cap) {
+        showToast(`Solo quedan ${cap} unidades disponibles`);
+        return prev;
+      }
+      next[idx] = { ...item, quantity: target };
       if (next[idx].quantity <= 0) next.splice(idx, 1);
       return next;
     });

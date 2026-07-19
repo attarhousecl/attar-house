@@ -174,15 +174,36 @@ export default function AdminClient() {
     location.href = "/admin/login";
   }
 
-  async function toggleStock(id, campo) {
+  // Guarda la cantidad real por formato (campo = 'qty_sellado' | 'qty_decant10' | ...).
+  // La fuente de verdad es qty_*; los booleanos stock_* y stock_low los deriva un
+  // trigger en la base, así que aquí solo los reflejamos localmente para la UI.
+  async function guardarQty(id, campo, rawValor, valorPrevio) {
+    const nuevoValor = Math.max(0, Math.trunc(Number(rawValor)) || 0);
+    if (nuevoValor === valorPrevio) return;
     const p = db.find((x) => x.id === id);
     if (!p) return;
-    const nuevoValor = !p[campo];
     setSavingIds((s) => ({ ...s, [id]: "saving" }));
     try {
       const { error } = await supabase.from("perfumes").update({ [campo]: nuevoValor }).eq("id", id);
       if (error) throw error;
-      setDb((prev) => prev.map((x) => (x.id === id ? { ...x, [campo]: nuevoValor } : x)));
+      setDb((prev) =>
+        prev.map((x) => {
+          if (x.id !== id) return x;
+          const m = { ...x, [campo]: nuevoValor };
+          const s = Number(m.qty_sellado) || 0;
+          const d10 = Number(m.qty_decant10) || 0;
+          const d5 = Number(m.qty_decant5) || 0;
+          const d3 = Number(m.qty_decant3) || 0;
+          return {
+            ...m,
+            stock_sellado: s > 0,
+            stock_decant10: d10 > 0,
+            stock_decant5: d5 > 0,
+            stock_decant3: d3 > 0,
+            stock_low: s + d10 + d5 + d3 <= 3,
+          };
+        })
+      );
       setSavingIds((s) => ({ ...s, [id]: "ok" }));
       showToast(`✓ ${p.name} actualizado`);
       setTimeout(() => setSavingIds((s) => { const n = { ...s }; delete n[id]; return n; }), 1500);
@@ -246,6 +267,12 @@ export default function AdminClient() {
       price_decant10: parseInt(form.pD10) || 0,
       price_decant5: parseInt(form.pD5) || 0,
       price_decant3: parseInt(form.pD3) || 0,
+      // Fuente de verdad: cantidad por formato. Se siembra 10 si el formato viene
+      // marcado como disponible, 0 si no. El trigger deriva stock_*/stock_low.
+      qty_sellado: form.sSellado ? 10 : 0,
+      qty_decant10: form.sD10 ? 10 : 0,
+      qty_decant5: form.sD5 ? 10 : 0,
+      qty_decant3: form.sD3 ? 10 : 0,
       stock_sellado: form.sSellado,
       stock_decant10: form.sD10,
       stock_decant5: form.sD5,
@@ -485,33 +512,58 @@ export default function AdminClient() {
                           <span>{p.gender}</span>
                           {isDis ? <span className="badge-d">✦ Diseñador</span> : <span>🌙 Árabe</span>}
                         </div>
-                        <div className="stock-row">
-                          <span className="stock-label">Stock:</span>
+                        <div className="stock-row" style={{ flexWrap: "wrap", gap: "10px" }}>
+                          <span className="stock-label">Cantidad:</span>
                           {!isDis && (
-                            <button className={`toggle-btn ${p.stock_sellado ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_sellado")} disabled={saving === "saving"}>
-                              Sellado
-                            </button>
+                            <label className="qty-field">
+                              <span>Sellado</span>
+                              <input
+                                type="number" min="0" inputMode="numeric"
+                                defaultValue={p.qty_sellado ?? 0}
+                                disabled={saving === "saving"}
+                                onBlur={(e) => guardarQty(p.id, "qty_sellado", e.target.value, p.qty_sellado ?? 0)}
+                              />
+                            </label>
                           )}
-                          <button className={`toggle-btn ${p.stock_decant10 ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_decant10")} disabled={saving === "saving"}>
-                            10ml
-                          </button>
-                          <button className={`toggle-btn ${p.stock_decant5 ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_decant5")} disabled={saving === "saving"}>
-                            5ml
-                          </button>
-                          <button className={`toggle-btn ${p.stock_decant3 ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_decant3")} disabled={saving === "saving"}>
-                            3ml
-                          </button>
+                          <label className="qty-field">
+                            <span>10ml</span>
+                            <input
+                              type="number" min="0" inputMode="numeric"
+                              defaultValue={p.qty_decant10 ?? 0}
+                              disabled={saving === "saving"}
+                              onBlur={(e) => guardarQty(p.id, "qty_decant10", e.target.value, p.qty_decant10 ?? 0)}
+                            />
+                          </label>
+                          <label className="qty-field">
+                            <span>5ml</span>
+                            <input
+                              type="number" min="0" inputMode="numeric"
+                              defaultValue={p.qty_decant5 ?? 0}
+                              disabled={saving === "saving"}
+                              onBlur={(e) => guardarQty(p.id, "qty_decant5", e.target.value, p.qty_decant5 ?? 0)}
+                            />
+                          </label>
+                          <label className="qty-field">
+                            <span>3ml</span>
+                            <input
+                              type="number" min="0" inputMode="numeric"
+                              defaultValue={p.qty_decant3 ?? 0}
+                              disabled={saving === "saving"}
+                              onBlur={(e) => guardarQty(p.id, "qty_decant3", e.target.value, p.qty_decant3 ?? 0)}
+                            />
+                          </label>
                           {saving && (
                             <span className="saving-label show">
                               {saving === "saving" ? "Guardando..." : saving === "ok" ? "✓ Guardado" : "✗ Error"}
                             </span>
                           )}
                         </div>
-                        <div className="stock-row" style={{ marginTop: "6px" }}>
-                          <span className="stock-label">Urgencia:</span>
-                          <button className={`toggle-btn ${p.stock_low ? "on" : "off"}`} onClick={() => toggleStock(p.id, "stock_low")} disabled={saving === "saving"} title="Muestra el badge ⚡ Últimas unidades en la tienda">
-                            ⚡ Últimas unidades
-                          </button>
+                        <div className="stock-row" style={{ marginTop: "6px", fontSize: "0.72rem", color: "#8080c0" }}>
+                          {isAgotado
+                            ? "Agotado (todas las cantidades en 0)"
+                            : p.stock_low
+                              ? "⚡ Últimas unidades (badge activo en la tienda)"
+                              : "Disponible"}
                         </div>
                       </div>
                       <div className="p-actions">
@@ -766,6 +818,11 @@ function AdminStyles() {
       .toggle-btn.on { background: #0d2b0d; color: #27ae60; border-color: #27ae60; }
       .toggle-btn.off { background: #2b0d0d; color: #c0392b; border-color: #c0392b; }
       .toggle-btn:hover { filter: brightness(1.2); }
+      .qty-field { display: inline-flex; flex-direction: column; gap: 3px; }
+      .qty-field span { font-size: 0.62rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+      .qty-field input { width: 58px; padding: 4px 8px; border-radius: 6px; border: 1px solid #3a3a5a; background: #12121f; color: #eee; font-size: 0.82rem; font-weight: 600; }
+      .qty-field input:focus { outline: none; border-color: #d4af37; }
+      .qty-field input:disabled { opacity: 0.5; }
       .p-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
       .btn-del { background: none; border: 1px solid #3a2020; color: #c0392b; border-radius: 6px; padding: 5px 12px; font-size: 0.72rem; cursor: pointer; }
       .btn-del:hover { background: #3a2020; }

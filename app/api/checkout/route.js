@@ -94,10 +94,22 @@ export async function POST(request) {
       const perfume = perfumes.find((p) => p.id === item.id);
       if (!perfume) return Response.json({ error: `Perfume inválido: ${item.id}` }, { status: 400 });
       const priceField = `price_${item.format}`;
-      const stockField = `stock_${item.format}`;
+      const qtyField = `qty_${item.format}`;
       const price = perfume[priceField];
       if (!price) return Response.json({ error: `Formato inválido para ${perfume.name}.` }, { status: 400 });
-      if (perfume[stockField] === false) return Response.json({ error: `${perfume.name} (${item.format}) está agotado.` }, { status: 400 });
+      // Stock por cantidad: revalida contra Supabase (pudo cambiar desde que se
+      // agregó al carrito). El descuento real y atómico ocurre al confirmarse el
+      // pago (webhook → descontar_stock_pedido); esto es la barrera previa.
+      const disponible = perfume[qtyField] ?? 0;
+      if (disponible <= 0) {
+        return Response.json({ error: `${perfume.name} (${item.format}) está agotado.` }, { status: 409 });
+      }
+      if (disponible < qty) {
+        return Response.json(
+          { error: `Solo quedan ${disponible} de ${perfume.name} (${item.format}).` },
+          { status: 409 }
+        );
+      }
       verifiedItems.push({ id: perfume.id, name: perfume.name, format: item.format, price, quantity: qty });
     }
   }
