@@ -44,11 +44,15 @@ const TEMPLATES = [
 // Todas las plantillas admiten fondo de escena procedural + texto libre movible
 const SCENE_CAPABLE = ['producto', 'versus', 'tabla', 'promo', 'lanzamiento', 'inspirado', 'testimonio', 'comparativa', 'countdown', 'carrusel'];
 
+// Temas con fondo en degradado (más "llamativos" que el color plano anterior).
+// Cada uno declara `dark` para elegir contraste del marco/pie sin adivinar por id.
 const THEMES = [
-  { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
-  { id: 'ivory',    label: 'Marfil',   bg: '#f3ede1', ink: '#1c1814', muted: '#9a9286', line: 'rgba(28,24,20,.14)' },
-  { id: 'burdeos',  label: 'Burdeos',  bg: '#1a0a0d', ink: '#f0e3d8', muted: '#a4827f', line: 'rgba(240,227,216,.14)' },
-  { id: 'esmeralda', label: 'Esmeralda', bg: '#07120d', ink: '#eef0e6', muted: '#80a08f', line: 'rgba(238,240,230,.14)' },
+  { id: 'noir',      label: 'Noir',      dark: true,  bg: 'radial-gradient(125% 95% at 50% 0%, #1b1712 0%, #0c0b09 55%, #060505 100%)', ink: '#f3ede1', muted: '#9c9384', line: 'rgba(243,237,225,.14)' },
+  { id: 'oro',       label: 'Oro',       dark: true,  bg: 'linear-gradient(165deg, #241c0c 0%, #100c06 55%, #050409 100%)', ink: '#f8eecf', muted: '#bda067', line: 'rgba(214,183,110,.20)' },
+  { id: 'burdeos',   label: 'Burdeos',   dark: true,  bg: 'radial-gradient(125% 95% at 50% 8%, #521320 0%, #260a10 55%, #120406 100%)', ink: '#f6e8de', muted: '#c98f8a', line: 'rgba(246,232,222,.16)' },
+  { id: 'esmeralda', label: 'Esmeralda', dark: true,  bg: 'radial-gradient(125% 95% at 50% 10%, #114633 0%, #082016 55%, #040f0a 100%)', ink: '#eef3ea', muted: '#88b39a', line: 'rgba(238,243,234,.16)' },
+  { id: 'bosque',    label: 'Bosque',    dark: true,  bg: 'radial-gradient(135% 105% at 50% 12%, #275540 0%, #10281c 55%, #081109 100%)', ink: '#f1efe4', muted: '#93b7a1', line: 'rgba(241,239,228,.16)' },
+  { id: 'ivory',     label: 'Marfil',    dark: false, bg: 'linear-gradient(180deg, #f7f2e8 0%, #ece3d4 100%)', ink: '#1c1814', muted: '#8f877a', line: 'rgba(28,24,20,.16)' },
 ];
 const themeOf = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
 
@@ -1222,7 +1226,7 @@ function TextRender({ layer, w, h, scale, ink, accent, muted, serif, sans, onDra
 function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1, onDragText }) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
-  const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
+  const dark = th.dark;
   const serif = 'var(--font-cormorant), Georgia, serif';
   const sans  = 'var(--font-inter-studio), system-ui, sans-serif';
   const m = 46;
@@ -1255,6 +1259,29 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   );
   const Img = ({ src, style, scale = 1 }) => (
     <img src={src} crossOrigin="anonymous" alt="" style={{ objectFit: 'contain', ...style, transform: scale !== 1 ? `scale(${scale})` : style?.transform }} />
+  );
+
+  // Layout a prueba de choques para las plantillas de producto: franja superior
+  // opcional, imagen en una zona FLEXIBLE (se encoge si el texto crece) y el
+  // bloque de info compacto justo encima del pie. Nada se superpone aunque el
+  // nombre ocupe dos líneas o haya notas + precio + chip. `gap` da un aire
+  // uniforme entre líneas (antes cada una tenía su marginTop y se solapaban).
+  const footZone = tall ? 196 : 132; // espacio reservado abajo para logo/marca
+  const usesScaffold = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown', 'carrusel', 'testimonio'].includes(tpl);
+  const Scaffold = ({ badge, img, ghostScale, extra, children }) => (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', padding: `${tall ? 140 : 60}px 0 ${footZone}px` }}>
+      {badge ? <div style={{ flex: 'none', display: 'flex', justifyContent: 'center', marginBottom: tall ? 22 : 12, padding: '0 80px', textAlign: 'center' }}>{badge}</div> : null}
+      <div style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `0 ${tall ? 120 : 90}px` }}>
+        {img ? <Img src={img.src} scale={img.scale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={ghostScale ?? (tall ? 1.4 : 1.05)} theme={theme} />}
+      </div>
+      <div style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: tall ? 16 : 10, textAlign: 'center', padding: '0 90px', marginTop: tall ? 26 : 14 }}>
+        {children}
+        {extra ? <div style={{ fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, lineHeight: 1.4, whiteSpace: 'pre-line' }}>{extra}</div> : null}
+      </div>
+    </div>
+  );
+  const Pill = ({ children }) => (
+    <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, padding: '13px 28px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{children}</div>
   );
 
   let body = null;
@@ -1340,84 +1367,55 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   }
 
   if (tpl === 'producto' || tpl === 'lanzamiento') {
-    const imgTop = tall ? 180 : 90, imgH = tall ? 820 : 540, infoTop = imgTop + imgH + (tall ? 40 : 24);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 96 : 78, marginTop: 18, lineHeight: 1 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 22, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>
-          {tpl === 'producto' && (
-            <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-          )}
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
-        </div>
-      </>
+      <Scaffold img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.5 : 1.1} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 92 : 74, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>}
+        {tpl === 'producto' && cur.chip && <Pill>{cur.chip}</Pill>}
+        {cur.meta && <div style={{ fontFamily: sans, fontSize: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.35 }}>{cur.meta}</div>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'promo') {
-    const imgTop = tall ? 170 : 80, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 30 : 18);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+      <Scaffold img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.4 : 1.05} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 84 : 70, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{cur.notes}</div>}
+        <div style={{ display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
+          {cur.from && <span style={{ fontFamily: sans, fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
+          <span style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 94 : 78, color: accent, lineHeight: 1 }}>{cur.price}</span>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 88 : 72, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 18, color: muted }}>{cur.notes}</div>
-          <div style={{ marginTop: 30, display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
-            {cur.from && <span style={{ fontFamily: sans, fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
-            <span style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 104 : 88, color: accent }}>{cur.price}</span>
-          </div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 26, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-        </div>
-      </>
+        {cur.chip && <Pill>{cur.chip}</Pill>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'inspirado') {
-    const imgTop = tall ? 220 : 90, imgH = tall ? 720 : 480, infoTop = imgTop + imgH + (tall ? 36 : 22);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: tall ? 130 : 60, left: 0, right: 0, textAlign: 'center', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted }}>
-          {cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span>
-        </div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 20, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 26, color: accent, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted, lineHeight: 1.3 }}>{cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span></div>}
+        img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.4 : 1.05} extra={cur.extra}>
+        <div style={{ fontWeight: 600, fontSize: tall ? 88 : 72, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, color: muted }}>{cur.notes}</div>}
+        {cur.meta && <div style={{ fontFamily: sans, fontSize: 28, color: accent, whiteSpace: 'pre-line', lineHeight: 1.35 }}>{cur.meta}</div>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'testimonio') {
-    const qSize = tall ? 50 : 40;
     body = (
-      <>
-        <div style={{ position: 'absolute', top: tall ? 220 : 90, left: 0, right: 0, textAlign: 'center', fontSize: 90, color: accent, opacity: .5, fontFamily: serif }}>"</div>
-        <div style={{ position: 'absolute', top: tall ? 320 : 150, left: 0, right: 0, padding: '0 130px', textAlign: 'center', fontSize: qSize, lineHeight: 1.4, fontStyle: 'italic' }}>
-          {cur.quote}
-        </div>
-        <div style={{ position: 'absolute', top: tall ? 660 : 360, left: 0, right: 0, textAlign: 'center', fontSize: 36, color: accent, letterSpacing: 6 }}>
-          {'★'.repeat(cur.stars || 5)}
-        </div>
-        <div style={{ position: 'absolute', top: tall ? 740 : 420, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
-        <div style={{ position: 'absolute', top: tall ? 786 : 462, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>
-        {cur.img && (
-          <div style={{ position: 'absolute', bottom: tall ? 140 : 60, left: 0, right: 0, height: tall ? 340 : 220, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: .85 }}>
-            <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '40%', maxHeight: '100%' }} />
-          </div>
-        )}
-      </>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: tall ? 24 : 15, textAlign: 'center', padding: `${tall ? 150 : 80}px 130px ${footZone}px` }}>
+        <div style={{ fontSize: 110, color: accent, opacity: .5, fontFamily: serif, lineHeight: .6, height: tall ? 60 : 46 }}>&ldquo;</div>
+        <div style={{ fontSize: tall ? 50 : 40, lineHeight: 1.4, fontStyle: 'italic' }}>{cur.quote}</div>
+        <div style={{ fontSize: 36, color: accent, letterSpacing: 6 }}>{'★'.repeat(cur.stars || 5)}</div>
+        <div style={{ fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
+        {cur.location && <div style={{ fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>}
+        {cur.img && <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '38%', maxHeight: tall ? 260 : 170, marginTop: tall ? 8 : 4, opacity: .9 }} />}
+        {cur.extra && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, lineHeight: 1.4 }}>{cur.extra}</div>}
+      </div>
     );
   }
 
@@ -1461,54 +1459,40 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   }
 
   if (tpl === 'countdown') {
-    const imgTop = tall ? 160 : 70, imgH = tall ? 700 : 460, infoTop = imgTop + imgH + (tall ? 24 : 14);
     body = (
-      <>
-        <div style={{
-          position: 'absolute', top: tall ? 70 : 36, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700,
-          padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
-        }}>{cur.endsText}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 84 : 68, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 16, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 96 : 80, color: accent, marginTop: 22 }}>{cur.price}</div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 22, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700, padding: '10px 22px', borderRadius: 999, background: accent, color: dark ? '#1a1404' : '#fff' }}>{cur.endsText}</div>}
+        img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.35 : 1.0} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 80 : 66, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{cur.notes}</div>}
+        <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 92 : 76, color: accent, lineHeight: 1 }}>{cur.price}</div>
+        {cur.chip && <Pill>{cur.chip}</Pill>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'carrusel') {
     const s = curSlide;
-    const imgTop = tall ? 200 : 100, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 40 : 24);
     body = (
-      <>
-        <div style={{
-          position: 'absolute', top: tall ? 60 : 30, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em',
-        }}>{cur.activeSlide + 1} / {cur.slides.length}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {s.img ? <Img src={s.img} scale={s.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 90 : 74, marginTop: 18, lineHeight: 1 }}>{s.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 20, color: muted }}>{s.notes}</div>
-          <div style={{ fontFamily: serif, fontSize: tall ? 50 : 42, fontWeight: 600, marginTop: 24, color: accent }}>{s.price}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em' }}>{cur.activeSlide + 1} / {cur.slides.length}</div>}
+        img={s.img ? { src: s.img, scale: s.imgScale } : null} ghostScale={tall ? 1.5 : 1.1} extra={s.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 86 : 70, lineHeight: 1 }}>{s.name}</div>
+        {s.notes && s.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{s.notes}</div>}
+        {s.price && <div style={{ fontFamily: serif, fontSize: tall ? 52 : 42, fontWeight: 600, color: accent }}>{s.price}</div>}
+      </Scaffold>
     );
   }
 
-  const extraText = tpl === 'carrusel' ? curSlide.extra : cur.extra;
+  // Las plantillas con Scaffold (y testimonio) ya muestran `extra` dentro de su
+  // flujo, siempre por encima del pie. Aquí solo se dibuja para las que no lo
+  // usan (versus, tabla, comparativa), y con el espacio del pie reservado.
+  const extraText = usesScaffold ? null : cur.extra;
   const extra = extraText ? (
     <div style={{
-      position: 'absolute', left: 0, right: 0, bottom: tall ? 118 : 88, textAlign: 'center', padding: '0 90px',
+      position: 'absolute', left: 0, right: 0, bottom: footZone, textAlign: 'center', padding: '0 90px',
       fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, letterSpacing: '.02em', lineHeight: 1.4,
     }}>
       {extraText}
