@@ -23,7 +23,7 @@ import { toPng } from 'html-to-image';
 import { SCENES as BG_SCENES, makeSeed as makeBgSeed, Backdrop as ProceduralBackdrop } from './proceduralBackdrops';
 
 const DIM = {
-  story:  { w: 1080, h: 1920, label: 'Story · 9:16' },
+  story:  { w: 1080, h: 1920, label: 'Story · Reel · TikTok' },
   feed:   { w: 1080, h: 1080, label: 'Feed · 1:1' },
   feed45: { w: 1080, h: 1350, label: 'Feed · 4:5' },
 };
@@ -52,7 +52,89 @@ const THEMES = [
 ];
 const themeOf = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
 
+// Espera a que TODAS las imágenes dentro del lienzo estén cargadas y
+// decodificadas antes de capturar. Reemplaza los sleeps fijos que hacían
+// que el lote/carrusel a veces exportara imágenes a medio cargar.
+const waitForImages = async (node, timeout = 5000) => {
+  const imgs = Array.from(node?.querySelectorAll?.('img') || []);
+  if (!imgs.length) return;
+  await Promise.race([
+    Promise.all(imgs.map((im) =>
+      im.complete && im.naturalWidth > 0
+        ? Promise.resolve()
+        : new Promise((res) => {
+            im.addEventListener('load', res, { once: true });
+            im.addEventListener('error', res, { once: true });
+          })
+    )),
+    new Promise((r) => setTimeout(r, timeout)),
+  ]);
+  await Promise.race([
+    Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))),
+    new Promise((r) => setTimeout(r, 800)),
+  ]);
+};
+
+// ---- Captions listos para pegar en Instagram / TikTok ----
+const HASHTAGS_IG = ['#perfumesarabes', '#decants', '#decantschile', '#perfumeschile', '#fragancias', '#perfumesnicho', '#perfumesoriginales', '#valdivia', '#chile', '#fragranceaddict', '#attarhouse'];
+const HASHTAGS_TT = ['#perfumesarabes', '#decantschile', '#perfumetok', '#fragancias', '#perfumeschile', '#parati', '#fyp', '#attarhouse'];
+
+const brandTag = (p) => (p?.brand ? '#' + p.brand.toLowerCase().replace(/[^a-z0-9]+/g, '') : null);
+
+// Arma un caption según red, plantilla y datos actuales (producto real si hay).
+function buildCaption(red, { tpl, cur, curSlide, product }) {
+  const c = tpl === 'carrusel' ? (curSlide || {}) : (cur || {});
+  const name = product?.name || c.name || c.lHead || 'Tu próximo perfume';
+  const brand = product?.brand || c.eyebrow || 'Attar House';
+  const notes = product ? perfumeNotes(product).slice(0, 3).join(', ') : (c.notes && c.notes !== '—' ? c.notes : '');
+  const meta = product ? perfumeMeta(product) : (c.meta || c.price || '');
+  const cta = 'Pídelo en attarhouse.cl · Envíos a todo Chile 📦 · Retiro en Valdivia';
+
+  const hooks = {
+    producto:    `${name} de ${brand} — el que todos preguntan 👇`,
+    promo:       `🔥 OFERTA: ${name} a precio especial, solo por días.`,
+    lanzamiento: `🆕 Llegó ${name} a la casa.`,
+    inspirado:   `¿Amas ${c.target || 'esa fragancia carísima'}? Conoce ${name}.`,
+    testimonio:  `Esto dijo un cliente real sobre su compra 💬`,
+    comparativa: `¿3ml, 5ml o 10ml? Así rinde ${name} 👇`,
+    countdown:   `⏳ Última llamada: ${name} está por agotarse.`,
+    carrusel:    `Desliza ➡️ nuestros favoritos de la semana.`,
+    versus:      `La diferencia se nota: ${name} 🆚 el resto.`,
+    tabla:       `Por qué comprar tus perfumes con nosotros 👇`,
+  };
+  const hook = hooks[tpl] || hooks.producto;
+
+  const tags = [...new Set([brandTag(product), ...(red === 'tt' ? HASHTAGS_TT : HASHTAGS_IG)].filter(Boolean))];
+
+  if (red === 'tt') {
+    return [
+      hook,
+      notes ? `Notas: ${notes} ✨` : null,
+      'Pruébalo en decant antes de comprar la botella 💧',
+      cta,
+      tags.slice(0, 8).join(' '),
+    ].filter(Boolean).join('\n');
+  }
+  return [
+    hook,
+    '',
+    notes ? `✨ Notas: ${notes}` : null,
+    meta ? `💰 ${meta}` : null,
+    '💧 Pruébalo en decant (3, 5 o 10ml) antes de invertir en el frasco completo. 100% original.',
+    '',
+    `🛒 ${cta}`,
+    '',
+    tags.slice(0, 12).join(' '),
+  ].filter((l) => l !== null).join('\n');
+}
+
 const clp = (n) => '$' + Number(n || 0).toLocaleString('es-CL');
+
+// image_url en la BD suele ser solo el nombre de archivo (ej: "yara.png") y
+// las fotos viven en /public/images. Sin esta resolución, el navegador buscaba
+// la imagen relativa a /admin/ (404) y la exportación fallaba con "undefined".
+const productImg = (u) =>
+  !u ? null : (u.startsWith('http') || u.startsWith('/') || u.startsWith('data:')) ? u : `/images/${u}`;
 
 // Normaliza notes (jsonb): array de strings u objetos {name}
 const perfumeNotes = (p) => {
@@ -84,7 +166,7 @@ const priceRows = (p) => ([
 // (usado al hacer clic en el catálogo y al generar en lote)
 const mapPerfumeToContent = (p, c) => {
   const notes = perfumeNotes(p).slice(0, 3).join(' · ') || '—';
-  const img = p.image_url || null;
+  const img = productImg(p.image_url);
   const slides = c.carrusel.slides.slice();
   const i = c.carrusel.activeSlide;
   slides[i] = { ...slides[i], eyebrow: p.brand, name: p.name, notes, price: clp(lowestPrice(p)), img };
@@ -182,6 +264,10 @@ export default function AttarStudio({ supabase, onExit }) {
   const [scale, setScale]   = useState(0.4);
   const [logo, setLogoState] = useState(null); // logo propio, persiste en este navegador
   const [logoScale, setLogoScaleState] = useState(1); // tamaño del logo, persiste igual
+  const [copied, setCopied] = useState(false);   // feedback de "Copiar PNG"
+  const [safeZone, setSafeZone] = useState(false); // guías de UI de IG/TikTok (solo preview)
+  const [realReviews, setRealReviews] = useState(null); // reseñas aprobadas para Testimonio
+  const [reviewIdx, setReviewIdx] = useState(0);
 
   const stageRef = useRef(null);
   const areaRef  = useRef(null);
@@ -224,6 +310,32 @@ export default function AttarStudio({ supabase, onExit }) {
       .order('popularity', { ascending: false })
       .then(({ data }) => setProducts(data || []));
   }, [supabase]);
+
+  // ---- reseñas reales aprobadas (para la plantilla Testimonio) ----
+  useEffect(() => {
+    if (!supabase || tpl !== 'testimonio' || realReviews !== null) return;
+    supabase.from('reviews')
+      .select('author_name,rating,comment')
+      .eq('approved', true)
+      .order('created_at', { ascending: false })
+      .limit(25)
+      .then(({ data }) => setRealReviews(data || []));
+  }, [supabase, tpl, realReviews]);
+
+  const useRealReview = () => {
+    if (!realReviews?.length) return;
+    const r = realReviews[reviewIdx % realReviews.length];
+    setContent((c) => ({
+      ...c,
+      testimonio: {
+        ...c.testimonio,
+        quote: `"${r.comment}"`,
+        name: r.author_name,
+        stars: r.rating || 5,
+      },
+    }));
+    setReviewIdx((i) => i + 1);
+  };
 
   // ---- cargar diseños guardados ----
   const loadDesigns = useCallback(() => {
@@ -289,37 +401,71 @@ export default function AttarStudio({ supabase, onExit }) {
   // Para exportar a 1080 real, forzamos transform:none solo en la copia capturada.
   const renderPng = async () => {
     const { w, h } = DIM[format];
-    return toPng(stageRef.current, {
-      width: w, height: h, pixelRatio: 1, cacheBust: true, backgroundColor: null,
-      style: { transform: 'none', transformOrigin: 'top left', margin: '0' },
-    });
+    // Nunca capturar con imágenes a medio cargar (causa de exports en blanco).
+    await waitForImages(stageRef.current);
+    try {
+      return await toPng(stageRef.current, {
+        width: w, height: h, pixelRatio: 1, cacheBust: true, backgroundColor: null,
+        style: { transform: 'none', transformOrigin: 'top left', margin: '0' },
+      });
+    } catch (e) {
+      // html-to-image lanza un Event (sin .message) cuando una imagen no carga.
+      throw new Error(e?.message || 'una imagen del diseño no pudo cargarse (revisa la foto del producto)');
+    }
   };
+
+  const stamp = () => new Date().toISOString().slice(0, 10);
 
   const download = async () => {
     setBusy('export');
     try {
       const url = await renderPng();
       const a = document.createElement('a');
-      a.download = `attarhouse_${tpl}_${format}.png`; a.href = url; a.click();
+      a.download = `attarhouse_${tpl}_${format}_${stamp()}.png`; a.href = url; a.click();
     } catch (e) { alert('No se pudo exportar: ' + e.message); }
+    setBusy('');
+  };
+
+  // ---- copia el PNG al portapapeles (pegar directo en IG/WhatsApp web) ----
+  const copyPng = async () => {
+    setBusy('copy');
+    try {
+      const url = await renderPng();
+      const blob = await (await fetch(url)).blob();
+      await navigator.clipboard.write([new window.ClipboardItem({ 'image/png': blob })]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) { alert('No se pudo copiar la imagen: ' + e.message); }
     setBusy('');
   };
 
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  // ---- exporta las 3 tarjetas del carrusel, una por una ----
+  const saveZip = async (files, zipName) => {
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+    files.forEach(({ name, dataUrl }) => zip.file(name, dataUrl.split(',')[1], { base64: true }));
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.download = zipName; a.href = URL.createObjectURL(blob); a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  };
+
+  // ---- exporta todas las tarjetas del carrusel en UN solo ZIP ----
+  // (antes disparaba N descargas seguidas y el navegador solía bloquearlas)
   const downloadCarousel = async () => {
     setBusy('export');
     try {
+      const files = [];
       for (let i = 0; i < cur.slides.length; i++) {
+        setBatchProgress({ i: i + 1, total: cur.slides.length });
         patch({ activeSlide: i });
-        await wait(300); // deja repintar el lienzo (cambio de slide + carga de imagen)
-        const url = await renderPng();
-        const a = document.createElement('a');
-        a.download = `attarhouse_carrusel_${i + 1}_${format}.png`; a.href = url; a.click();
-        await wait(350); // evita que el navegador bloquee descargas múltiples seguidas
+        await wait(150); // commit de React; las imágenes las espera renderPng
+        files.push({ name: `attarhouse_carrusel_${i + 1}_${format}.png`, dataUrl: await renderPng() });
       }
+      await saveZip(files, `attarhouse_carrusel_${format}_${stamp()}.zip`);
     } catch (e) { alert('No se pudo exportar el carrusel: ' + e.message); }
+    setBatchProgress(null);
     setBusy('');
   };
 
@@ -327,23 +473,28 @@ export default function AttarStudio({ supabase, onExit }) {
     ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
   ));
 
-  // ---- genera una imagen por cada perfume seleccionado, en lote ----
+  const selectAllFiltered = (list) => setSelectedIds((ids) => {
+    const visible = list.map((p) => p.id);
+    const allIn = visible.every((id) => ids.includes(id));
+    return allIn ? ids.filter((id) => !visible.includes(id)) : [...new Set([...ids, ...visible])];
+  });
+
+  // ---- genera una imagen por cada perfume seleccionado y baja UN ZIP ----
   const batchGenerate = async () => {
     const picked = products.filter((p) => selectedIds.includes(p.id));
     if (!picked.length) return;
     setBusy('batch');
     try {
+      const files = [];
       for (let i = 0; i < picked.length; i++) {
         setBatchProgress({ i: i + 1, total: picked.length });
         const p = picked[i];
         setContent((c) => mapPerfumeToContent(p, c));
-        await wait(400); // deja que la imagen del producto cargue antes de capturar
-        const url = await renderPng();
-        const a = document.createElement('a');
+        await wait(150); // commit de React; las imágenes las espera renderPng
         const slug = `${p.brand}_${p.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-        a.download = `attarhouse_${tpl}_${slug}.png`; a.href = url; a.click();
-        await wait(350);
+        files.push({ name: `attarhouse_${tpl}_${slug}.png`, dataUrl: await renderPng() });
       }
+      await saveZip(files, `attarhouse_${tpl}_lote_${picked.length}_${stamp()}.zip`);
     } catch (e) { alert('No se pudo generar el lote: ' + e.message); }
     setBatchProgress(null);
     setBusy('');
@@ -418,9 +569,11 @@ export default function AttarStudio({ supabase, onExit }) {
         </label>
         <div className="as-spacer" />
         <input className="as-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <button className="as-btn ghost" disabled={busy} onClick={copyPng} title="Copiar la imagen al portapapeles (pegar en IG/WhatsApp Web)">
+          {busy === 'copy' ? '…' : copied ? '✓ Copiada' : 'Copiar'}</button>
         {tpl === 'carrusel' ? (
           <button className="as-btn ghost" disabled={busy} onClick={downloadCarousel}>
-            {busy === 'export' ? '…' : `Descargar las ${cur.slides.length} (PNG)`}</button>
+            {busy === 'export' ? `${batchProgress?.i || 0}/${batchProgress?.total || cur.slides.length}…` : `Descargar carrusel (ZIP)`}</button>
         ) : (
           <button className="as-btn ghost" disabled={busy} onClick={download}>
             {busy === 'export' ? '…' : 'Descargar PNG'}</button>
@@ -495,8 +648,10 @@ export default function AttarStudio({ supabase, onExit }) {
                 </div>
               )}
               <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
-                      setContent={setContent} />
+                      setContent={setContent} realReviews={realReviews} onUseReview={useRealReview} />
               <TextLayers cur={cur} patch={patch} />
+              <CaptionPanel tpl={tpl} cur={cur} curSlide={curSlide}
+                            product={products.find((p) => p.id === perfumeId) || null} />
             </>
           )}
 
@@ -504,11 +659,16 @@ export default function AttarStudio({ supabase, onExit }) {
             <>
               <input className="as-search" placeholder="Buscar perfume…" value={query}
                      onChange={(e) => setQuery(e.target.value)} />
+              <button className="as-shuffle" style={{ marginBottom: 10 }} onClick={() => selectAllFiltered(filtered)}>
+                {filtered.length > 0 && filtered.every((p) => selectedIds.includes(p.id))
+                  ? '☑ Quitar selección de los visibles'
+                  : `☐ Seleccionar los ${filtered.length} visibles`}
+              </button>
               {selectedIds.length > 0 && (
                 <button className="as-batchbtn" disabled={!!busy} onClick={batchGenerate}>
                   {busy === 'batch'
                     ? `Generando ${batchProgress?.i || 0}/${batchProgress?.total || selectedIds.length}…`
-                    : `✦ Generar ${selectedIds.length} imagen${selectedIds.length > 1 ? 'es' : ''} (${tpl})`}
+                    : `✦ Generar ${selectedIds.length} imagen${selectedIds.length > 1 ? 'es' : ''} en ZIP (${tpl})`}
                 </button>
               )}
               <div className="as-list">
@@ -523,7 +683,7 @@ export default function AttarStudio({ supabase, onExit }) {
                     />
                     <button className="as-itembody" onClick={() => applyPerfume(p)}>
                       {p.image_url
-                        ? <img src={p.image_url} alt="" crossOrigin="anonymous" />
+                        ? <img src={productImg(p.image_url)} alt="" crossOrigin="anonymous" />
                         : <span className="ph" />}
                       <span className="meta"><b>{p.name}</b><i>{p.brand} · {perfumeNotes(p).slice(0,2).join(', ')}</i></span>
                     </button>
@@ -553,9 +713,26 @@ export default function AttarStudio({ supabase, onExit }) {
 
         {/* PREVIEW */}
         <section className="as-canvas" ref={areaRef}>
+          {tall && (
+            <button
+              className={`as-szbtn ${safeZone ? 'on' : ''}`}
+              onClick={() => setSafeZone((v) => !v)}
+              title="Muestra dónde tapan la interfaz IG/TikTok (solo guía, no se exporta)"
+            >
+              {safeZone ? '☑' : '☐'} Zonas seguras
+            </button>
+          )}
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
                    theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} onDragText={dragText} />
+            {/* Guías de UI de IG/TikTok: viven FUERA del stage capturado, jamás se exportan */}
+            {safeZone && tall && (
+              <div className="as-safezones" aria-hidden="true">
+                <div className="sz top"><span>UI superior (nombre, cámara)</span></div>
+                <div className="sz bottom"><span>UI inferior (caption, música, botones)</span></div>
+                <div className="sz right"><span /></div>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -615,6 +792,59 @@ function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
 const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#FDFCFA', 'Blanco'], ['#151D1A', 'Negro']];
 const TEXT_WEIGHTS = [[300, 'Fina'], [400, 'Normal'], [600, 'Media'], [700, 'Negrita']];
 const TEXT_ALIGN = [['left', 'Izq'], ['center', 'Centro'], ['right', 'Der']];
+
+// Panel de caption listo para publicar: genera el texto (IG o TikTok) desde
+// la plantilla/producto actual, editable, con copia al portapapeles.
+function CaptionPanel({ tpl, cur, curSlide, product }) {
+  const [red, setRed] = useState('ig'); // ig | tt
+  const [text, setText] = useState('');
+  const [copiedCap, setCopiedCap] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  // Regenera automáticamente al cambiar plantilla/producto/red, salvo que el
+  // dueño haya editado a mano (no pisar su texto).
+  useEffect(() => {
+    if (!dirty) setText(buildCaption(red, { tpl, cur, curSlide, product }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [red, tpl, product?.id, tpl === 'carrusel' ? cur.activeSlide : null]);
+
+  const regenerate = () => {
+    setText(buildCaption(red, { tpl, cur, curSlide, product }));
+    setDirty(false);
+  };
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedCap(true);
+      setTimeout(() => setCopiedCap(false), 1800);
+    } catch { /* portapapeles no disponible */ }
+  };
+
+  return (
+    <div className="as-card">
+      <div className="as-subh" style={{ marginTop: 0 }}>Caption para publicar</div>
+      <div className="as-togglerow" style={{ marginBottom: 10 }}>
+        <button className={`as-chiptoggle ${red === 'ig' ? 'on' : ''}`} onClick={() => { setRed('ig'); setDirty(false); }}>Instagram</button>
+        <button className={`as-chiptoggle ${red === 'tt' ? 'on' : ''}`} onClick={() => { setRed('tt'); setDirty(false); }}>TikTok</button>
+      </div>
+      <textarea
+        className="as-captiontext"
+        value={text}
+        onChange={(e) => { setText(e.target.value); setDirty(true); }}
+        rows={9}
+        spellCheck={false}
+      />
+      <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+        <button className="as-batchbtn" style={{ marginBottom: 0 }} onClick={copy}>
+          {copiedCap ? '✓ Copiado' : `Copiar caption ${red === 'ig' ? 'Instagram' : 'TikTok'}`}
+        </button>
+        <button className="as-mini" title="Regenerar desde la plantilla" onClick={regenerate}>↺</button>
+      </div>
+      <p className="as-hint">Se arma solo con el perfume/plantilla activa: hook, notas, precios, CTA y hashtags. Edítalo libre; ↺ lo regenera.</p>
+    </div>
+  );
+}
 
 function TextLayers({ cur, patch }) {
   const texts = cur.texts || [];
@@ -731,7 +961,7 @@ function LayerRange({ label, suf, min, max, step, value, on, last }) {
 
 const STARS_OPTS = [1, 2, 3, 4, 5];
 
-function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent }) {
+function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent, realReviews, onUseReview }) {
   const f = (k) => (v) => patch({ [k]: v });
   const fSlide = (k) => (v) => patchSlide({ [k]: v });
   if (tpl === 'versus') return (
@@ -825,6 +1055,16 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
       {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
+      {realReviews?.length > 0 && (
+        <button className="as-shuffle" style={{ marginBottom: 12 }} onClick={onUseReview}>
+          💬 Usar reseña real de un cliente ({realReviews.length} aprobadas)
+        </button>
+      )}
+      {realReviews !== null && realReviews.length === 0 && (
+        <p className="as-hint" style={{ marginTop: 0, marginBottom: 12 }}>
+          Aún no hay reseñas aprobadas en la tienda; cuando apruebes una en ⭐ Reseñas podrás usarla aquí con un clic.
+        </p>
+      )}
       <Field label="Cita del cliente" value={cur.quote} onChange={f('quote')} multi />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Ciudad" value={cur.location} onChange={f('location')} />
@@ -1375,8 +1615,19 @@ const CSS = `
 .as-itembody b,.as-savedbody b{font-size:13px}
 .as-itembody i,.as-savedbody i{font-size:11px;color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
-.as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden;background:#E8E5DF}
+.as-canvas{position:relative;display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden;background:#E8E5DF}
 .as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 70px -28px rgba(18,26,22,.45),0 0 0 1px rgba(18,26,22,.06)}
+.as-szbtn{position:absolute;top:14px;left:14px;z-index:20;border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:999px;padding:7px 14px;font-size:11px;cursor:pointer;box-shadow:0 2px 10px rgba(18,26,22,.08);transition:all .2s}
+.as-szbtn:hover{border-color:var(--gold);color:var(--gold)}
+.as-szbtn.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
+.as-safezones{position:absolute;inset:0;z-index:10;pointer-events:none}
+.as-safezones .sz{position:absolute;background:repeating-linear-gradient(45deg,rgba(232,145,102,.16) 0 8px,rgba(232,145,102,.05) 8px 16px);outline:1px dashed rgba(232,145,102,.65);display:flex;align-items:center;justify-content:center}
+.as-safezones .sz span{font-family:var(--font-plex-mono),monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#A8442A;background:rgba(253,252,250,.85);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.as-safezones .sz.top{left:0;right:0;top:0;height:11%}
+.as-safezones .sz.bottom{left:0;right:0;bottom:0;height:20%}
+.as-safezones .sz.right{top:11%;bottom:20%;right:0;width:12%}
+.as-captiontext{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--cream);font-size:12.5px;line-height:1.55;padding:10px 11px;font-family:inherit;resize:vertical;min-height:150px}
+.as-captiontext:focus{outline:none;border-color:var(--gold)}
 .as-seg.wrap{display:flex;flex-wrap:wrap;width:100%;border-radius:8px}
 .as-seg.wrap button{flex:1 0 auto}
 .as-colorin{margin-top:7px;width:100%;height:30px;border:1px solid var(--line);border-radius:7px;background:var(--panel);padding:2px;cursor:pointer}
