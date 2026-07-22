@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
-const STATUS_LABEL = { paid: "✅ Pagado", pending: "⏳ Pendiente", rejected: "❌ Rechazado", error: "⚠️ Error" };
-const STATUS_COLOR = { paid: "#27ae60", pending: "#d4af37", rejected: "#c0392b", error: "#c0392b" };
+const STATUS_LABEL = { paid: "Pagado", pending: "Pendiente", rejected: "Rechazado", error: "Error" };
+const STATUS_CLASS = { paid: "ok", pending: "warn", rejected: "bad", error: "bad" };
 
 export default function MisPedidosPage() {
   const [query, setQuery] = useState("");
@@ -40,12 +40,13 @@ export default function MisPedidosPage() {
   }
 
   return (
-    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh", padding: "40px 20px" }}>
+    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "var(--bg-base)", color: "var(--text-main)", minHeight: "100vh", padding: "40px 20px" }}>
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
-        <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver al inicio</Link>
-
-        <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "2rem", color: "#d4af37", margin: "20px 0 8px" }}>Mis Pedidos</h1>
-        <p style={{ color: "#666", fontSize: "0.88rem", marginBottom: "32px" }}>Ingresa tu número de pedido (lo encuentras en tu correo de confirmación, ej: AH…) para ver el estado.</p>
+        <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "2rem", color: "var(--accent)", margin: "20px 0 8px" }}>Mis Pedidos</h1>
+        <p style={{ color: "var(--text-soft)", fontSize: "0.88rem", marginBottom: "10px" }}>Ingresa tu número de pedido (lo encuentras en tu correo de confirmación, ej: AH…) para ver el estado.</p>
+        <p style={{ color: "var(--text-soft)", fontSize: "0.82rem", marginBottom: "32px" }}>
+          ¿Tienes cuenta? En <Link href="/cuenta" style={{ color: "var(--accent)" }}>Mi cuenta</Link> ves todo tu historial automáticamente.
+        </p>
 
         <form onSubmit={buscar} style={{ display: "flex", gap: "10px", marginBottom: "32px" }}>
           <input
@@ -53,55 +54,55 @@ export default function MisPedidosPage() {
             onChange={e => setQuery(e.target.value)}
             placeholder="Tu número de pedido (ej: AH…)"
             aria-label="Número de pedido"
-            style={{ flex: 1, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px 16px", color: "#e0e0e0", fontSize: "0.9rem", fontFamily: "inherit" }}
+            style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border-gold)", borderRadius: "8px", padding: "12px 16px", color: "var(--text-main)", fontSize: "0.9rem", fontFamily: "inherit" }}
           />
-          <button type="submit" disabled={loading} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", whiteSpace: "nowrap" }}>
+          <button type="submit" disabled={loading} style={{ background: "var(--accent)", color: "#000", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", whiteSpace: "nowrap" }}>
             {loading ? "..." : "Buscar"}
           </button>
         </form>
 
         {searched && !loading && orders !== null && (
           orders.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
+            <div style={{ textAlign: "center", color: "var(--text-soft)", padding: "40px 0" }}>
               <div style={{ fontSize: "2rem", marginBottom: "12px" }}>🔍</div>
               <p>No encontramos pedidos con ese número o email.</p>
-              <p style={{ fontSize: "0.78rem", marginTop: "8px" }}>¿Tienes dudas? <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Escríbenos por WhatsApp</WhatsAppLink></p>
+              <p style={{ fontSize: "0.78rem", marginTop: "8px" }}>¿Tienes dudas? <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "var(--whatsapp)" }}>Escríbenos por WhatsApp</WhatsAppLink></p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {orders.map(order => (
-                <div key={order.commerce_order} style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: "12px", padding: "20px" }}>
+                <div key={order.commerce_order} style={{ background: "var(--bg-card)", border: "1px solid var(--bg-card)", borderRadius: "12px", padding: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
                     <div>
-                      <div style={{ fontSize: "0.7rem", color: "#555", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Pedido</div>
-                      <div style={{ fontFamily: "monospace", color: "#d4af37", fontSize: "0.95rem", fontWeight: 700 }}>{order.commerce_order}</div>
-                      <div style={{ fontSize: "0.72rem", color: "#777", marginTop: "3px" }}>{fmt(order.created_at)}</div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Pedido</div>
+                      <div style={{ fontFamily: "monospace", color: "var(--accent)", fontSize: "0.95rem", fontWeight: 700 }}>{order.commerce_order}</div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-soft)", marginTop: "3px" }}>{fmt(order.created_at)}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: STATUS_COLOR[order.status] || "#888", background: (STATUS_COLOR[order.status] || "#888") + "18", border: `1px solid ${(STATUS_COLOR[order.status] || "#888")}44`, padding: "4px 12px", borderRadius: "20px" }}>
+                      <span className={`account-status ${STATUS_CLASS[order.status] || ""}`}>
                         {STATUS_LABEL[order.status] || order.status}
                       </span>
-                      <div style={{ fontSize: "1rem", color: "#d4af37", fontWeight: 700, marginTop: "8px" }}>${(order.total || 0).toLocaleString("es-CL")}</div>
+                      <div style={{ fontSize: "1rem", color: "var(--accent)", fontWeight: 700, marginTop: "8px" }}>${(order.total || 0).toLocaleString("es-CL")}</div>
                     </div>
                   </div>
 
-                  <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: "12px" }}>
+                  <div style={{ borderTop: "1px solid var(--bg-card)", paddingTop: "12px" }}>
                     {(order.items || []).map((item, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#ccc", padding: "4px 0" }}>
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "var(--text-muted)", padding: "4px 0" }}>
                         <span>{item.name} · {item.format} ×{item.quantity}</span>
-                        <span style={{ color: "#888" }}>${(item.price * item.quantity).toLocaleString("es-CL")}</span>
+                        <span style={{ color: "var(--text-soft)" }}>${(item.price * item.quantity).toLocaleString("es-CL")}</span>
                       </div>
                     ))}
                   </div>
 
                   {order.status === "pending" && (
-                    <div style={{ marginTop: "14px", background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "0.78rem", color: "#d4af37" }}>
+                    <div style={{ marginTop: "14px", background: "rgba(var(--accent-rgb), 0.08)", border: "1px solid rgba(var(--accent-rgb), 0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "0.78rem", color: "var(--accent)" }}>
                       Tu pago está siendo procesado. Te notificaremos cuando se confirme.
                     </div>
                   )}
                   {order.status === "paid" && (
-                    <div style={{ marginTop: "14px", background: "rgba(39,174,96,0.08)", border: "1px solid rgba(39,174,96,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "0.78rem", color: "#27ae60" }}>
-                      ¡Pago confirmado! Pronto recibirás un mensaje con los datos de despacho. <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "#25D366" }}>Consultar por WhatsApp</WhatsAppLink>
+                    <div style={{ marginTop: "14px", background: "rgba(39,174,96,0.08)", border: "1px solid rgba(39,174,96,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "0.78rem", color: "var(--exito)" }}>
+                      ¡Pago confirmado! Pronto recibirás un mensaje con los datos de despacho. <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" style={{ color: "var(--whatsapp)" }}>Consultar por WhatsApp</WhatsAppLink>
                     </div>
                   )}
                 </div>

@@ -205,7 +205,7 @@ export default function ProductDetail({ id }) {
                   textTransform: "uppercase",
                   letterSpacing: "1px",
                   color: "var(--gold-primary)",
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: "1px solid var(--border-gold)",
                   paddingBottom: "10px",
                 }}
               >
@@ -234,13 +234,13 @@ export default function ProductDetail({ id }) {
                 ))}
               </div>
               {selectedFormat && ATOMIZACIONES[selectedFormat] && (
-                <div style={{ display: "flex", gap: "16px", margin: "10px 0 14px", padding: "10px 14px", background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.15)", borderRadius: "8px", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                <div style={{ display: "flex", gap: "16px", margin: "10px 0 14px", padding: "10px 14px", background: "var(--exito-suave)", border: "1px solid rgba(var(--accent-rgb), 0.3)", borderRadius: "8px", fontSize: "0.78rem", color: "var(--text-muted)" }}>
                   <span>💨 <strong style={{ color: "var(--gold-primary)" }}>~{ATOMIZACIONES[selectedFormat].sprays}</strong> atomizaciones</span>
                   <span>📅 Rinde aprox. <strong style={{ color: "var(--gold-primary)" }}>{ATOMIZACIONES[selectedFormat].dias}</strong></span>
                 </div>
               )}
               {showUrgency && (
-                <div style={{ background: "rgba(220,60,30,0.08)", border: "1px solid rgba(220,60,30,0.25)", borderRadius: "8px", padding: "8px 12px", marginBottom: "12px", fontSize: "0.75rem", color: "#e07060" }}>
+                <div style={{ background: "var(--alerta-suave)", border: "1px solid rgba(var(--alerta-rgb), 0.5)", borderRadius: "8px", padding: "8px 12px", marginBottom: "12px", fontSize: "0.75rem", color: "var(--alerta)" }}>
                   ⚠ Últimas unidades disponibles
                 </div>
               )}
@@ -292,7 +292,7 @@ export default function ProductDetail({ id }) {
                 <p>✓ Autenticidad Garantizada</p>
                 <p>✓ Envíos a todo Chile por Starken</p>
                 <p>✓ Retiro gratis en Valdivia</p>
-                <p style={{ marginTop: "6px", color: "rgba(212,175,55,0.7)" }}>
+                <p style={{ marginTop: "6px", color: "var(--gold-light)" }}>
                   🚚 Envío gratis en pedidos sobre $60.000
                 </p>
               </div>

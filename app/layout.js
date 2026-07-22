@@ -1,24 +1,25 @@
 import "./globals.css";
-import { Montserrat, Playfair_Display } from "next/font/google";
+import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 import Nav from "@/components/Nav";
+import SplashIntro from "@/components/SplashIntro";
+import StoreChrome from "@/components/StoreChrome";
 
-// Fuentes self-hosted vía next/font: sin request externo render-blocking ni
-// layout shift. Se exponen como variables CSS usadas en globals.css y estilos inline.
-const montserrat = Montserrat({
+// Fuentes del sistema de marca (Marca.html): Archivo para todo el texto y
+// títulos, IBM Plex Mono para etiquetas/precios/datos técnicos. Self-hosted
+// vía next/font: sin request externo render-blocking ni layout shift.
+const archivo = Archivo({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-montserrat",
+  variable: "--font-archivo",
 });
-const playfair = Playfair_Display({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["400", "500"],
   display: "swap",
-  variable: "--font-playfair",
+  variable: "--font-plex-mono",
 });
-import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
@@ -27,6 +28,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/context/ToastContext";
 import { CatalogProvider } from "@/context/CatalogContext";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   metadataBase: new URL("https://attarhouse.cl"),
@@ -56,14 +58,28 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#030303",
-  colorScheme: "dark",
+  themeColor: "#F5F5F5",
+  colorScheme: "light dark",
 };
+
+// El sitio SIEMPRE abre en tema claro (Blanco Humo). El toggle a oscuro
+// "bosque" se recuerda solo durante la visita (sessionStorage): al volver a
+// entrar, se parte de nuevo en claro. Se aplica ANTES de pintar para evitar
+// el destello de tema incorrecto en recargas dentro de la misma visita.
+const THEME_INIT = `(function(){try{var t=sessionStorage.getItem("ah_theme");if(t!=="dark")t="light";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${montserrat.variable} ${playfair.variable}`}>
+    // suppressHydrationWarning: data-theme lo ajusta el script anterior a React
+    // según la sesión; ese desajuste puntual con el SSR es intencional.
+    <html
+      lang="es"
+      className={`${archivo.variable} ${plexMono.variable}`}
+      data-theme="light"
+      suppressHydrationWarning
+    >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         {/* Preconnect al CDN de iconos (Phosphor) para adelantar su handshake.
             Las fuentes ya no son render-blocking: se sirven self-hosted vía next/font. */}
         <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
@@ -71,18 +87,24 @@ export default function RootLayout({ children }) {
       <body>
         <a href="#main-content" className="skip-link">Saltar al contenido</a>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="afterInteractive" />
+        <SplashIntro />
         <ToastProvider>
+          <AuthProvider>
           <CatalogProvider>
             <CartProvider>
-              <AnnouncementBar />
-              <Nav />
+              <StoreChrome>
+                <Nav />
+              </StoreChrome>
               <main id="main-content">{children}</main>
-              <CartDrawer />
-              <WhatsAppFloat />
-              <SocialProof />
-              <Footer />
+              <StoreChrome>
+                <CartDrawer />
+                <WhatsAppFloat />
+                <SocialProof />
+                <Footer />
+              </StoreChrome>
             </CartProvider>
           </CatalogProvider>
+          </AuthProvider>
         </ToastProvider>
         <Analytics />
       </body>

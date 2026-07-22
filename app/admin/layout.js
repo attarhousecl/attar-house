@@ -14,5 +14,7 @@ const interStudio = Inter({
 });
 
 export default function AdminLayout({ children }) {
-  return <div className={`${cormorant.variable} ${interStudio.variable}`}>{children}</div>;
+  // .admin-scope re-fija la paleta original del panel: el tema claro/oscuro
+  // de la tienda es solo para el cliente y no debe afectar al admin.
+  return <div className={`admin-scope ${cormorant.variable} ${interStudio.variable}`}>{children}</div>;
 }

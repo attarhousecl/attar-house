@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useCatalog } from "@/context/CatalogContext";
 import { useCart } from "@/context/CartContext";
@@ -41,6 +40,8 @@ export default function PackPage() {
       setSelected(selected.filter(p => p.id !== perfume.id));
     } else if (selected.length < MAX_ITEMS) {
       setSelected([...selected, perfume]);
+    } else {
+      showToast(`Máximo ${MAX_ITEMS} decants por pack.`);
     }
   }
 
@@ -56,121 +57,161 @@ export default function PackPage() {
     setSelected([]);
   }
 
-  return (
-    <div style={{ fontFamily: "var(--font-montserrat), sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh", padding: "40px 20px" }}>
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-        <Link href="/" style={{ color: "#d4af37", fontSize: "0.8rem", textDecoration: "none" }}>← Volver</Link>
+  const estadoTexto = selected.length < MIN_ITEMS
+    ? `Elige ${MIN_ITEMS - selected.length} más para activar el 10%`
+    : "¡Descuento del 10% activo!";
 
-        <div style={{ textAlign: "center", margin: "24px 0 40px" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🎁</div>
-          <h1 style={{ fontFamily: "var(--font-playfair), serif", color: "#d4af37", fontSize: "2rem", margin: "0 0 8px" }}>Pack Descubrimiento</h1>
-          <p style={{ color: "#888", fontSize: "0.9rem", margin: 0 }}>Elige {MIN_ITEMS}–{MAX_ITEMS} decants de 10ml y obtén <strong style={{ color: "#d4af37" }}>10% de descuento</strong></p>
+  const resumen = (
+    <>
+      <div className="pack-progress-head">
+        <span className="mono">{selected.length} / {MAX_ITEMS}</span>
+        <span className={listo ? "pack-status ok" : "pack-status"}>{estadoTexto}</span>
+      </div>
+      <div className="pack-progress-bar" aria-hidden="true">
+        <div
+          className={`pack-progress-fill ${listo ? "ok" : ""}`}
+          style={{ width: `${(selected.length / MAX_ITEMS) * 100}%` }}
+        />
+      </div>
+    </>
+  );
+
+  return (
+    <div className="pack-page">
+      <div className="pack-wrap">
+        <div className="pack-head">
+          <div className="kicker">🎁 Arma tu set y ahorra</div>
+          <h1 className="pack-title">Pack Descubrimiento</h1>
+          <p className="pack-sub">
+            Elige de {MIN_ITEMS} a {MAX_ITEMS} decants de 10ml (~100 sprays cada uno) y
+            llévate un <strong>10% de descuento</strong> en todo el pack.
+          </p>
         </div>
 
         <div className="pack-grid">
-          {/* Left: selector */}
-          <div>
+          {/* Selector */}
+          <div className="pack-picker">
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar perfume..."
+              placeholder="Buscar por nombre o marca…"
               aria-label="Buscar perfume para el pack"
-              style={{ width: "100%", background: "#111", border: "1px solid #222", borderRadius: "8px", padding: "10px 16px", color: "#e0e0e0", fontSize: "0.88rem", marginBottom: "16px", boxSizing: "border-box", fontFamily: "inherit" }}
+              className="form-input pack-search"
             />
             {filtrados.length === 0 && (
-              <p style={{ color: "#666", fontSize: "0.85rem", textAlign: "center", padding: "32px 0" }}>
+              <p className="pack-empty">
                 {search.trim()
                   ? `No encontramos decants para "${search}".`
                   : "Pronto habrá más decants disponibles para armar tu pack."}
               </p>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px" }}>
+            <div className="pack-cards">
               {filtrados.map(p => {
                 const isSelected = !!selected.find(s => s.id === p.id);
                 const isDisabled = !isSelected && selected.length >= MAX_ITEMS;
                 return (
                   <button
                     key={p.id}
-                    onClick={() => !isDisabled && toggleSelect(p)}
-                    style={{
-                      background: isSelected ? "rgba(212,175,55,0.12)" : "#111",
-                      border: isSelected ? "2px solid #d4af37" : "1px solid #1a1a1a",
-                      borderRadius: "10px", padding: "14px 12px", cursor: isDisabled ? "default" : "pointer",
-                      textAlign: "left", opacity: isDisabled ? 0.4 : 1, transition: "all 0.2s",
-                    }}
+                    type="button"
+                    onClick={() => toggleSelect(p)}
+                    className={`pack-card ${isSelected ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                    aria-pressed={isSelected}
                   >
+                    <span className="pack-card-check" aria-hidden="true">✓</span>
                     {p.imageUrl && (
-                      <div style={{ position: "relative", width: "100%", height: "80px", marginBottom: "8px" }}>
-                        <Image src={p.imageUrl} alt={p.name} fill sizes="180px" style={{ objectFit: "contain" }} />
-                      </div>
+                      <span className="pack-card-img">
+                        <Image src={p.imageUrl} alt="" fill sizes="180px" style={{ objectFit: "contain" }} />
+                      </span>
                     )}
-                    <div style={{ fontSize: "0.65rem", color: "#555", marginBottom: "2px" }}>{p.brand}</div>
-                    <div style={{ fontSize: "0.82rem", color: isSelected ? "#d4af37" : "#ccc", fontWeight: 600, marginBottom: "4px", lineHeight: 1.3 }}>{p.name}</div>
-                    <div style={{ fontSize: "0.75rem", color: "#888" }}>
-                      <span style={{ textDecoration: "line-through", marginRight: "4px" }}>${p.prices[FORMAT].toLocaleString("es-CL")}</span>
-                      <span style={{ color: "#d4af37" }}>${Math.round(p.prices[FORMAT] * (1 - PACK_DISCOUNT)).toLocaleString("es-CL")}</span>
-                    </div>
-                    {isSelected && <div style={{ marginTop: "6px", fontSize: "0.65rem", color: "#d4af37", fontWeight: 700 }}>✓ Seleccionado</div>}
+                    <span className="pack-card-brand">{p.brand}</span>
+                    <span className="pack-card-name">{p.name}</span>
+                    <span className="pack-card-price">
+                      <s>${p.prices[FORMAT].toLocaleString("es-CL")}</s>{" "}
+                      <strong>${Math.round(p.prices[FORMAT] * (1 - PACK_DISCOUNT)).toLocaleString("es-CL")}</strong>
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Right: summary */}
-          <div className="pack-summary" style={{ position: "sticky", top: "80px", alignSelf: "flex-start" }}>
-            <div style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: "14px", padding: "24px" }}>
-              <h3 style={{ margin: "0 0 16px", color: "#d4af37", fontSize: "0.95rem" }}>Tu Pack</h3>
-
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#555", marginBottom: "12px" }}>
-                <span>{selected.length} / {MAX_ITEMS} seleccionados</span>
-                <span style={{ color: selected.length >= MIN_ITEMS ? "#27ae60" : "#d4af37" }}>
-                  {selected.length < MIN_ITEMS ? `Faltan ${MIN_ITEMS - selected.length} para activar` : "¡Descuento activo!"}
-                </span>
-              </div>
-
-              <div style={{ height: "4px", background: "#1a1a1a", borderRadius: "2px", marginBottom: "20px", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${(selected.length / MAX_ITEMS) * 100}%`, background: listo ? "#27ae60" : "#d4af37", transition: "width 0.3s" }} />
-              </div>
+          {/* Resumen desktop (sticky) */}
+          <aside className="pack-summary">
+            <div className="pack-summary-card">
+              <h3>Tu pack</h3>
+              {resumen}
 
               {selected.length > 0 ? (
-                <div style={{ marginBottom: "16px" }}>
+                <div className="pack-selected">
                   {selected.map(p => (
-                    <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #1a1a1a", fontSize: "0.8rem" }}>
-                      <span style={{ color: "#ccc" }}>{p.name}</span>
-                      <button onClick={() => toggleSelect(p)} style={{ background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}>×</button>
+                    <div key={p.id} className="pack-selected-item">
+                      <span>{p.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleSelect(p)}
+                        aria-label={`Quitar ${p.name} del pack`}
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p style={{ color: "#777", fontSize: "0.78rem", textAlign: "center", padding: "12px 0" }}>Selecciona perfumes para armar tu pack</p>
+                <p className="pack-hint">Toca los perfumes para agregarlos a tu pack.</p>
               )}
 
               {selected.length > 0 && (
-                <div style={{ paddingTop: "12px", borderTop: "1px solid #1a1a1a", fontSize: "0.82rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#555", marginBottom: "4px" }}>
-                    <span>Subtotal</span><span>${subtotal.toLocaleString("es-CL")}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: listo ? "#27ae60" : "#333", marginBottom: "8px" }}>
-                    <span>Descuento 10%</span><span>-${descuento.toLocaleString("es-CL")}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#d4af37", fontWeight: 700, fontSize: "1rem" }}>
-                    <span>Total</span><span>${total.toLocaleString("es-CL")}</span>
-                  </div>
+                <div className="pack-totals">
+                  <div><span>Subtotal</span><span>${subtotal.toLocaleString("es-CL")}</span></div>
+                  <div className={listo ? "ok" : ""}><span>Descuento 10%</span><span>-${descuento.toLocaleString("es-CL")}</span></div>
+                  <div className="pack-total-row"><span>Total</span><span>${total.toLocaleString("es-CL")}</span></div>
                 </div>
               )}
 
               <button
+                type="button"
                 onClick={agregarAlCarrito}
                 disabled={!listo}
-                style={{ marginTop: "20px", width: "100%", background: listo ? "#d4af37" : "#1a1a1a", color: listo ? "#000" : "#333", border: "none", borderRadius: "8px", padding: "14px", fontWeight: 700, fontSize: "0.88rem", cursor: listo ? "pointer" : "default", transition: "all 0.2s" }}
+                className="btn-gold-solid pack-cta"
               >
-                {listo ? `Agregar pack al carrito` : `Selecciona al menos ${MIN_ITEMS}`}
+                {listo ? "Agregar pack al carrito" : `Selecciona al menos ${MIN_ITEMS}`}
               </button>
-
-              <p style={{ marginTop: "12px", fontSize: "0.7rem", color: "#777", textAlign: "center" }}>Cada decant es de {FORMAT_LABEL} (~100 atomizaciones)</p>
+              <p className="pack-note mono">Cada decant es {FORMAT_LABEL} · ~100 atomizaciones</p>
             </div>
+          </aside>
+        </div>
+      </div>
+
+      {/* Barra fija móvil: lo elegido siempre a la vista, nunca "al fondo" */}
+      <div className={`pack-mobile-bar ${selected.length > 0 ? "has-items" : ""}`}>
+        {selected.length > 0 && (
+          <div className="pack-mobile-chips" aria-label="Perfumes seleccionados">
+            {selected.map(p => (
+              <button
+                key={p.id}
+                type="button"
+                className="pack-mobile-chip"
+                onClick={() => toggleSelect(p)}
+                aria-label={`Quitar ${p.name} del pack`}
+              >
+                {p.name} <span aria-hidden="true">×</span>
+              </button>
+            ))}
           </div>
+        )}
+        <div className="pack-mobile-row">
+          <div className="pack-mobile-info">
+            <span className="mono pack-mobile-count">{selected.length}/{MAX_ITEMS} · {listo ? "10% activo" : `faltan ${Math.max(0, MIN_ITEMS - selected.length)}`}</span>
+            <span className="pack-mobile-total">${total.toLocaleString("es-CL")}</span>
+          </div>
+          <button
+            type="button"
+            onClick={agregarAlCarrito}
+            disabled={!listo}
+            className="pack-mobile-cta"
+          >
+            {listo ? "Agregar pack" : `Mínimo ${MIN_ITEMS}`}
+          </button>
         </div>
       </div>
     </div>

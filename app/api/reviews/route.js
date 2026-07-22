@@ -5,9 +5,7 @@ import { cookies } from "next/headers";
 // Lee cookies y escribe en DB: nunca debe optimizarse a estático.
 export const dynamic = "force-dynamic";
 
-const SID_COOKIE = "ah_sid";       // id de sesión (httpOnly) → base del session_hash
-const DONE_COOKIE = "ah_reviews";  // lista legible (CSV) de perfume_id ya reseñados por esta sesión
-const SID_MAX_AGE = 60 * 60 * 24 * 365; // 1 año
+const DONE_COOKIE = "ah_reviews";  // lista legible (CSV) de perfume_id ya reseñados por este usuario
 const DONE_MAX_AGE = 60 * 60 * 24 * 180; // ~6 meses
 const IS_PROD = process.env.NODE_ENV === "production";
 
@@ -32,6 +30,19 @@ export async function POST(request) {
     return Response.json({ error: "Demasiados intentos. Intenta más tarde." }, { status: 429 });
   }
 
+  // Reseñas SOLO para clientes con sesión (Supabase Auth). El token se verifica
+  // en el servidor; el nombre del autor sale del perfil, no del formulario.
+  const auth = request.headers.get("authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token) {
+    return Response.json({ error: "Inicia sesión para dejar tu reseña." }, { status: 401 });
+  }
+  const { data: userData, error: authError } = await supabaseAdmin.auth.getUser(token);
+  const user = userData?.user;
+  if (authError || !user) {
+    return Response.json({ error: "Sesión inválida o expirada. Vuelve a iniciar sesión." }, { status: 401 });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -41,12 +52,15 @@ export async function POST(request) {
 
   // Validación server-side (no confiar en el cliente): longitudes y rango del rating.
   const perfumeId = String(body?.perfumeId || "").trim().slice(0, 64);
-  const authorName = String(body?.name || "").trim().slice(0, 40);
+  const authorName = String(
+    user.user_metadata?.full_name || (user.email ? user.email.split("@")[0] : "")
+  ).trim().slice(0, 40);
   const comment = String(body?.text || "").trim().slice(0, 300);
   const rating = Number(body?.rating);
 
   if (!perfumeId) return Response.json({ error: "Producto inválido." }, { status: 400 });
-  if (!authorName || !comment) return Response.json({ error: "Completa tu nombre y comentario." }, { status: 400 });
+  if (!authorName) return Response.json({ error: "Tu cuenta no tiene nombre válido." }, { status: 400 });
+  if (!comment) return Response.json({ error: "Escribe tu comentario." }, { status: 400 });
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return Response.json({ error: "Selecciona una puntuación de 1 a 5." }, { status: 400 });
   }
@@ -56,10 +70,10 @@ export async function POST(request) {
   if (!perfume) return Response.json({ error: "Producto inválido." }, { status: 400 });
 
   const cookieStore = await cookies();
-  const sid = cookieStore.get(SID_COOKIE)?.value || crypto.randomUUID();
-  const sessionHash = await sha256Hex(sid);
+  // "Una reseña por producto por USUARIO": el hash se deriva del id de usuario
+  // verificado, reutilizando el índice único (session_hash, perfume_id) existente.
+  const sessionHash = await sha256Hex(`user:${user.id}`);
 
-  // Refuerzo server-side de "una reseña por producto por sesión".
   const { data: existing } = await supabaseAdmin
     .from("reviews")
     .select("id")
@@ -95,9 +109,6 @@ export async function POST(request) {
     return Response.json({ error: "No se pudo guardar tu reseña." }, { status: 500 });
   }
 
-  // Cookies: sid httpOnly (no accesible a JS); ah_reviews legible para ocultar
-  // el form solo en los productos ya reseñados.
-  cookieStore.set(SID_COOKIE, sid, { maxAge: SID_MAX_AGE, path: "/", httpOnly: true, sameSite: "lax", secure: IS_PROD });
   markReviewed(cookieStore, perfumeId);
 
   return Response.json({ ok: true, pending: true });

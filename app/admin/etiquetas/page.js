@@ -21,7 +21,7 @@ export default function EtiquetasPage() {
       const originalBorder = printArea.style.border;
       printArea.style.border = "none";
       try {
-        const canvas = await window.html2canvas(printArea, { scale: 4, backgroundColor: "#ffffff" });
+        const canvas = await window.html2canvas(printArea, { scale: 4, backgroundColor: "#FDFCFA" });
         setGeneratedImage(canvas.toDataURL("image/png"));
       } catch {
         alert("Error al generar imagen. Intenta de nuevo.");
@@ -142,8 +142,8 @@ export default function EtiquetasPage() {
               <div
                 id="print-area"
                 style={{
-                  background: "#fff",
-                  color: "#000",
+                  background: "#FDFCFA",
+                  color: "#0F1613",
                   width: 250,
                   height: 500,
                   boxSizing: "border-box",
@@ -158,7 +158,7 @@ export default function EtiquetasPage() {
               >
                 <div
                   style={{
-                    border: "4px solid #000",
+                    border: "4px solid #0F1613",
                     width: "100%",
                     height: "100%",
                     display: "flex",
@@ -198,13 +198,13 @@ export default function EtiquetasPage() {
                   {/* Attar House */}
                   <div
                     style={{
-                      background: "#fff",
+                      background: "#FDFCFA",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
                       height: 80,
-                      borderTop: "4px solid #000",
+                      borderTop: "4px solid #0F1613",
                     }}
                   >
                     <span style={{ fontFamily: "Georgia, serif", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", fontSize: 20, lineHeight: 1 }}>
@@ -220,9 +220,9 @@ export default function EtiquetasPage() {
               <div
                 id="print-area"
                 style={{
-                  background: "#fff",
-                  color: "#000",
-                  border: "4px solid #000",
+                  background: "#FDFCFA",
+                  color: "#0F1613",
+                  border: "4px solid #0F1613",
                   width: 460,
                   height: 200,
                   boxSizing: "border-box",
@@ -297,15 +297,15 @@ function EtiquetasStyles() {
     <style jsx global>{`
       .et-page {
         min-height: 100vh;
-        background: #0a0a0a;
-        color: #e0e0e0;
-        font-family: "Segoe UI", sans-serif;
+        background: #0F1613;
+        color: #FDFCFA;
+        font-family: var(--font-archivo), sans-serif;
       }
       .et-page * { box-sizing: border-box; }
 
       .et-header {
-        background: #111;
-        border-bottom: 1px solid #2a2a2a;
+        background: #151D1A;
+        border-bottom: 1px solid #1F2B27;
         padding: 14px 24px;
         display: flex;
         align-items: center;
@@ -316,8 +316,8 @@ function EtiquetasStyles() {
       }
       .et-back {
         background: none;
-        border: 1px solid #333;
-        color: #999;
+        border: 1px solid #2A3A32;
+        color: #8A9690;
         padding: 5px 12px;
         border-radius: 6px;
         font-size: 0.8rem;
@@ -325,13 +325,13 @@ function EtiquetasStyles() {
         transition: all 0.2s;
         white-space: nowrap;
       }
-      .et-back:hover { border-color: #d4af37; color: #d4af37; }
-      .et-title { font-size: 1.1rem; color: #d4af37; letter-spacing: 2px; text-transform: uppercase; flex: 1; margin: 0; }
+      .et-back:hover { border-color: #8DD8A0; color: #8DD8A0; }
+      .et-title { font-size: 1.1rem; color: #8DD8A0; letter-spacing: 2px; text-transform: uppercase; flex: 1; margin: 0; }
       .et-badge {
         font-size: 0.72rem;
-        background: rgba(212,175,55,0.1);
-        border: 1px solid rgba(212,175,55,0.3);
-        color: #d4af37;
+        background: rgba(141,216,160, 0.1);
+        border: 1px solid rgba(141,216,160, 0.3);
+        color: #8DD8A0;
         padding: 4px 10px;
         border-radius: 20px;
         white-space: nowrap;
@@ -347,31 +347,31 @@ function EtiquetasStyles() {
       }
 
       .et-card {
-        background: #111;
-        border: 1px solid #2a2a2a;
+        background: #151D1A;
+        border: 1px solid #1F2B27;
         border-radius: 16px;
         padding: 24px;
       }
       .et-card-title {
         font-size: 0.9rem;
-        color: #d4af37;
+        color: #8DD8A0;
         text-transform: uppercase;
         letter-spacing: 1px;
-        border-bottom: 1px solid #1a1a1a;
+        border-bottom: 1px solid #1A2420;
         padding-bottom: 10px;
         margin: 0 0 20px;
       }
 
       .et-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       .et-group { display: flex; flex-direction: column; gap: 6px; }
-      .et-group label { font-size: 0.72rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+      .et-group label { font-size: 0.72rem; color: #8A9690; text-transform: uppercase; letter-spacing: 0.5px; }
       .et-page input[type="text"],
       .et-page select {
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: #1A2420;
+        border: 1px solid #1F2B27;
         border-radius: 6px;
         padding: 9px 12px;
-        color: #e0e0e0;
+        color: #FDFCFA;
         font-size: 0.86rem;
         outline: none;
         font-family: inherit;
@@ -379,39 +379,39 @@ function EtiquetasStyles() {
         transition: border-color 0.2s;
       }
       .et-page input[type="text"]:focus,
-      .et-page select:focus { border-color: #d4af37; }
+      .et-page select:focus { border-color: #8DD8A0; }
 
       .et-btnrow { display: flex; gap: 8px; }
       .et-sizebtn {
         flex: 1;
         padding: 8px;
         border-radius: 6px;
-        border: 1px solid #2a2a2a;
-        background: #1a1a1a;
-        color: #999;
+        border: 1px solid #1F2B27;
+        background: #1A2420;
+        color: #8A9690;
         font-size: 0.85rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
       }
-      .et-sizebtn.active { background: #d4af37; border-color: #d4af37; color: #000; }
-      .et-sizebtn:hover:not(.active) { border-color: rgba(212,175,55,0.4); color: #d4af37; }
+      .et-sizebtn.active { background: #8DD8A0; border-color: #8DD8A0; color: #0F1613; }
+      .et-sizebtn:hover:not(.active) { border-color: rgba(141,216,160, 0.4); color: #8DD8A0; }
 
       .et-cal {
-        background: #0d0d0d;
+        background: #0F1613;
         border: 1px solid #222;
         border-radius: 8px;
         padding: 12px 14px;
       }
       .et-calrow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-      .et-calrow label { font-size: 0.72rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
-      .et-calval { font-size: 0.72rem; font-weight: 700; color: #d4af37; background: rgba(212,175,55,0.1); padding: 2px 8px; border-radius: 20px; }
-      .et-range { width: 100%; accent-color: #d4af37; cursor: pointer; }
-      .et-hint { font-size: 0.72rem; color: #555; margin: 6px 0 0; line-height: 1.4; }
+      .et-calrow label { font-size: 0.72rem; color: #8A9690; text-transform: uppercase; letter-spacing: 0.5px; }
+      .et-calval { font-size: 0.72rem; font-weight: 700; color: #8DD8A0; background: rgba(141,216,160, 0.1); padding: 2px 8px; border-radius: 20px; }
+      .et-range { width: 100%; accent-color: #8DD8A0; cursor: pointer; }
+      .et-hint { font-size: 0.72rem; color: #5C6B64; margin: 6px 0 0; line-height: 1.4; }
 
       .et-preview-box {
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: #1A2420;
+        border: 1px solid #1F2B27;
         border-radius: 10px;
         padding: 32px;
         display: flex;
@@ -424,8 +424,8 @@ function EtiquetasStyles() {
 
       .et-dl-btn {
         width: 100%;
-        background: #d4af37;
-        color: #000;
+        background: #8DD8A0;
+        color: #0F1613;
         border: none;
         border-radius: 10px;
         padding: 12px;
@@ -450,8 +450,8 @@ function EtiquetasStyles() {
         padding: 16px;
       }
       .et-modal {
-        background: #111;
-        border: 1px solid rgba(212,175,55,0.3);
+        background: #151D1A;
+        border: 1px solid rgba(141,216,160, 0.3);
         border-radius: 16px;
         padding: 24px;
         max-width: 380px;
@@ -461,19 +461,19 @@ function EtiquetasStyles() {
       .et-modal-close {
         position: absolute;
         top: 12px; right: 12px;
-        background: #1a1a1a;
+        background: #1A2420;
         border: none;
-        color: #999;
+        color: #8A9690;
         width: 28px; height: 28px;
         border-radius: 50%;
         cursor: pointer;
         font-size: 0.85rem;
       }
-      .et-modal-close:hover { color: #fff; background: #2a2a2a; }
-      .et-modal-title { color: #fff; font-size: 1.1rem; font-weight: 700; margin: 0 0 12px; }
+      .et-modal-close:hover { color: #FDFCFA; background: #1F2B27; }
+      .et-modal-title { color: #FDFCFA; font-size: 1.1rem; font-weight: 700; margin: 0 0 12px; }
       .et-modal-warn {
-        background: rgba(212,175,55,0.08);
-        border: 1px solid rgba(212,175,55,0.3);
+        background: rgba(141,216,160, 0.08);
+        border: 1px solid rgba(141,216,160, 0.3);
         color: #d4d0aa;
         padding: 10px 12px;
         border-radius: 8px;
@@ -482,7 +482,7 @@ function EtiquetasStyles() {
         line-height: 1.5;
       }
       .et-modal-imgwrap {
-        background: #fff;
+        background: #FDFCFA;
         padding: 8px;
         border-radius: 8px;
         display: flex;
@@ -490,13 +490,13 @@ function EtiquetasStyles() {
         margin-bottom: 10px;
       }
       .et-modal-img { height: 180px; object-fit: contain; }
-      .et-modal-hint { text-align: center; color: #888; font-size: 0.78rem; margin-bottom: 12px; }
+      .et-modal-hint { text-align: center; color: #7A8985; font-size: 0.78rem; margin-bottom: 12px; }
       .et-modal-dl {
         display: block;
         text-align: center;
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: #d4af37;
+        background: #1A2420;
+        border: 1px solid #2A3A32;
+        color: #8DD8A0;
         padding: 10px;
         border-radius: 8px;
         text-decoration: none;
@@ -504,7 +504,7 @@ function EtiquetasStyles() {
         font-weight: 600;
         transition: all 0.2s;
       }
-      .et-modal-dl:hover { background: #d4af37; color: #000; border-color: #d4af37; }
+      .et-modal-dl:hover { background: #8DD8A0; color: #0F1613; border-color: #8DD8A0; }
 
       @media (max-width: 768px) {
         .et-main { grid-template-columns: 1fr; padding: 16px; }

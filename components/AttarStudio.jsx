@@ -23,7 +23,7 @@ import { toPng } from 'html-to-image';
 import { SCENES as BG_SCENES, makeSeed as makeBgSeed, Backdrop as ProceduralBackdrop } from './proceduralBackdrops';
 
 const DIM = {
-  story:  { w: 1080, h: 1920, label: 'Story · 9:16' },
+  story:  { w: 1080, h: 1920, label: 'Story · Reel · TikTok' },
   feed:   { w: 1080, h: 1080, label: 'Feed · 1:1' },
   feed45: { w: 1080, h: 1350, label: 'Feed · 4:5' },
 };
@@ -44,15 +44,101 @@ const TEMPLATES = [
 // Todas las plantillas admiten fondo de escena procedural + texto libre movible
 const SCENE_CAPABLE = ['producto', 'versus', 'tabla', 'promo', 'lanzamiento', 'inspirado', 'testimonio', 'comparativa', 'countdown', 'carrusel'];
 
+// Temas con fondo en degradado (más "llamativos" que el color plano anterior).
+// Cada uno declara `dark` para elegir contraste del marco/pie sin adivinar por id.
 const THEMES = [
-  { id: 'noir',     label: 'Noir',     bg: '#0c0b09', ink: '#f3ede1', muted: '#8c857a', line: 'rgba(243,237,225,.12)' },
-  { id: 'ivory',    label: 'Marfil',   bg: '#f3ede1', ink: '#1c1814', muted: '#9a9286', line: 'rgba(28,24,20,.14)' },
-  { id: 'burdeos',  label: 'Burdeos',  bg: '#1a0a0d', ink: '#f0e3d8', muted: '#a4827f', line: 'rgba(240,227,216,.14)' },
-  { id: 'esmeralda', label: 'Esmeralda', bg: '#07120d', ink: '#eef0e6', muted: '#80a08f', line: 'rgba(238,240,230,.14)' },
+  { id: 'noir',      label: 'Noir',      dark: true,  bg: 'radial-gradient(125% 95% at 50% 0%, #1b1712 0%, #0c0b09 55%, #060505 100%)', ink: '#f3ede1', muted: '#9c9384', line: 'rgba(243,237,225,.14)' },
+  { id: 'oro',       label: 'Oro',       dark: true,  bg: 'linear-gradient(165deg, #241c0c 0%, #100c06 55%, #050409 100%)', ink: '#f8eecf', muted: '#bda067', line: 'rgba(214,183,110,.20)' },
+  { id: 'burdeos',   label: 'Burdeos',   dark: true,  bg: 'radial-gradient(125% 95% at 50% 8%, #521320 0%, #260a10 55%, #120406 100%)', ink: '#f6e8de', muted: '#c98f8a', line: 'rgba(246,232,222,.16)' },
+  { id: 'esmeralda', label: 'Esmeralda', dark: true,  bg: 'radial-gradient(125% 95% at 50% 10%, #114633 0%, #082016 55%, #040f0a 100%)', ink: '#eef3ea', muted: '#88b39a', line: 'rgba(238,243,234,.16)' },
+  { id: 'bosque',    label: 'Bosque',    dark: true,  bg: 'radial-gradient(135% 105% at 50% 12%, #275540 0%, #10281c 55%, #081109 100%)', ink: '#f1efe4', muted: '#93b7a1', line: 'rgba(241,239,228,.16)' },
+  { id: 'ivory',     label: 'Marfil',    dark: false, bg: 'linear-gradient(180deg, #f7f2e8 0%, #ece3d4 100%)', ink: '#1c1814', muted: '#8f877a', line: 'rgba(28,24,20,.16)' },
 ];
 const themeOf = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
 
+// Espera a que TODAS las imágenes dentro del lienzo estén cargadas y
+// decodificadas antes de capturar. Reemplaza los sleeps fijos que hacían
+// que el lote/carrusel a veces exportara imágenes a medio cargar.
+const waitForImages = async (node, timeout = 5000) => {
+  const imgs = Array.from(node?.querySelectorAll?.('img') || []);
+  if (!imgs.length) return;
+  await Promise.race([
+    Promise.all(imgs.map((im) =>
+      im.complete && im.naturalWidth > 0
+        ? Promise.resolve()
+        : new Promise((res) => {
+            im.addEventListener('load', res, { once: true });
+            im.addEventListener('error', res, { once: true });
+          })
+    )),
+    new Promise((r) => setTimeout(r, timeout)),
+  ]);
+  await Promise.race([
+    Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))),
+    new Promise((r) => setTimeout(r, 800)),
+  ]);
+};
+
+// ---- Captions listos para pegar en Instagram / TikTok ----
+const HASHTAGS_IG = ['#perfumesarabes', '#decants', '#decantschile', '#perfumeschile', '#fragancias', '#perfumesnicho', '#perfumesoriginales', '#valdivia', '#chile', '#fragranceaddict', '#attarhouse'];
+const HASHTAGS_TT = ['#perfumesarabes', '#decantschile', '#perfumetok', '#fragancias', '#perfumeschile', '#parati', '#fyp', '#attarhouse'];
+
+const brandTag = (p) => (p?.brand ? '#' + p.brand.toLowerCase().replace(/[^a-z0-9]+/g, '') : null);
+
+// Arma un caption según red, plantilla y datos actuales (producto real si hay).
+function buildCaption(red, { tpl, cur, curSlide, product }) {
+  const c = tpl === 'carrusel' ? (curSlide || {}) : (cur || {});
+  const name = product?.name || c.name || c.lHead || 'Tu próximo perfume';
+  const brand = product?.brand || c.eyebrow || 'Attar House';
+  const notes = product ? perfumeNotes(product).slice(0, 3).join(', ') : (c.notes && c.notes !== '—' ? c.notes : '');
+  const meta = product ? perfumeMeta(product) : (c.meta || c.price || '');
+  const cta = 'Pídelo en attarhouse.cl · Envíos a todo Chile 📦 · Retiro en Valdivia';
+
+  const hooks = {
+    producto:    `${name} de ${brand} — el que todos preguntan 👇`,
+    promo:       `🔥 OFERTA: ${name} a precio especial, solo por días.`,
+    lanzamiento: `🆕 Llegó ${name} a la casa.`,
+    inspirado:   `¿Amas ${c.target || 'esa fragancia carísima'}? Conoce ${name}.`,
+    testimonio:  `Esto dijo un cliente real sobre su compra 💬`,
+    comparativa: `¿3ml, 5ml o 10ml? Así rinde ${name} 👇`,
+    countdown:   `⏳ Última llamada: ${name} está por agotarse.`,
+    carrusel:    `Desliza ➡️ nuestros favoritos de la semana.`,
+    versus:      `La diferencia se nota: ${name} 🆚 el resto.`,
+    tabla:       `Por qué comprar tus perfumes con nosotros 👇`,
+  };
+  const hook = hooks[tpl] || hooks.producto;
+
+  const tags = [...new Set([brandTag(product), ...(red === 'tt' ? HASHTAGS_TT : HASHTAGS_IG)].filter(Boolean))];
+
+  if (red === 'tt') {
+    return [
+      hook,
+      notes ? `Notas: ${notes} ✨` : null,
+      'Pruébalo en decant antes de comprar la botella 💧',
+      cta,
+      tags.slice(0, 8).join(' '),
+    ].filter(Boolean).join('\n');
+  }
+  return [
+    hook,
+    '',
+    notes ? `✨ Notas: ${notes}` : null,
+    meta ? `💰 ${meta}` : null,
+    '💧 Pruébalo en decant (3, 5 o 10ml) antes de invertir en el frasco completo. 100% original.',
+    '',
+    `🛒 ${cta}`,
+    '',
+    tags.slice(0, 12).join(' '),
+  ].filter((l) => l !== null).join('\n');
+}
+
 const clp = (n) => '$' + Number(n || 0).toLocaleString('es-CL');
+
+// image_url en la BD suele ser solo el nombre de archivo (ej: "yara.png") y
+// las fotos viven en /public/images. Sin esta resolución, el navegador buscaba
+// la imagen relativa a /admin/ (404) y la exportación fallaba con "undefined".
+const productImg = (u) =>
+  !u ? null : (u.startsWith('http') || u.startsWith('/') || u.startsWith('data:')) ? u : `/images/${u}`;
 
 // Normaliza notes (jsonb): array de strings u objetos {name}
 const perfumeNotes = (p) => {
@@ -84,7 +170,7 @@ const priceRows = (p) => ([
 // (usado al hacer clic en el catálogo y al generar en lote)
 const mapPerfumeToContent = (p, c) => {
   const notes = perfumeNotes(p).slice(0, 3).join(' · ') || '—';
-  const img = p.image_url || null;
+  const img = productImg(p.image_url);
   const slides = c.carrusel.slides.slice();
   const i = c.carrusel.activeSlide;
   slides[i] = { ...slides[i], eyebrow: p.brand, name: p.name, notes, price: clp(lowestPrice(p)), img };
@@ -182,6 +268,10 @@ export default function AttarStudio({ supabase, onExit }) {
   const [scale, setScale]   = useState(0.4);
   const [logo, setLogoState] = useState(null); // logo propio, persiste en este navegador
   const [logoScale, setLogoScaleState] = useState(1); // tamaño del logo, persiste igual
+  const [copied, setCopied] = useState(false);   // feedback de "Copiar PNG"
+  const [safeZone, setSafeZone] = useState(false); // guías de UI de IG/TikTok (solo preview)
+  const [realReviews, setRealReviews] = useState(null); // reseñas aprobadas para Testimonio
+  const [reviewIdx, setReviewIdx] = useState(0);
 
   const stageRef = useRef(null);
   const areaRef  = useRef(null);
@@ -224,6 +314,32 @@ export default function AttarStudio({ supabase, onExit }) {
       .order('popularity', { ascending: false })
       .then(({ data }) => setProducts(data || []));
   }, [supabase]);
+
+  // ---- reseñas reales aprobadas (para la plantilla Testimonio) ----
+  useEffect(() => {
+    if (!supabase || tpl !== 'testimonio' || realReviews !== null) return;
+    supabase.from('reviews')
+      .select('author_name,rating,comment')
+      .eq('approved', true)
+      .order('created_at', { ascending: false })
+      .limit(25)
+      .then(({ data }) => setRealReviews(data || []));
+  }, [supabase, tpl, realReviews]);
+
+  const useRealReview = () => {
+    if (!realReviews?.length) return;
+    const r = realReviews[reviewIdx % realReviews.length];
+    setContent((c) => ({
+      ...c,
+      testimonio: {
+        ...c.testimonio,
+        quote: `"${r.comment}"`,
+        name: r.author_name,
+        stars: r.rating || 5,
+      },
+    }));
+    setReviewIdx((i) => i + 1);
+  };
 
   // ---- cargar diseños guardados ----
   const loadDesigns = useCallback(() => {
@@ -289,37 +405,71 @@ export default function AttarStudio({ supabase, onExit }) {
   // Para exportar a 1080 real, forzamos transform:none solo en la copia capturada.
   const renderPng = async () => {
     const { w, h } = DIM[format];
-    return toPng(stageRef.current, {
-      width: w, height: h, pixelRatio: 1, cacheBust: true, backgroundColor: null,
-      style: { transform: 'none', transformOrigin: 'top left', margin: '0' },
-    });
+    // Nunca capturar con imágenes a medio cargar (causa de exports en blanco).
+    await waitForImages(stageRef.current);
+    try {
+      return await toPng(stageRef.current, {
+        width: w, height: h, pixelRatio: 1, cacheBust: true, backgroundColor: null,
+        style: { transform: 'none', transformOrigin: 'top left', margin: '0' },
+      });
+    } catch (e) {
+      // html-to-image lanza un Event (sin .message) cuando una imagen no carga.
+      throw new Error(e?.message || 'una imagen del diseño no pudo cargarse (revisa la foto del producto)');
+    }
   };
+
+  const stamp = () => new Date().toISOString().slice(0, 10);
 
   const download = async () => {
     setBusy('export');
     try {
       const url = await renderPng();
       const a = document.createElement('a');
-      a.download = `attarhouse_${tpl}_${format}.png`; a.href = url; a.click();
+      a.download = `attarhouse_${tpl}_${format}_${stamp()}.png`; a.href = url; a.click();
     } catch (e) { alert('No se pudo exportar: ' + e.message); }
+    setBusy('');
+  };
+
+  // ---- copia el PNG al portapapeles (pegar directo en IG/WhatsApp web) ----
+  const copyPng = async () => {
+    setBusy('copy');
+    try {
+      const url = await renderPng();
+      const blob = await (await fetch(url)).blob();
+      await navigator.clipboard.write([new window.ClipboardItem({ 'image/png': blob })]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) { alert('No se pudo copiar la imagen: ' + e.message); }
     setBusy('');
   };
 
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  // ---- exporta las 3 tarjetas del carrusel, una por una ----
+  const saveZip = async (files, zipName) => {
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+    files.forEach(({ name, dataUrl }) => zip.file(name, dataUrl.split(',')[1], { base64: true }));
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.download = zipName; a.href = URL.createObjectURL(blob); a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  };
+
+  // ---- exporta todas las tarjetas del carrusel en UN solo ZIP ----
+  // (antes disparaba N descargas seguidas y el navegador solía bloquearlas)
   const downloadCarousel = async () => {
     setBusy('export');
     try {
+      const files = [];
       for (let i = 0; i < cur.slides.length; i++) {
+        setBatchProgress({ i: i + 1, total: cur.slides.length });
         patch({ activeSlide: i });
-        await wait(300); // deja repintar el lienzo (cambio de slide + carga de imagen)
-        const url = await renderPng();
-        const a = document.createElement('a');
-        a.download = `attarhouse_carrusel_${i + 1}_${format}.png`; a.href = url; a.click();
-        await wait(350); // evita que el navegador bloquee descargas múltiples seguidas
+        await wait(150); // commit de React; las imágenes las espera renderPng
+        files.push({ name: `attarhouse_carrusel_${i + 1}_${format}.png`, dataUrl: await renderPng() });
       }
+      await saveZip(files, `attarhouse_carrusel_${format}_${stamp()}.zip`);
     } catch (e) { alert('No se pudo exportar el carrusel: ' + e.message); }
+    setBatchProgress(null);
     setBusy('');
   };
 
@@ -327,23 +477,28 @@ export default function AttarStudio({ supabase, onExit }) {
     ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
   ));
 
-  // ---- genera una imagen por cada perfume seleccionado, en lote ----
+  const selectAllFiltered = (list) => setSelectedIds((ids) => {
+    const visible = list.map((p) => p.id);
+    const allIn = visible.every((id) => ids.includes(id));
+    return allIn ? ids.filter((id) => !visible.includes(id)) : [...new Set([...ids, ...visible])];
+  });
+
+  // ---- genera una imagen por cada perfume seleccionado y baja UN ZIP ----
   const batchGenerate = async () => {
     const picked = products.filter((p) => selectedIds.includes(p.id));
     if (!picked.length) return;
     setBusy('batch');
     try {
+      const files = [];
       for (let i = 0; i < picked.length; i++) {
         setBatchProgress({ i: i + 1, total: picked.length });
         const p = picked[i];
         setContent((c) => mapPerfumeToContent(p, c));
-        await wait(400); // deja que la imagen del producto cargue antes de capturar
-        const url = await renderPng();
-        const a = document.createElement('a');
+        await wait(150); // commit de React; las imágenes las espera renderPng
         const slug = `${p.brand}_${p.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-        a.download = `attarhouse_${tpl}_${slug}.png`; a.href = url; a.click();
-        await wait(350);
+        files.push({ name: `attarhouse_${tpl}_${slug}.png`, dataUrl: await renderPng() });
       }
+      await saveZip(files, `attarhouse_${tpl}_lote_${picked.length}_${stamp()}.zip`);
     } catch (e) { alert('No se pudo generar el lote: ' + e.message); }
     setBatchProgress(null);
     setBusy('');
@@ -418,9 +573,11 @@ export default function AttarStudio({ supabase, onExit }) {
         </label>
         <div className="as-spacer" />
         <input className="as-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <button className="as-btn ghost" disabled={busy} onClick={copyPng} title="Copiar la imagen al portapapeles (pegar en IG/WhatsApp Web)">
+          {busy === 'copy' ? '…' : copied ? '✓ Copiada' : 'Copiar'}</button>
         {tpl === 'carrusel' ? (
           <button className="as-btn ghost" disabled={busy} onClick={downloadCarousel}>
-            {busy === 'export' ? '…' : `Descargar las ${cur.slides.length} (PNG)`}</button>
+            {busy === 'export' ? `${batchProgress?.i || 0}/${batchProgress?.total || cur.slides.length}…` : `Descargar carrusel (ZIP)`}</button>
         ) : (
           <button className="as-btn ghost" disabled={busy} onClick={download}>
             {busy === 'export' ? '…' : 'Descargar PNG'}</button>
@@ -495,8 +652,10 @@ export default function AttarStudio({ supabase, onExit }) {
                 </div>
               )}
               <Fields tpl={tpl} cur={cur} curSlide={curSlide} patch={patch} patchSlide={patchSlide} onUpload={onUpload}
-                      setContent={setContent} />
+                      setContent={setContent} realReviews={realReviews} onUseReview={useRealReview} />
               <TextLayers cur={cur} patch={patch} />
+              <CaptionPanel tpl={tpl} cur={cur} curSlide={curSlide}
+                            product={products.find((p) => p.id === perfumeId) || null} />
             </>
           )}
 
@@ -504,11 +663,16 @@ export default function AttarStudio({ supabase, onExit }) {
             <>
               <input className="as-search" placeholder="Buscar perfume…" value={query}
                      onChange={(e) => setQuery(e.target.value)} />
+              <button className="as-shuffle" style={{ marginBottom: 10 }} onClick={() => selectAllFiltered(filtered)}>
+                {filtered.length > 0 && filtered.every((p) => selectedIds.includes(p.id))
+                  ? '☑ Quitar selección de los visibles'
+                  : `☐ Seleccionar los ${filtered.length} visibles`}
+              </button>
               {selectedIds.length > 0 && (
                 <button className="as-batchbtn" disabled={!!busy} onClick={batchGenerate}>
                   {busy === 'batch'
                     ? `Generando ${batchProgress?.i || 0}/${batchProgress?.total || selectedIds.length}…`
-                    : `✦ Generar ${selectedIds.length} imagen${selectedIds.length > 1 ? 'es' : ''} (${tpl})`}
+                    : `✦ Generar ${selectedIds.length} imagen${selectedIds.length > 1 ? 'es' : ''} en ZIP (${tpl})`}
                 </button>
               )}
               <div className="as-list">
@@ -523,7 +687,7 @@ export default function AttarStudio({ supabase, onExit }) {
                     />
                     <button className="as-itembody" onClick={() => applyPerfume(p)}>
                       {p.image_url
-                        ? <img src={p.image_url} alt="" crossOrigin="anonymous" />
+                        ? <img src={productImg(p.image_url)} alt="" crossOrigin="anonymous" />
                         : <span className="ph" />}
                       <span className="meta"><b>{p.name}</b><i>{p.brand} · {perfumeNotes(p).slice(0,2).join(', ')}</i></span>
                     </button>
@@ -553,9 +717,26 @@ export default function AttarStudio({ supabase, onExit }) {
 
         {/* PREVIEW */}
         <section className="as-canvas" ref={areaRef}>
+          {tall && (
+            <button
+              className={`as-szbtn ${safeZone ? 'on' : ''}`}
+              onClick={() => setSafeZone((v) => !v)}
+              title="Muestra dónde tapan la interfaz IG/TikTok (solo guía, no se exporta)"
+            >
+              {safeZone ? '☑' : '☐'} Zonas seguras
+            </button>
+          )}
           <div className="as-frame" style={{ width: w * scale, height: h * scale }}>
             <Stage stageRef={stageRef} tpl={tpl} cur={cur} curSlide={curSlide} w={w} h={h} tall={tall}
                    theme={theme} accent={accent} scale={scale} logo={logo} logoScale={logoScale} onDragText={dragText} />
+            {/* Guías de UI de IG/TikTok: viven FUERA del stage capturado, jamás se exportan */}
+            {safeZone && tall && (
+              <div className="as-safezones" aria-hidden="true">
+                <div className="sz top"><span>UI superior (nombre, cámara)</span></div>
+                <div className="sz bottom"><span>UI inferior (caption, música, botones)</span></div>
+                <div className="sz right"><span /></div>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -612,9 +793,62 @@ function SizeSlider({ value, onChange, label = 'Tamaño de la foto' }) {
   );
 }
 
-const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#ffffff', 'Blanco'], ['#111111', 'Negro']];
+const TEXT_COLORS = [['ink', 'Tinta'], ['accent', 'Acento'], ['muted', 'Suave'], ['#FDFCFA', 'Blanco'], ['#151D1A', 'Negro']];
 const TEXT_WEIGHTS = [[300, 'Fina'], [400, 'Normal'], [600, 'Media'], [700, 'Negrita']];
 const TEXT_ALIGN = [['left', 'Izq'], ['center', 'Centro'], ['right', 'Der']];
+
+// Panel de caption listo para publicar: genera el texto (IG o TikTok) desde
+// la plantilla/producto actual, editable, con copia al portapapeles.
+function CaptionPanel({ tpl, cur, curSlide, product }) {
+  const [red, setRed] = useState('ig'); // ig | tt
+  const [text, setText] = useState('');
+  const [copiedCap, setCopiedCap] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  // Regenera automáticamente al cambiar plantilla/producto/red, salvo que el
+  // dueño haya editado a mano (no pisar su texto).
+  useEffect(() => {
+    if (!dirty) setText(buildCaption(red, { tpl, cur, curSlide, product }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [red, tpl, product?.id, tpl === 'carrusel' ? cur.activeSlide : null]);
+
+  const regenerate = () => {
+    setText(buildCaption(red, { tpl, cur, curSlide, product }));
+    setDirty(false);
+  };
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedCap(true);
+      setTimeout(() => setCopiedCap(false), 1800);
+    } catch { /* portapapeles no disponible */ }
+  };
+
+  return (
+    <div className="as-card">
+      <div className="as-subh" style={{ marginTop: 0 }}>Caption para publicar</div>
+      <div className="as-togglerow" style={{ marginBottom: 10 }}>
+        <button className={`as-chiptoggle ${red === 'ig' ? 'on' : ''}`} onClick={() => { setRed('ig'); setDirty(false); }}>Instagram</button>
+        <button className={`as-chiptoggle ${red === 'tt' ? 'on' : ''}`} onClick={() => { setRed('tt'); setDirty(false); }}>TikTok</button>
+      </div>
+      <textarea
+        className="as-captiontext"
+        value={text}
+        onChange={(e) => { setText(e.target.value); setDirty(true); }}
+        rows={9}
+        spellCheck={false}
+      />
+      <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+        <button className="as-batchbtn" style={{ marginBottom: 0 }} onClick={copy}>
+          {copiedCap ? '✓ Copiado' : `Copiar caption ${red === 'ig' ? 'Instagram' : 'TikTok'}`}
+        </button>
+        <button className="as-mini" title="Regenerar desde la plantilla" onClick={regenerate}>↺</button>
+      </div>
+      <p className="as-hint">Se arma solo con el perfume/plantilla activa: hook, notas, precios, CTA y hashtags. Edítalo libre; ↺ lo regenera.</p>
+    </div>
+  );
+}
 
 function TextLayers({ cur, patch }) {
   const texts = cur.texts || [];
@@ -731,7 +965,7 @@ function LayerRange({ label, suf, min, max, step, value, on, last }) {
 
 const STARS_OPTS = [1, 2, 3, 4, 5];
 
-function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent }) {
+function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent, realReviews, onUseReview }) {
   const f = (k) => (v) => patch({ [k]: v });
   const fSlide = (k) => (v) => patchSlide({ [k]: v });
   if (tpl === 'versus') return (
@@ -825,6 +1059,16 @@ function Fields({ tpl, cur, curSlide, patch, patchSlide, onUpload, setContent })
     <>
       <Upload has={!!cur.img} onUpload={onUpload} />
       {cur.img && <SizeSlider value={cur.imgScale} onChange={f('imgScale')} />}
+      {realReviews?.length > 0 && (
+        <button className="as-shuffle" style={{ marginBottom: 12 }} onClick={onUseReview}>
+          💬 Usar reseña real de un cliente ({realReviews.length} aprobadas)
+        </button>
+      )}
+      {realReviews !== null && realReviews.length === 0 && (
+        <p className="as-hint" style={{ marginTop: 0, marginBottom: 12 }}>
+          Aún no hay reseñas aprobadas en la tienda; cuando apruebes una en ⭐ Reseñas podrás usarla aquí con un clic.
+        </p>
+      )}
       <Field label="Cita del cliente" value={cur.quote} onChange={f('quote')} multi />
       <Field label="Nombre" value={cur.name} onChange={f('name')} />
       <Field label="Ciudad" value={cur.location} onChange={f('location')} />
@@ -982,7 +1226,7 @@ function TextRender({ layer, w, h, scale, ink, accent, muted, serif, sans, onDra
 function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale, logo, logoScale = 1, onDragText }) {
   const th = themeOf(theme);
   const ink = th.ink, bg = th.bg, muted = th.muted, line = th.line;
-  const dark = theme === 'noir' || theme === 'burdeos' || theme === 'esmeralda';
+  const dark = th.dark;
   const serif = 'var(--font-cormorant), Georgia, serif';
   const sans  = 'var(--font-inter-studio), system-ui, sans-serif';
   const m = 46;
@@ -990,12 +1234,12 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   const hasScene = SCENE_CAPABLE.includes(tpl) && cur.bg && cur.bg !== 'solido' && cur.bgSeed;
 
   const base = {
-    width: w, height: h, background: hasScene ? '#000' : bg, color: ink, position: 'absolute', top: 0, left: 0,
+    width: w, height: h, background: hasScene ? '#0F1613' : bg, color: ink, position: 'absolute', top: 0, left: 0,
     transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden', fontFamily: serif,
   };
   const scene = hasScene ? <ProceduralBackdrop seed={cur.bgSeed} width={w} height={h} uid="-as" /> : null;
   const scrim = (hasScene && cur.scrim) ? (
-    <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: (cur.scrim || 0) / 100, pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', inset: 0, background: '#0F1613', opacity: (cur.scrim || 0) / 100, pointerEvents: 'none' }} />
   ) : null;
   const frame = (
     <svg style={{ position: 'absolute', inset: m, pointerEvents: 'none' }} width={w - m * 2} height={h - m * 2}>
@@ -1015,6 +1259,29 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   );
   const Img = ({ src, style, scale = 1 }) => (
     <img src={src} crossOrigin="anonymous" alt="" style={{ objectFit: 'contain', ...style, transform: scale !== 1 ? `scale(${scale})` : style?.transform }} />
+  );
+
+  // Layout a prueba de choques para las plantillas de producto: franja superior
+  // opcional, imagen en una zona FLEXIBLE (se encoge si el texto crece) y el
+  // bloque de info compacto justo encima del pie. Nada se superpone aunque el
+  // nombre ocupe dos líneas o haya notas + precio + chip. `gap` da un aire
+  // uniforme entre líneas (antes cada una tenía su marginTop y se solapaban).
+  const footZone = tall ? 196 : 132; // espacio reservado abajo para logo/marca
+  const usesScaffold = ['producto', 'lanzamiento', 'promo', 'inspirado', 'countdown', 'carrusel', 'testimonio'].includes(tpl);
+  const Scaffold = ({ badge, img, ghostScale, extra, children }) => (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', padding: `${tall ? 140 : 60}px 0 ${footZone}px` }}>
+      {badge ? <div style={{ flex: 'none', display: 'flex', justifyContent: 'center', marginBottom: tall ? 22 : 12, padding: '0 80px', textAlign: 'center' }}>{badge}</div> : null}
+      <div style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `0 ${tall ? 120 : 90}px` }}>
+        {img ? <Img src={img.src} scale={img.scale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={ghostScale ?? (tall ? 1.4 : 1.05)} theme={theme} />}
+      </div>
+      <div style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: tall ? 16 : 10, textAlign: 'center', padding: '0 90px', marginTop: tall ? 26 : 14 }}>
+        {children}
+        {extra ? <div style={{ fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, lineHeight: 1.4, whiteSpace: 'pre-line' }}>{extra}</div> : null}
+      </div>
+    </div>
+  );
+  const Pill = ({ children }) => (
+    <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, padding: '13px 28px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{children}</div>
   );
 
   let body = null;
@@ -1100,84 +1367,55 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   }
 
   if (tpl === 'producto' || tpl === 'lanzamiento') {
-    const imgTop = tall ? 180 : 90, imgH = tall ? 820 : 540, infoTop = imgTop + imgH + (tall ? 40 : 24);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 96 : 78, marginTop: 18, lineHeight: 1 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 22, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>
-          {tpl === 'producto' && (
-            <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 28, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-          )}
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
-        </div>
-      </>
+      <Scaffold img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.5 : 1.1} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 92 : 74, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, color: muted, letterSpacing: '.04em' }}>{cur.notes}</div>}
+        {tpl === 'producto' && cur.chip && <Pill>{cur.chip}</Pill>}
+        {cur.meta && <div style={{ fontFamily: sans, fontSize: 28, color: accent, letterSpacing: '.04em', whiteSpace: 'pre-line', lineHeight: 1.35 }}>{cur.meta}</div>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'promo') {
-    const imgTop = tall ? 170 : 80, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 30 : 18);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
+      <Scaffold img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.4 : 1.05} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 84 : 70, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{cur.notes}</div>}
+        <div style={{ display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
+          {cur.from && <span style={{ fontFamily: sans, fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
+          <span style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 94 : 78, color: accent, lineHeight: 1 }}>{cur.price}</span>
         </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: accent }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 88 : 72, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 18, color: muted }}>{cur.notes}</div>
-          <div style={{ marginTop: 30, display: 'flex', gap: 22, alignItems: 'baseline', justifyContent: 'center' }}>
-            {cur.from && <span style={{ fontFamily: sans, fontSize: 34, color: muted, textDecoration: 'line-through' }}>{cur.from}</span>}
-            <span style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 104 : 88, color: accent }}>{cur.price}</span>
-          </div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 26, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-        </div>
-      </>
+        {cur.chip && <Pill>{cur.chip}</Pill>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'inspirado') {
-    const imgTop = tall ? 220 : 90, imgH = tall ? 720 : 480, infoTop = imgTop + imgH + (tall ? 36 : 22);
     body = (
-      <>
-        <div style={{ position: 'absolute', top: tall ? 130 : 60, left: 0, right: 0, textAlign: 'center', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted }}>
-          {cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span>
-        </div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontWeight: 600, fontSize: tall ? 92 : 76 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, marginTop: 20, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: sans, fontSize: 28, marginTop: 26, color: accent, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{cur.meta}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.34em', fontSize: 24, color: muted, lineHeight: 1.3 }}>{cur.eyebrow} <span style={{ color: accent }}>{cur.target}</span></div>}
+        img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.4 : 1.05} extra={cur.extra}>
+        <div style={{ fontWeight: 600, fontSize: tall ? 88 : 72, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 30, color: muted }}>{cur.notes}</div>}
+        {cur.meta && <div style={{ fontFamily: sans, fontSize: 28, color: accent, whiteSpace: 'pre-line', lineHeight: 1.35 }}>{cur.meta}</div>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'testimonio') {
-    const qSize = tall ? 50 : 40;
     body = (
-      <>
-        <div style={{ position: 'absolute', top: tall ? 220 : 90, left: 0, right: 0, textAlign: 'center', fontSize: 90, color: accent, opacity: .5, fontFamily: serif }}>"</div>
-        <div style={{ position: 'absolute', top: tall ? 320 : 150, left: 0, right: 0, padding: '0 130px', textAlign: 'center', fontSize: qSize, lineHeight: 1.4, fontStyle: 'italic' }}>
-          {cur.quote}
-        </div>
-        <div style={{ position: 'absolute', top: tall ? 660 : 360, left: 0, right: 0, textAlign: 'center', fontSize: 36, color: accent, letterSpacing: 6 }}>
-          {'★'.repeat(cur.stars || 5)}
-        </div>
-        <div style={{ position: 'absolute', top: tall ? 740 : 420, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
-        <div style={{ position: 'absolute', top: tall ? 786 : 462, left: 0, right: 0, textAlign: 'center', fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>
-        {cur.img && (
-          <div style={{ position: 'absolute', bottom: tall ? 140 : 60, left: 0, right: 0, height: tall ? 340 : 220, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: .85 }}>
-            <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '40%', maxHeight: '100%' }} />
-          </div>
-        )}
-      </>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: tall ? 24 : 15, textAlign: 'center', padding: `${tall ? 150 : 80}px 130px ${footZone}px` }}>
+        <div style={{ fontSize: 110, color: accent, opacity: .5, fontFamily: serif, lineHeight: .6, height: tall ? 60 : 46 }}>&ldquo;</div>
+        <div style={{ fontSize: tall ? 50 : 40, lineHeight: 1.4, fontStyle: 'italic' }}>{cur.quote}</div>
+        <div style={{ fontSize: 36, color: accent, letterSpacing: 6 }}>{'★'.repeat(cur.stars || 5)}</div>
+        <div style={{ fontFamily: sans, fontWeight: 600, fontSize: 30 }}>{cur.name}</div>
+        {cur.location && <div style={{ fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>{cur.location}</div>}
+        {cur.img && <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '38%', maxHeight: tall ? 260 : 170, marginTop: tall ? 8 : 4, opacity: .9 }} />}
+        {cur.extra && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, lineHeight: 1.4 }}>{cur.extra}</div>}
+      </div>
     );
   }
 
@@ -1221,54 +1459,40 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
   }
 
   if (tpl === 'countdown') {
-    const imgTop = tall ? 160 : 70, imgH = tall ? 700 : 460, infoTop = imgTop + imgH + (tall ? 24 : 14);
     body = (
-      <>
-        <div style={{
-          position: 'absolute', top: tall ? 70 : 36, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700,
-          padding: '10px 22px', borderRadius: 999, background: accent, color: '#1a1404',
-        }}>{cur.endsText}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {cur.img ? <Img src={cur.img} scale={cur.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.4 : 1.05} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 84 : 68, marginTop: 16 }}>{cur.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 16, color: muted }}>{cur.notes}</div>
-          <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 96 : 80, color: accent, marginTop: 22 }}>{cur.price}</div>
-          <div style={{ display: 'inline-block', fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.2em', fontSize: 21, marginTop: 22, padding: '14px 30px', border: `1px solid ${accent}`, borderRadius: 999, color: accent }}>{cur.chip}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.16em', fontSize: 22, fontWeight: 700, padding: '10px 22px', borderRadius: 999, background: accent, color: dark ? '#1a1404' : '#fff' }}>{cur.endsText}</div>}
+        img={cur.img ? { src: cur.img, scale: cur.imgScale } : null} ghostScale={tall ? 1.35 : 1.0} extra={cur.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.3em', fontSize: 24, color: muted }}>{cur.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 80 : 66, lineHeight: 1 }}>{cur.name}</div>
+        {cur.notes && cur.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{cur.notes}</div>}
+        <div style={{ fontFamily: serif, fontWeight: 600, fontSize: tall ? 92 : 76, color: accent, lineHeight: 1 }}>{cur.price}</div>
+        {cur.chip && <Pill>{cur.chip}</Pill>}
+      </Scaffold>
     );
   }
 
   if (tpl === 'carrusel') {
     const s = curSlide;
-    const imgTop = tall ? 200 : 100, imgH = tall ? 760 : 500, infoTop = imgTop + imgH + (tall ? 40 : 24);
     body = (
-      <>
-        <div style={{
-          position: 'absolute', top: tall ? 60 : 30, left: '50%', transform: 'translateX(-50%)',
-          fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em',
-        }}>{cur.activeSlide + 1} / {cur.slides.length}</div>
-        <div style={{ position: 'absolute', top: imgTop, left: 0, right: 0, height: imgH, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 120px' }}>
-          {s.img ? <Img src={s.img} scale={s.imgScale} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <GhostBottle s={tall ? 1.5 : 1.1} theme={theme} />}
-        </div>
-        <div style={{ position: 'absolute', top: infoTop, left: 0, right: 0, textAlign: 'center', padding: '0 90px' }}>
-          <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
-          <div style={{ fontWeight: 600, fontSize: tall ? 90 : 74, marginTop: 18, lineHeight: 1 }}>{s.name}</div>
-          <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, marginTop: 20, color: muted }}>{s.notes}</div>
-          <div style={{ fontFamily: serif, fontSize: tall ? 50 : 42, fontWeight: 600, marginTop: 24, color: accent }}>{s.price}</div>
-        </div>
-      </>
+      <Scaffold
+        badge={<div style={{ fontFamily: sans, fontSize: 22, color: muted, letterSpacing: '.2em' }}>{cur.activeSlide + 1} / {cur.slides.length}</div>}
+        img={s.img ? { src: s.img, scale: s.imgScale } : null} ghostScale={tall ? 1.5 : 1.1} extra={s.extra}>
+        <div style={{ fontFamily: sans, textTransform: 'uppercase', letterSpacing: '.32em', fontSize: 24, color: muted }}>{s.eyebrow}</div>
+        <div style={{ fontWeight: 600, fontSize: tall ? 86 : 70, lineHeight: 1 }}>{s.name}</div>
+        {s.notes && s.notes !== '—' && <div style={{ fontFamily: sans, fontWeight: 300, fontSize: 28, color: muted }}>{s.notes}</div>}
+        {s.price && <div style={{ fontFamily: serif, fontSize: tall ? 52 : 42, fontWeight: 600, color: accent }}>{s.price}</div>}
+      </Scaffold>
     );
   }
 
-  const extraText = tpl === 'carrusel' ? curSlide.extra : cur.extra;
+  // Las plantillas con Scaffold (y testimonio) ya muestran `extra` dentro de su
+  // flujo, siempre por encima del pie. Aquí solo se dibuja para las que no lo
+  // usan (versus, tabla, comparativa), y con el espacio del pie reservado.
+  const extraText = usesScaffold ? null : cur.extra;
   const extra = extraText ? (
     <div style={{
-      position: 'absolute', left: 0, right: 0, bottom: tall ? 118 : 88, textAlign: 'center', padding: '0 90px',
+      position: 'absolute', left: 0, right: 0, bottom: footZone, textAlign: 'center', padding: '0 90px',
       fontFamily: sans, fontWeight: 300, fontSize: tall ? 26 : 22, color: muted, letterSpacing: '.02em', lineHeight: 1.4,
     }}>
       {extraText}
@@ -1295,80 +1519,104 @@ function Stage({ stageRef, tpl, cur, curSlide, w, h, tall, theme, accent, scale,
 }
 
 /* ---------------- estilos del panel ---------------- */
+/* Interfaz del Estudio en tema CLARO del sistema de marca (Marca.html):
+   papel/Blanco Humo, tinta, verde acción. Solo cambia el chrome de la
+   herramienta — las plantillas del arte generado conservan sus estilos. */
 const CSS = `
-.attar-studio{--ink:#0c0b09;--noir:#15120c;--gold:#c6a15b;--gold-b:#e6c887;--cream:#f3ede1;--smoke:#8c857a;--line:rgba(198,161,91,.22);
+.attar-studio{--ink:#F5F5F5;--noir:#FDFCFA;--gold:#2D6745;--gold-b:#3E7D57;--cream:#0D1411;--smoke:#7A8985;--line:#E0DDD2;--panel:#FFFFFF;--soft:rgba(45,103,69,.08);
   position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ink);color:var(--cream);
-  font-family:var(--font-inter-studio),system-ui,sans-serif;z-index:2000}
+  font-family:var(--font-archivo),system-ui,sans-serif;z-index:2000}
 .attar-studio *{box-sizing:border-box}
-.as-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(21,18,12,.7)}
-.as-mark{font-family:var(--font-cormorant),serif;font-size:22px}
-.as-mark span{display:block;font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--smoke);margin-top:4px}
+.as-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(253,252,250,.95);backdrop-filter:blur(8px)}
+.as-mark{font-family:var(--font-archivo),sans-serif;font-weight:600;letter-spacing:.06em;font-size:19px;color:#1D3A2E}
+.as-mark span{display:block;font-family:var(--font-plex-mono),monospace;font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--smoke);margin-top:4px}
 .as-group{display:flex;align-items:center}
-.as-lbl{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--smoke);margin-right:8px}
-.as-seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.as-seg button{border:0;background:transparent;color:var(--smoke);font-size:12px;padding:8px 13px;cursor:pointer}
-.as-seg button.on{background:var(--gold);color:#1a1404;font-weight:600}
-.as-accent{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
-.as-accent input{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;background:none;padding:0;cursor:pointer}
+.as-lbl{font-family:var(--font-plex-mono),monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--smoke);margin-right:8px}
+.as-seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.as-seg button{border:0;background:transparent;color:var(--smoke);font-size:12px;padding:8px 13px;cursor:pointer;transition:color .2s,background .2s}
+.as-seg button:hover{color:var(--cream)}
+.as-seg button.on{background:var(--gold);color:#FDFCFA;font-weight:600}
+.as-accent{display:flex;align-items:center;gap:7px;font-family:var(--font-plex-mono),monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
+.as-accent input{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:0;cursor:pointer}
 .as-range{width:100%;accent-color:var(--gold);cursor:pointer}
 .as-spacer{flex:1}
-.as-title{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:8px;color:var(--cream);padding:8px 12px;font-size:13px;width:150px}
-.as-btn{border:1px solid var(--gold);border-radius:999px;background:linear-gradient(180deg,var(--gold-b),var(--gold));color:#1a1404;font-weight:600;font-size:13px;padding:10px 18px;cursor:pointer}
-.as-btn.ghost{background:transparent;color:var(--cream)}
-.as-btn:disabled{opacity:.6}
+.as-title{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--cream);padding:8px 12px;font-size:13px;width:150px;transition:border-color .2s}
+.as-title:focus{outline:none;border-color:var(--gold)}
+.as-btn{border:1px solid var(--gold);border-radius:999px;background:var(--gold);color:#FDFCFA;font-weight:600;font-size:13px;padding:10px 18px;cursor:pointer;transition:background .2s,box-shadow .2s}
+.as-btn:hover:not(:disabled){background:#245839;box-shadow:0 6px 16px rgba(45,103,69,.25)}
+.as-btn.ghost{background:transparent;color:var(--cream);border-color:var(--line)}
+.as-btn.ghost:hover:not(:disabled){border-color:var(--gold);color:var(--gold);background:transparent;box-shadow:none}
+.as-btn:disabled{opacity:.55;cursor:not-allowed}
 .as-shell{flex:1;display:grid;grid-template-columns:330px 1fr;min-height:0}
-.as-controls{border-right:1px solid var(--line);padding:18px;overflow:auto}
+.as-controls{border-right:1px solid var(--line);padding:18px;overflow:auto;background:var(--noir)}
 .as-tabs{display:flex;gap:6px;margin-bottom:16px}
-.as-tabs button{flex:1;border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:8px;font-size:12px;cursor:pointer}
-.as-tabs button.on{border-color:var(--gold);color:var(--cream);background:rgba(198,161,91,.1)}
+.as-tabs button{flex:1;border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;transition:all .2s}
+.as-tabs button.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
 .as-tplgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:18px}
-.as-tpl{border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:9px;padding:9px 4px;font-size:11px;cursor:pointer}
-.as-tpl.on{border-color:var(--gold);color:var(--cream);background:rgba(198,161,91,.1)}
+.as-tpl{border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:9px;padding:9px 4px;font-size:11px;cursor:pointer;transition:all .2s}
+.as-tpl.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
 .as-field{margin-bottom:13px}
-.as-field label{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--smoke);margin-bottom:6px}
-.as-field input,.as-field textarea,.as-search{width:100%;background:rgba(0,0,0,.28);border:1px solid rgba(243,237,225,.1);border-radius:8px;color:var(--cream);font-size:14px;padding:9px 11px;font-family:inherit}
+.as-field label{display:block;font-family:var(--font-plex-mono),monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);margin-bottom:6px}
+.as-field input,.as-field textarea,.as-search{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--cream);font-size:14px;padding:9px 11px;font-family:inherit;transition:border-color .2s}
 .as-field textarea{min-height:54px;resize:vertical}
 .as-field input:focus,.as-field textarea:focus,.as-search:focus{outline:none;border-color:var(--gold)}
-.as-subh{font-family:var(--font-cormorant),serif;font-size:17px;color:var(--gold-b);margin:18px 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line)}
-.as-upload{display:block;border:1px dashed var(--line);border-radius:9px;padding:11px;text-align:center;color:var(--smoke);font-size:12px;cursor:pointer;margin-bottom:13px}
-.as-upload.has{border-style:solid;border-color:var(--gold);color:var(--gold-b)}
+.as-subh{font-family:var(--font-archivo),sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em;color:#1D3A2E;margin:18px 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.as-upload{display:block;border:1px dashed var(--line);background:var(--panel);border-radius:9px;padding:11px;text-align:center;color:var(--smoke);font-size:12px;cursor:pointer;margin-bottom:13px;transition:border-color .2s,color .2s}
+.as-upload:hover{border-color:var(--gold);color:var(--gold)}
+.as-upload.has{border-style:solid;border-color:var(--gold);color:var(--gold)}
 .as-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-bottom:7px}
-.as-row input{background:rgba(0,0,0,.28);border:1px solid rgba(243,237,225,.1);border-radius:7px;color:var(--cream);padding:8px;font-size:13px}
-.as-mini{width:34px;height:34px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--cream);border-radius:7px;cursor:pointer;flex:0 0 auto}
+.as-row input{background:var(--panel);border:1px solid var(--line);border-radius:7px;color:var(--cream);padding:8px;font-size:13px}
+.as-row input:focus{outline:none;border-color:var(--gold)}
+.as-mini{width:34px;height:34px;border:1px solid var(--line);background:var(--panel);color:var(--cream);border-radius:7px;cursor:pointer;flex:0 0 auto;transition:all .2s}
+.as-mini:hover{border-color:var(--gold)}
 .as-mini.del{color:var(--smoke)}
-.as-mini.on{border-color:var(--gold);color:var(--gold);background:rgba(198,161,91,.12)}
-.as-addrow{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer;margin-top:4px}
+.as-mini.del:hover{color:#A8442A;border-color:#A8442A}
+.as-mini.on{border-color:var(--gold);color:var(--gold);background:var(--soft)}
+.as-addrow{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer;margin-top:4px;transition:all .2s}
+.as-addrow:hover{border-color:var(--gold);color:var(--gold)}
 .as-search{margin-bottom:12px}
 .as-hint{font-size:11px;color:var(--smoke);line-height:1.5;margin:8px 0 0}
-.as-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.as-card{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 2px 8px rgba(18,26,22,.04)}
 .as-scenegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.as-scenebtn{border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:8px 4px;font-size:11px;cursor:pointer}
-.as-scenebtn.on{border-color:var(--gold);color:var(--cream);background:rgba(198,161,91,.1)}
-.as-shuffle{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer}
+.as-scenebtn{border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:8px;padding:8px 4px;font-size:11px;cursor:pointer;transition:all .2s}
+.as-scenebtn.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
+.as-shuffle{width:100%;border:1px dashed var(--line);background:transparent;color:var(--smoke);border-radius:8px;padding:9px;font-size:12px;cursor:pointer;transition:all .2s}
 .as-shuffle:hover{border-color:var(--gold);color:var(--gold)}
-.as-logopreview{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.as-logopreview{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .as-logopreview img{height:32px;max-width:160px;object-fit:contain}
 .as-logopreview .as-mini{margin-left:auto}
-.as-batchbtn{width:100%;background:var(--gold);color:#1a1404;border:none;border-radius:8px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px}
-.as-batchbtn:disabled{opacity:.6;cursor:not-allowed}
+.as-batchbtn{width:100%;background:var(--gold);color:#FDFCFA;border:none;border-radius:8px;padding:11px;font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer;margin-bottom:12px;transition:background .2s}
+.as-batchbtn:hover:not(:disabled){background:#245839}
+.as-batchbtn:disabled{opacity:.55;cursor:not-allowed}
 .as-list,.as-saved{display:flex;flex-direction:column;gap:7px}
 .as-item,.as-savedcard{display:flex;align-items:center;gap:8px}
 .as-check{flex:0 0 auto;width:16px;height:16px;cursor:pointer;accent-color:var(--gold)}
-.as-itembody,.as-savedbody{flex:1;display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:transparent;border-radius:10px;padding:8px;cursor:pointer;text-align:left;color:var(--cream);min-width:0}
-.as-itembody:hover,.as-savedbody:hover{border-color:var(--gold);background:rgba(198,161,91,.07)}
-.as-itembody img,.as-savedbody img,.as-itembody .ph{width:42px;height:52px;object-fit:contain;border-radius:6px;background:rgba(0,0,0,.3);flex:0 0 auto}
+.as-itembody,.as-savedbody{flex:1;display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px;cursor:pointer;text-align:left;color:var(--cream);min-width:0;transition:all .2s}
+.as-itembody:hover,.as-savedbody:hover{border-color:var(--gold);background:var(--soft)}
+.as-itembody img,.as-savedbody img,.as-itembody .ph{width:42px;height:52px;object-fit:contain;border-radius:6px;background:#F0EDEA;flex:0 0 auto}
 .as-savedbody img{width:48px;height:48px}
 .as-itembody .meta,.as-savedbody span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .as-itembody b,.as-savedbody b{font-size:13px}
 .as-itembody i,.as-savedbody i{font-size:11px;color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .as-empty{color:var(--smoke);font-size:13px;text-align:center;padding:20px}
-.as-canvas{display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden}
-.as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.as-canvas{position:relative;display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden;background:#E8E5DF}
+.as-frame{position:relative;overflow:hidden;border-radius:8px;box-shadow:0 30px 70px -28px rgba(18,26,22,.45),0 0 0 1px rgba(18,26,22,.06)}
+.as-szbtn{position:absolute;top:14px;left:14px;z-index:20;border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:999px;padding:7px 14px;font-size:11px;cursor:pointer;box-shadow:0 2px 10px rgba(18,26,22,.08);transition:all .2s}
+.as-szbtn:hover{border-color:var(--gold);color:var(--gold)}
+.as-szbtn.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
+.as-safezones{position:absolute;inset:0;z-index:10;pointer-events:none}
+.as-safezones .sz{position:absolute;background:repeating-linear-gradient(45deg,rgba(232,145,102,.16) 0 8px,rgba(232,145,102,.05) 8px 16px);outline:1px dashed rgba(232,145,102,.65);display:flex;align-items:center;justify-content:center}
+.as-safezones .sz span{font-family:var(--font-plex-mono),monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#A8442A;background:rgba(253,252,250,.85);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.as-safezones .sz.top{left:0;right:0;top:0;height:11%}
+.as-safezones .sz.bottom{left:0;right:0;bottom:0;height:20%}
+.as-safezones .sz.right{top:11%;bottom:20%;right:0;width:12%}
+.as-captiontext{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--cream);font-size:12.5px;line-height:1.55;padding:10px 11px;font-family:inherit;resize:vertical;min-height:150px}
+.as-captiontext:focus{outline:none;border-color:var(--gold)}
 .as-seg.wrap{display:flex;flex-wrap:wrap;width:100%;border-radius:8px}
 .as-seg.wrap button{flex:1 0 auto}
-.as-colorin{margin-top:7px;width:100%;height:30px;border:1px solid var(--line);border-radius:7px;background:none;padding:2px;cursor:pointer}
-.as-layer{border:1px solid var(--line);border-radius:9px;margin-bottom:10px;overflow:hidden}
-.as-layerhead{display:flex;align-items:center;gap:5px;padding:7px 8px;background:rgba(0,0,0,.2)}
+.as-colorin{margin-top:7px;width:100%;height:30px;border:1px solid var(--line);border-radius:7px;background:var(--panel);padding:2px;cursor:pointer}
+.as-layer{border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-bottom:10px;overflow:hidden}
+.as-layerhead{display:flex;align-items:center;gap:5px;padding:7px 8px;background:rgba(13,20,17,.03)}
 .as-layertoggle{flex:1;display:flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--cream);cursor:pointer;text-align:left;font-size:12px;min-width:0}
 .as-layertoggle i{color:var(--smoke);font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .as-layercaret{color:var(--gold);font-size:11px}
@@ -1376,7 +1624,7 @@ const CSS = `
 .as-layerhead .as-mini:disabled{opacity:.35;cursor:default}
 .as-layerbody{padding:11px 10px 12px}
 .as-togglerow{display:flex;gap:6px;margin-bottom:13px}
-.as-chiptoggle{flex:1;border:1px solid var(--line);background:transparent;color:var(--smoke);border-radius:7px;padding:8px;font-size:11px;letter-spacing:.08em;cursor:pointer}
-.as-chiptoggle.on{border-color:var(--gold);color:var(--gold);background:rgba(198,161,91,.12)}
+.as-chiptoggle{flex:1;border:1px solid var(--line);background:var(--panel);color:var(--smoke);border-radius:7px;padding:8px;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:all .2s}
+.as-chiptoggle.on{border-color:var(--gold);color:var(--gold);background:var(--soft);font-weight:600}
 @media (max-width:860px){.as-shell{grid-template-columns:1fr}.as-canvas{display:none}}
 `;

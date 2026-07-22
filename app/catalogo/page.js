@@ -211,7 +211,7 @@ function CatalogoContent() {
             <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-muted)" }}>
               <div style={{ fontSize: "2rem", marginBottom: "12px" }} aria-hidden="true">♡</div>
               <p style={{ marginBottom: "8px" }}>Aún no guardas favoritos.</p>
-              <p style={{ fontSize: "0.85rem", color: "#888" }}>Toca el ♥ en cualquier perfume para guardarlo aquí.</p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)" }}>Toca el ♥ en cualquier perfume para guardarlo aquí.</p>
             </div>
           )
         )}

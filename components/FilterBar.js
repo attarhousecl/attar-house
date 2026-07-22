@@ -27,7 +27,9 @@ function getTopBrands(db) {
   return [...new Set(db.map((p) => p.brand))].sort();
 }
 
-function Dropdown({ label, active, children, onClose }) {
+// En desktop el menú es un dropdown pegado al botón; en móvil (CSS) el mismo
+// panel se presenta como bottom-sheet fijo, alcanzable con el pulgar.
+function Dropdown({ title, active, children, onClose }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -51,7 +53,19 @@ function Dropdown({ label, active, children, onClose }) {
   }, [active, onClose]);
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div ref={ref} className="fbar-item">
+      {children}
+    </div>
+  );
+}
+
+function DropPanel({ title, onClose, children, scrollable = false }) {
+  return (
+    <div className={`fbar-drop ${scrollable ? "fbar-drop-scroll" : ""}`} role="listbox">
+      <div className="fbar-drop-head">
+        <span>{title}</span>
+        <button type="button" onClick={onClose} aria-label="Cerrar">✕</button>
+      </div>
       {children}
     </div>
   );
@@ -105,167 +119,104 @@ export default function FilterBar({
     close();
   }
 
-  const btnStyle = (isActive) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    padding: "8px 14px",
-    background: isActive ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.04)",
-    border: `1px solid ${isActive ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.1)"}`,
-    borderRadius: "8px",
-    color: isActive ? "#d4af37" : "#aaa",
-    fontSize: "0.8rem",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    transition: "all 0.2s",
-    fontFamily: "inherit",
-    letterSpacing: "0.3px",
-  });
-
-  const dropStyle = {
-    position: "absolute",
-    top: "calc(100% + 6px)",
-    left: 0,
-    background: "#141414",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: "10px",
-    padding: "6px",
-    zIndex: 200,
-    minWidth: "180px",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-  };
-
-  const optStyle = (isActive) => ({
-    display: "block",
-    width: "100%",
-    textAlign: "left",
-    padding: "8px 12px",
-    background: isActive ? "rgba(212,175,55,0.12)" : "transparent",
-    color: isActive ? "#d4af37" : "#ccc",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "0.82rem",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    transition: "background 0.15s",
-  });
-
   return (
-    <div style={{ marginBottom: "24px" }}>
+    <div className="fbar">
       {/* Search */}
-      <div style={{ marginBottom: "12px" }}>
-        <input
-          type="text"
-          placeholder="🔍  Buscar perfume, marca, nota..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value.toLowerCase())}
-          aria-label="Buscar en el catálogo"
-          style={{
-            width: "100%",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "10px",
-            padding: "10px 16px",
-            color: "#e0e0e0",
-            fontSize: "0.88rem",
-            fontFamily: "inherit",
-            boxSizing: "border-box",
-          }}
-        />
-      </div>
+      <input
+        type="text"
+        className="fbar-search"
+        placeholder="🔍  Buscar perfume, marca, nota..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value.toLowerCase())}
+        aria-label="Buscar en el catálogo"
+      />
 
-      {/* Dropdowns row */}
-      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+      {/* Velo tras el bottom-sheet (solo visible en móvil vía CSS) */}
+      {open && <div className="fbar-backdrop" onClick={close} aria-hidden="true" />}
 
-        {/* Ordenar */}
-        <Dropdown label="Ordenar" active={open === "sort"} onClose={close}>
-          <button style={btnStyle(sort !== "default")} onClick={() => toggle("sort")} aria-haspopup="listbox" aria-expanded={open === "sort"}>
-            {SORTS.find(s => s.value === sort)?.label || "Ordenar"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+      {/* Fila de filtros: wrap en desktop, scroll horizontal en móvil */}
+      <div className="fbar-row">
+        <Dropdown active={open === "sort"} onClose={close}>
+          <button type="button" className={`fbar-btn ${sort !== "default" ? "on" : ""}`} onClick={() => toggle("sort")} aria-haspopup="listbox" aria-expanded={open === "sort"}>
+            {SORTS.find(s => s.value === sort)?.label || "Ordenar"} <span className="fbar-caret">▼</span>
           </button>
           {open === "sort" && (
-            <div style={dropStyle}>
+            <DropPanel title="Ordenar por" onClose={close}>
               {SORTS.map((s) => (
-                <button key={s.value} style={optStyle(sort === s.value)} onClick={() => { setSort(s.value); close(); }}>
+                <button type="button" key={s.value} className={`fbar-opt ${sort === s.value ? "on" : ""}`} onClick={() => { setSort(s.value); close(); }}>
                   {s.label}
                 </button>
               ))}
-            </div>
+            </DropPanel>
           )}
         </Dropdown>
 
-        {/* Género */}
-        <Dropdown label="Género" active={open === "gender"} onClose={close}>
-          <button style={btnStyle(gender !== "all")} onClick={() => toggle("gender")} aria-haspopup="listbox" aria-expanded={open === "gender"}>
-            {gender !== "all" ? gender : "Género"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+        <Dropdown active={open === "gender"} onClose={close}>
+          <button type="button" className={`fbar-btn ${gender !== "all" ? "on" : ""}`} onClick={() => toggle("gender")} aria-haspopup="listbox" aria-expanded={open === "gender"}>
+            {gender !== "all" ? gender : "Género"} <span className="fbar-caret">▼</span>
           </button>
           {open === "gender" && (
-            <div style={dropStyle}>
-              <button style={optStyle(gender === "all")} onClick={() => { setGender("all"); close(); }}>Todos</button>
+            <DropPanel title="Género" onClose={close}>
+              <button type="button" className={`fbar-opt ${gender === "all" ? "on" : ""}`} onClick={() => { setGender("all"); close(); }}>Todos</button>
               {GENDERS.map((g) => (
-                <button key={g} style={optStyle(gender === g)} onClick={() => { setGender(g); close(); }}>{g}</button>
+                <button type="button" key={g} className={`fbar-opt ${gender === g ? "on" : ""}`} onClick={() => { setGender(g); close(); }}>{g}</button>
               ))}
-            </div>
+            </DropPanel>
           )}
         </Dropdown>
 
-        {/* Familia Olfativa */}
-        <Dropdown label="Familia" active={open === "aroma"} onClose={close}>
-          <button style={btnStyle(aroma !== "all")} onClick={() => toggle("aroma")} aria-haspopup="listbox" aria-expanded={open === "aroma"}>
-            {aroma !== "all" ? aroma : "Familia olfativa"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+        <Dropdown active={open === "aroma"} onClose={close}>
+          <button type="button" className={`fbar-btn ${aroma !== "all" ? "on" : ""}`} onClick={() => toggle("aroma")} aria-haspopup="listbox" aria-expanded={open === "aroma"}>
+            {aroma !== "all" ? aroma : "Familia olfativa"} <span className="fbar-caret">▼</span>
           </button>
           {open === "aroma" && (
-            <div style={dropStyle}>
-              <button style={optStyle(aroma === "all")} onClick={() => { setAroma("all"); close(); }}>Todas</button>
+            <DropPanel title="Familia olfativa" onClose={close}>
+              <button type="button" className={`fbar-opt ${aroma === "all" ? "on" : ""}`} onClick={() => { setAroma("all"); close(); }}>Todas</button>
               {AROMA_FAMILIES.map((f) => (
-                <button key={f} style={optStyle(aroma === f)} onClick={() => { setAroma(f); close(); }}>{f}</button>
+                <button type="button" key={f} className={`fbar-opt ${aroma === f ? "on" : ""}`} onClick={() => { setAroma(f); close(); }}>{f}</button>
               ))}
-            </div>
+            </DropPanel>
           )}
         </Dropdown>
 
-        {/* Marca */}
-        <Dropdown label="Marca" active={open === "brand"} onClose={close}>
-          <button style={btnStyle(brand !== "all")} onClick={() => toggle("brand")} aria-haspopup="listbox" aria-expanded={open === "brand"}>
-            {brand !== "all" ? brand : "Marca"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+        <Dropdown active={open === "brand"} onClose={close}>
+          <button type="button" className={`fbar-btn ${brand !== "all" ? "on" : ""}`} onClick={() => toggle("brand")} aria-haspopup="listbox" aria-expanded={open === "brand"}>
+            {brand !== "all" ? brand : "Marca"} <span className="fbar-caret">▼</span>
           </button>
           {open === "brand" && (
-            <div style={{ ...dropStyle, maxHeight: "260px", overflowY: "auto" }}>
-              <button style={optStyle(brand === "all")} onClick={() => { setBrand("all"); close(); }}>Todas</button>
+            <DropPanel title="Marca" onClose={close} scrollable>
+              <button type="button" className={`fbar-opt ${brand === "all" ? "on" : ""}`} onClick={() => { setBrand("all"); close(); }}>Todas</button>
               {brands.map((b) => (
-                <button key={b} style={optStyle(brand === b)} onClick={() => { setBrand(b); close(); }}>{b}</button>
+                <button type="button" key={b} className={`fbar-opt ${brand === b ? "on" : ""}`} onClick={() => { setBrand(b); close(); }}>{b}</button>
               ))}
-            </div>
+            </DropPanel>
           )}
         </Dropdown>
 
-        {/* Formato */}
-        <Dropdown label="Formato" active={open === "formato"} onClose={close}>
-          <button style={btnStyle(formato !== "all")} onClick={() => toggle("formato")} aria-haspopup="listbox" aria-expanded={open === "formato"}>
-            {formato !== "all" ? FORMATOS.find((f) => f.value === formato)?.label : "Formato"} <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>▼</span>
+        <Dropdown active={open === "formato"} onClose={close}>
+          <button type="button" className={`fbar-btn ${formato !== "all" ? "on" : ""}`} onClick={() => toggle("formato")} aria-haspopup="listbox" aria-expanded={open === "formato"}>
+            {formato !== "all" ? FORMATOS.find((f) => f.value === formato)?.label : "Formato"} <span className="fbar-caret">▼</span>
           </button>
           {open === "formato" && (
-            <div style={dropStyle}>
+            <DropPanel title="Formato" onClose={close}>
               {FORMATOS.map((f) => (
-                <button key={f.value} style={optStyle(formato === f.value)} onClick={() => { setFormato(f.value); close(); }}>
+                <button type="button" key={f.value} className={`fbar-opt ${formato === f.value ? "on" : ""}`} onClick={() => { setFormato(f.value); close(); }}>
                   {f.label}
                 </button>
               ))}
-            </div>
+            </DropPanel>
           )}
         </Dropdown>
 
-        {/* Separador + resultados + limpiar */}
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Resultados + limpiar (a la derecha en desktop, bajo la fila en móvil) */}
+        <div className="fbar-meta">
           {totalResults != null && (
-            <span style={{ fontSize: "0.75rem", color: "#999" }}>
+            <span className="fbar-count mono">
               {totalResults} resultado{totalResults !== 1 ? "s" : ""}
             </span>
           )}
           {activeCount > 0 && (
-            <button
-              onClick={clearAll}
-              style={{ background: "none", border: "none", color: "#999", fontSize: "0.75rem", cursor: "pointer", padding: "4px 8px", borderRadius: "6px", fontFamily: "inherit" }}
-            >
+            <button type="button" onClick={clearAll} className="fbar-clear">
               ✕ Limpiar filtros ({activeCount})
             </button>
           )}
@@ -273,20 +224,16 @@ export default function FilterBar({
       </div>
 
       {chips.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
+        <div className="fbar-chips">
           {chips.map((c, i) => (
             <button
+              type="button"
               key={i}
               onClick={c.clear}
               aria-label={`Quitar filtro ${c.label}`}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: "6px",
-                background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.4)",
-                color: "#d4af37", borderRadius: "16px", padding: "4px 10px",
-                fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.3px",
-              }}
+              className="fbar-chip"
             >
-              {c.label} <span style={{ fontSize: "0.85rem", lineHeight: 1, opacity: 0.8 }}>✕</span>
+              {c.label} <span aria-hidden="true">✕</span>
             </button>
           ))}
         </div>

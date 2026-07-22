@@ -176,7 +176,7 @@ export default function VentasPage() {
               <input style={S.input} type="number" min="0" placeholder="ej. 7000" value={item.precio_unitario} onChange={setItemField("precio_unitario")} />
             </Field>
             <Field label="Subtotal">
-              <div style={{ ...S.input, color: "#d4af37", fontWeight: 700, background: "#0f0f0f", display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
+              <div style={{ ...S.input, color: "#8DD8A0", fontWeight: 700, background: "#0f0f0f", display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
                 ${itemPreview.toLocaleString("es-CL")}
               </div>
             </Field>
@@ -187,17 +187,17 @@ export default function VentasPage() {
         {/* ── Carrito ── */}
         {carrito.length > 0 && (
           <div style={S.carritoBox}>
-            <div style={{ fontSize: "0.75rem", color: "#d4af37", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>
+            <div style={{ fontSize: "0.75rem", color: "#8DD8A0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>
               Ítems a registrar
             </div>
             {carrito.map((it, i) => {
               const sub = (parseInt(it.cantidad) || 1) * (parseInt(it.precio_unitario) || 0);
               return (
                 <div key={i} style={S.carritoRow}>
-                  <span style={{ flex: 2 }}>{it.perfume} <span style={{ color: "#666" }}>({it.marca})</span></span>
+                  <span style={{ flex: 2 }}>{it.perfume} <span style={{ color: "#6B7A73" }}>({it.marca})</span></span>
                   <span style={S.badge}>{it.formato}</span>
-                  <span style={{ color: "#888" }}>×{it.cantidad}</span>
-                  <span style={{ color: "#27ae60", fontWeight: 600, minWidth: "90px", textAlign: "right" }}>
+                  <span style={{ color: "#7A8985" }}>×{it.cantidad}</span>
+                  <span style={{ color: "#8DD8A0", fontWeight: 600, minWidth: "90px", textAlign: "right" }}>
                     ${sub.toLocaleString("es-CL")}
                   </span>
                   <button style={S.btnQuit} onClick={() => quitarItem(i)}>✕</button>
@@ -205,8 +205,8 @@ export default function VentasPage() {
               );
             })}
             <div style={S.carritoTotal}>
-              <span style={{ color: "#666" }}>Total venta:</span>
-              <span style={{ color: "#d4af37", fontWeight: 700, fontSize: "1.1rem" }}>
+              <span style={{ color: "#6B7A73" }}>Total venta:</span>
+              <span style={{ color: "#8DD8A0", fontWeight: 700, fontSize: "1.1rem" }}>
                 ${totalCarrito.toLocaleString("es-CL")}
               </span>
             </div>
@@ -230,8 +230,8 @@ export default function VentasPage() {
           <div style={{ display: "flex", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             {porCanal.map((c) => (
               <div key={c.canal} style={S.canalPill}>
-                <span style={{ color: "#666" }}>{c.canal}: </span>
-                <span style={{ color: "#d4af37", fontWeight: 600 }}>${c.total.toLocaleString("es-CL")}</span>
+                <span style={{ color: "#6B7A73" }}>{c.canal}: </span>
+                <span style={{ color: "#8DD8A0", fontWeight: 600 }}>${c.total.toLocaleString("es-CL")}</span>
               </div>
             ))}
           </div>
@@ -250,11 +250,11 @@ export default function VentasPage() {
                   <tr key={x.id} style={i % 2 === 0 ? S.trEven : S.trOdd}>
                     <td style={S.td}>{x.fecha}</td>
                     <td style={S.td}>{x.perfume}</td>
-                    <td style={{ ...S.td, color: "#777" }}>{x.marca}</td>
+                    <td style={{ ...S.td, color: "#7A8985" }}>{x.marca}</td>
                     <td style={S.td}><span style={S.badge}>{x.formato}</span></td>
                     <td style={S.td}>{x.cantidad}</td>
-                    <td style={{ ...S.td, color: "#666" }}>${(x.precio_unitario || 0).toLocaleString("es-CL")}</td>
-                    <td style={{ ...S.td, color: "#27ae60", fontWeight: 600 }}>${(x.total || 0).toLocaleString("es-CL")}</td>
+                    <td style={{ ...S.td, color: "#6B7A73" }}>${(x.precio_unitario || 0).toLocaleString("es-CL")}</td>
+                    <td style={{ ...S.td, color: "#8DD8A0", fontWeight: 600 }}>${(x.total || 0).toLocaleString("es-CL")}</td>
                     <td style={S.td}><span style={S.canalBadge}>{x.canal}</span></td>
                     <td style={S.td}><button style={S.btnDel} onClick={() => eliminar(x.id)}>🗑</button></td>
                   </tr>
@@ -265,7 +265,7 @@ export default function VentasPage() {
         )}
       </div>
 
-      {toast && <div style={{ ...S.toast, background: toast.err ? "#c0392b" : "#d4af37", color: toast.err ? "#fff" : "#000" }}>{toast.text}</div>}
+      {toast && <div style={{ ...S.toast, background: toast.err ? "#E89166" : "#8DD8A0", color: toast.err ? "#FDFCFA" : "#0F1613" }}>{toast.text}</div>}
       <SpinStyle />
     </div>
   );
@@ -274,7 +274,7 @@ export default function VentasPage() {
 function Field({ label, children }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-      <label style={{ fontSize: "0.67rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</label>
+      <label style={{ fontSize: "0.67rem", color: "#8A9690", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</label>
       {children}
     </div>
   );
@@ -285,36 +285,36 @@ function SpinStyle() {
 }
 
 const S = {
-  page:    { fontFamily: "'Segoe UI', sans-serif", background: "#0a0a0a", color: "#e0e0e0", minHeight: "100vh" },
+  page:    { fontFamily: "var(--font-archivo), sans-serif", background: "#0F1613", color: "#FDFCFA", minHeight: "100vh" },
   center:  { display: "flex", alignItems: "center", justifyContent: "center", padding: "60px" },
-  spinner: { width: "28px", height: "28px", border: "2px solid #333", borderTopColor: "#d4af37", borderRadius: "50%", animation: "contab-spin 0.7s linear infinite" },
-  header:  { background: "#111", borderBottom: "1px solid #2a2a2a", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
-  h1:      { fontSize: "1.05rem", color: "#d4af37", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
-  backBtn: { background: "none", border: "1px solid #333", color: "#888", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
-  navBtn:  { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#d4af37", borderRadius: "6px", padding: "7px 14px", fontSize: "0.8rem", cursor: "pointer" },
+  spinner: { width: "28px", height: "28px", border: "2px solid #2A3A32", borderTopColor: "#8DD8A0", borderRadius: "50%", animation: "contab-spin 0.7s linear infinite" },
+  header:  { background: "#151D1A", borderBottom: "1px solid #1F2B27", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
+  h1:      { fontSize: "1.05rem", color: "#8DD8A0", letterSpacing: "2px", textTransform: "uppercase", margin: 0 },
+  backBtn: { background: "none", border: "1px solid #2A3A32", color: "#7A8985", borderRadius: "6px", padding: "5px 12px", fontSize: "0.78rem", cursor: "pointer" },
+  navBtn:  { background: "#1A2420", border: "1px solid #1F2B27", color: "#8DD8A0", borderRadius: "6px", padding: "7px 14px", fontSize: "0.8rem", cursor: "pointer" },
   content: { padding: "24px", maxWidth: "1100px", margin: "0 auto" },
-  sectionTitle: { fontSize: "0.8rem", color: "#d4af37", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #1a1a1a", paddingBottom: "8px", marginBottom: "16px", marginTop: "4px" },
+  sectionTitle: { fontSize: "0.8rem", color: "#8DD8A0", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #1A2420", paddingBottom: "8px", marginBottom: "16px", marginTop: "4px" },
   cabecera: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "14px", marginBottom: "20px" },
-  itemForm: { background: "#0f0f0f", border: "1px solid #1a1a1a", borderRadius: "10px", padding: "16px", marginBottom: "16px" },
+  itemForm: { background: "#0f0f0f", border: "1px solid #1A2420", borderRadius: "10px", padding: "16px", marginBottom: "16px" },
   itemFields: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-end", marginBottom: "14px" },
-  input:   { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "6px", padding: "9px 12px", color: "#e0e0e0", fontSize: "0.86rem", outline: "none", fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
-  btnAgregar: { background: "#1a2a1a", border: "1px solid #27ae60", color: "#27ae60", borderRadius: "8px", padding: "9px 20px", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer" },
+  input:   { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "6px", padding: "9px 12px", color: "#FDFCFA", fontSize: "0.86rem", outline: "none", fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
+  btnAgregar: { background: "#1a2a1a", border: "1px solid #8DD8A0", color: "#8DD8A0", borderRadius: "8px", padding: "9px 20px", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer" },
   carritoBox: { background: "#0f1a0f", border: "1px solid #1a3a1a", borderRadius: "10px", padding: "16px", marginBottom: "16px" },
   carritoRow: { display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: "1px solid #1a2a1a", fontSize: "0.84rem" },
   carritoTotal: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0 14px", fontSize: "0.9rem" },
-  btnPrimary: { background: "#d4af37", color: "#000", border: "none", borderRadius: "8px", padding: "10px 22px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" },
-  btnQuit:  { background: "none", border: "none", color: "#c0392b", cursor: "pointer", fontSize: "0.85rem", padding: "2px 6px", marginLeft: "auto" },
-  empty:    { color: "#444", padding: "32px 0" },
-  totalPill:  { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "8px 14px", fontSize: "0.82rem", color: "#27ae60", whiteSpace: "nowrap" },
-  canalPill:  { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "6px 12px", fontSize: "0.78rem" },
+  btnPrimary: { background: "#8DD8A0", color: "#0F1613", border: "none", borderRadius: "8px", padding: "10px 22px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" },
+  btnQuit:  { background: "none", border: "none", color: "#E89166", cursor: "pointer", fontSize: "0.85rem", padding: "2px 6px", marginLeft: "auto" },
+  empty:    { color: "#41504A", padding: "32px 0" },
+  totalPill:  { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "8px", padding: "8px 14px", fontSize: "0.82rem", color: "#8DD8A0", whiteSpace: "nowrap" },
+  canalPill:  { background: "#1A2420", border: "1px solid #1F2B27", borderRadius: "8px", padding: "6px 12px", fontSize: "0.78rem" },
   tableWrap:  { overflowX: "auto" },
   table:   { width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" },
-  th:      { padding: "9px 12px", textAlign: "left", color: "#555", fontSize: "0.67rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #1a1a1a", whiteSpace: "nowrap" },
-  td:      { padding: "9px 12px", color: "#ccc", borderBottom: "1px solid #111" },
+  th:      { padding: "9px 12px", textAlign: "left", color: "#5C6B64", fontSize: "0.67rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #1A2420", whiteSpace: "nowrap" },
+  td:      { padding: "9px 12px", color: "#C5CAC7", borderBottom: "1px solid #151D1A" },
   trEven:  { background: "#0f0f0f" },
-  trOdd:   { background: "#111" },
-  badge:      { background: "#1a1500", color: "#d4af37", border: "1px solid #3a3000", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem", whiteSpace: "nowrap" },
-  canalBadge: { background: "#0d1a0d", color: "#27ae60", border: "1px solid #1a3a1a", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem" },
-  btnDel:  { background: "none", border: "1px solid #3a1a1a", color: "#c0392b", borderRadius: "5px", padding: "3px 8px", cursor: "pointer", fontSize: "0.75rem" },
+  trOdd:   { background: "#151D1A" },
+  badge:      { background: "#1E2C24", color: "#8DD8A0", border: "1px solid #2D6745", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem", whiteSpace: "nowrap" },
+  canalBadge: { background: "#0d1a0d", color: "#8DD8A0", border: "1px solid #1a3a1a", borderRadius: "10px", padding: "2px 8px", fontSize: "0.69rem" },
+  btnDel:  { background: "none", border: "1px solid #3a1a1a", color: "#E89166", borderRadius: "5px", padding: "3px 8px", cursor: "pointer", fontSize: "0.75rem" },
   toast:   { position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)", padding: "10px 20px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600, zIndex: 9999, whiteSpace: "nowrap" },
 };

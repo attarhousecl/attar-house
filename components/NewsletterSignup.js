@@ -41,12 +41,12 @@ export default function NewsletterSignup() {
   return (
     <div className="footer-nav">
       <h5 className="footer-nav-title">Newsletter</h5>
-      <p style={{ color: "#888", fontSize: "0.8rem", lineHeight: 1.5, marginBottom: "12px" }}>
+      <p style={{ color: "var(--text-soft)", fontSize: "0.8rem", lineHeight: 1.5, marginBottom: "12px" }}>
         Nuevos ingresos y promos exclusivas. Sin spam.
       </p>
 
       {status === "ok" ? (
-        <p role="status" aria-live="polite" style={{ color: "#d4af37", fontSize: "0.82rem", fontWeight: 600 }}>{msg}</p>
+        <p role="status" aria-live="polite" style={{ color: "var(--accent)", fontSize: "0.82rem", fontWeight: 600 }}>{msg}</p>
       ) : (
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {/* Honeypot anti-bot: oculto para humanos (fuera de pantalla, sin tab,
@@ -69,11 +69,11 @@ export default function NewsletterSignup() {
             placeholder="tu@email.com"
             aria-label="Tu correo electrónico"
             style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(212,175,55,0.25)",
+              background: "rgba(var(--ink-rgb), 0.05)",
+              border: "1px solid rgba(var(--accent-rgb), 0.25)",
               borderRadius: "6px",
               padding: "10px 12px",
-              color: "#e0e0e0",
+              color: "var(--text-main)",
               fontSize: "0.85rem",
               fontFamily: "inherit",
             }}
@@ -82,7 +82,7 @@ export default function NewsletterSignup() {
             type="submit"
             disabled={status === "loading"}
             style={{
-              background: "#d4af37",
+              background: "var(--accent)",
               color: "#000",
               border: "none",
               borderRadius: "6px",

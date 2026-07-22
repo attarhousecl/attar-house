@@ -5,7 +5,6 @@ const BASE_URL = "https://attarhouse.cl";
 const STATIC_ROUTES = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/catalogo", changeFrequency: "daily", priority: 0.9 },
-  { path: "/quiz", changeFrequency: "monthly", priority: 0.7 },
   { path: "/pack", changeFrequency: "weekly", priority: 0.7 },
   { path: "/accesorios", changeFrequency: "weekly", priority: 0.6 },
   { path: "/disenador", changeFrequency: "monthly", priority: 0.6 },

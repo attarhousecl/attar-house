@@ -1,5 +1,8 @@
 import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
+import HeroVideo from "@/components/HeroVideo";
+import DecantExplorer from "@/components/DecantExplorer";
+import QuizExperience from "@/components/QuizExperience";
 import Reveal from "@/components/Reveal";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
@@ -40,181 +43,102 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd).replace(/</g, "\\u003c") }}
       />
-      <section id="inicio" className="page-section active">
+      <section id="inicio" className="hero">
+        <HeroVideo />
+        <div className="hero-veil" aria-hidden="true"></div>
         <div className="hero-content">
-          <div className="custom-logo-hero">
-            <div className="monogram">
-              A<span>H</span>
-            </div>
-            <div className="logo-text">ATTAR HOUSE</div>
-          </div>
+          <div className="hero-kicker mono">Casa de descubrimiento · Valdivia</div>
 
-          <h1
-            style={{
-              position: "absolute",
-              width: "1px",
-              height: "1px",
-              overflow: "hidden",
-              clip: "rect(0,0,0,0)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Alta Perfumería Árabe en Valdivia | Attar House
+          <h1 className="hero-title">
+            Huele antes de comprar.
+            <span className="sr-only"> Alta perfumería árabe y decants en Valdivia | Attar House</span>
           </h1>
 
-          <h2
-            className="serif"
-            style={{
-              fontSize: "1.7rem",
-              color: "var(--gold-primary)",
-              marginBottom: "18px",
-              fontWeight: 400,
-              fontStyle: "italic",
-              opacity: 0.85,
-            }}
-          >
-            &quot;No son perfumes, es presencia.&quot;
-          </h2>
-
-          <p>
-            Perfumería árabe, de nicho y diseñador <strong>100% original</strong>. Pruébala en
-            decant desde 3ml y descubre tu firma antes de invertir en el frasco completo.
+          <p className="hero-sub">
+            Decants desde 3ml de perfumería árabe, de nicho y diseñador,{" "}
+            <strong>100% original</strong>. Descubre tu firma antes de invertir en el
+            frasco completo.
           </p>
 
           <div className="hero-actions">
             <Link href="/catalogo" className="btn-gold-solid">
-              Ver Catálogo
+              Ver catálogo
             </Link>
-            <Link href="/quiz" className="btn-primary">
-              <span>🔮 Descubre tu aroma</span>
+            <Link href="/#quiz" className="btn-hero-ghost">
+              <span>🔮 Descubrir mi aroma</span>
             </Link>
           </div>
 
           <div className="hero-trust">
             <span><i className="ph ph-seal-check"></i> 100% Originales</span>
             <span><i className="ph ph-truck"></i> Envío a todo Chile</span>
-            <span><i className="ph ph-hand-heart"></i> Testers disponibles</span>
+            <span><i className="ph ph-lock"></i> Pago con Mercado Pago</span>
           </div>
         </div>
+        <div className="hero-scroll mono" aria-hidden="true">↓ Desliza para descubrir</div>
       </section>
 
       <FeaturedProducts />
 
-      <section className="home-block">
+      <section id="quiz" className="home-block">
         <div className="container">
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            🔮 Quiz de fragancias
+          </div>
           <h2 className="section-title serif">Encuentra tu aroma ideal</h2>
-          <p className="section-subtitle">
-            ¿No sabes por dónde empezar? Te ayudamos a elegir y a probar sin arriesgar.
+          <p className="section-subtitle" style={{ marginBottom: "36px" }}>
+            Responde 5 preguntas rápidas aquí mismo y te recomendamos las fragancias que
+            más van contigo.
           </p>
-          <Reveal className="home-highlights">
-            <Link href="/quiz" className="highlight-panel">
-              <span className="hp-watermark" aria-hidden="true">🔮</span>
-              <span className="hp-icon" aria-hidden="true">🔮</span>
-              <h3>Quiz de Fragancias</h3>
-              <p>
-                Responde 5 preguntas rápidas sobre tu estilo y ocasión, y te recomendamos
-                las fragancias que más van contigo.
-              </p>
-              <span className="hp-link">
-                Hacer el quiz <i className="ph ph-arrow-right"></i>
-              </span>
-            </Link>
+          <div className="home-quiz-shell">
+            <QuizExperience embed />
+          </div>
 
-            <Link href="/pack" className="highlight-panel">
-              <span className="hp-watermark" aria-hidden="true">🎁</span>
-              <span className="hp-icon" aria-hidden="true">🎁</span>
-              <h3>Pack Descubrimiento</h3>
-              <p>
-                Arma tu propio set eligiendo de 3 a 5 decants de 10ml y llévate un{" "}
-                <strong style={{ color: "var(--gold-light)" }}>10% de descuento</strong> en todo el pack.
-              </p>
-              <span className="hp-link">
-                Armar mi pack <i className="ph ph-arrow-right"></i>
-              </span>
-            </Link>
-          </Reveal>
+          <Link href="/pack" className="pack-banner">
+            <span className="pack-banner-icon" aria-hidden="true">🎁</span>
+            <span className="pack-banner-text">
+              <strong>Pack Descubrimiento</strong>
+              <span>Elige 3 a 5 decants de 10ml y llévate un 10% de descuento en todo el pack.</span>
+            </span>
+            <span className="pack-banner-cta">
+              Armar mi pack <i className="ph ph-arrow-right" aria-hidden="true"></i>
+            </span>
+          </Link>
         </div>
       </section>
 
       <section id="decants" className="page-section home-section active">
         <div className="container">
-          <h2 className="section-title serif">¿Qué es un Decant?</h2>
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            La forma inteligente de probar
+          </div>
+          <h2 className="section-title serif">¿Qué es un decant?</h2>
           <p className="section-subtitle">
-            Es la forma más inteligente de probar alta perfumería. Consiste en transferir la
-            fragancia original a un frasco más pequeño, ideal para conocer un aroma en tu
-            piel.{" "}
+            Transferimos la fragancia original y sellada a un atomizador de vidrio más
+            pequeño, con jeringas estériles y perfectamente etiquetado.{" "}
             <strong>
-              Una vez que encuentres tu perfume ideal, también puedes adquirir el frasco
-              sellado de fábrica con nosotros.
+              Cuando encuentres tu perfume ideal, también puedes llevarte el frasco sellado
+              de fábrica con nosotros.
             </strong>
           </p>
-          <Reveal className="decant-steps">
-            <div className="step-card">
-              <i className="ph ph-flask step-icon"></i>
-              <h3 className="serif">1. Perfume Original</h3>
-              <p>
-                Trabajamos exclusivamente con botellas 100% originales y selladas.
-                Garantizamos la autenticidad de cada gota.
-              </p>
+
+          <Reveal className="de-steps">
+            <div className="de-step">
+              <i className="ph ph-flask" aria-hidden="true"></i>
+              <span><strong>Original sellado</strong> · botellas 100% auténticas</span>
             </div>
-            <div className="step-card">
-              <i className="ph ph-needle step-icon"></i>
-              <h3 className="serif">2. Extracción Precisa</h3>
-              <p>
-                Extraemos el líquido utilizando jeringas estériles, evitando que el perfume
-                entre en contacto con el aire para no alterar sus notas.
-              </p>
+            <div className="de-step">
+              <i className="ph ph-needle" aria-hidden="true"></i>
+              <span><strong>Extracción precisa</strong> · jeringas estériles, sin contacto con el aire</span>
             </div>
-            <div className="step-card">
-              <i className="ph ph-spray-bottle step-icon"></i>
-              <h3 className="serif">3. Envasado Premium</h3>
-              <p>
-                Traspasamos el perfume a atomizadores de vidrio de alta calidad de 3ml, 5ml o
-                10ml, perfectamente etiquetados.
-              </p>
+            <div className="de-step">
+              <i className="ph ph-spray-bottle" aria-hidden="true"></i>
+              <span><strong>Envasado premium</strong> · atomizador de vidrio etiquetado</span>
             </div>
           </Reveal>
 
-          <div className="yield-guide">
-            <h2 className="section-title serif" style={{ fontSize: "2.2rem" }}>
-              Rendimiento por Formato
-            </h2>
-            <p className="section-subtitle" style={{ marginBottom: "30px" }}>
-              ¿Cuánto dura cada decant? Aquí tienes una guía aproximada de atomizaciones
-              (sprays).
-            </p>
-            <div className="yield-grid">
-              <div className="yield-card">
-                <h4>3ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~30 Sprays
-                </div>
-                <p>
-                  Ideal para llevar en el bolsillo y probar la fragancia a fondo durante 1 a 2
-                  semanas.
-                </p>
-              </div>
-              <div className="yield-card">
-                <h4>5ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~50 Sprays
-                </div>
-                <p>
-                  Perfecto para usar una fragancia de manera continua durante 3 a 4 semanas.
-                </p>
-              </div>
-              <div className="yield-card">
-                <h4>10ml</h4>
-                <div style={{ color: "var(--gold-light)", fontWeight: "bold", marginBottom: "8px" }}>
-                  ~100 Sprays
-                </div>
-                <p>
-                  La mejor opción precio/cantidad. Te durará entre 1.5 a 2 meses de uso
-                  regular.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="de-hint mono">Elige un formato para ver cuánto te rinde</p>
+          <DecantExplorer />
         </div>
       </section>
 
@@ -243,25 +167,68 @@ export default function Home() {
       </section>
 
       <section id="contacto" className="page-section home-section active">
-        <div className="container" style={{ textAlign: "center" }}>
+        <div className="container">
+          <div className="kicker" style={{ textAlign: "center", marginBottom: "10px" }}>
+            Estamos para ayudarte
+          </div>
           <h2 className="section-title serif">Conversemos</h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "8px" }}>
-            <i className="ph ph-clock" style={{ color: "var(--gold-primary)" }}></i>{" "}
-            Respondemos en menos de 1 hora · Lunes a Sábado 10:00–21:00
+          <p className="section-subtitle" style={{ marginBottom: "40px" }}>
+            ¿Dudas sobre una fragancia o tu pedido? Te asesoramos como en la tienda.
           </p>
-          <p style={{ color: "var(--text-muted)", marginBottom: "40px" }}>
-            <i className="ph ph-map-pin" style={{ color: "var(--gold-primary)" }}></i>{" "}
-            Retiro presencial disponible en Valdivia
-          </p>
-          <div className="social-links-big">
-            <WhatsAppLink href="https://wa.me/56632249728" target="_blank" rel="noreferrer" className="social-link-big social-link-whatsapp">
-              <i className="ph ph-whatsapp-logo"></i>
-              <span>Escríbenos por WhatsApp</span>
-            </WhatsAppLink>
-            <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer" className="social-link-big">
-              <i className="ph ph-instagram-logo"></i>
-              <span>Instagram</span>
-            </a>
+
+          <div className="contact-panel">
+            <div className="contact-info">
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-chat-circle-text" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Respondemos en menos de 1 hora</strong>
+                  <span>Atención personalizada, sin bots</span>
+                </span>
+              </div>
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-clock" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Lunes a Sábado</strong>
+                  <span className="mono">10:00 – 21:00</span>
+                </span>
+              </div>
+              <div className="contact-row">
+                <span className="contact-row-icon"><i className="ph ph-map-pin" aria-hidden="true"></i></span>
+                <span className="contact-row-text">
+                  <strong>Retiro presencial en Valdivia</strong>
+                  <span>Coordinamos día y hora contigo</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="contact-actions">
+              <WhatsAppLink
+                href="https://wa.me/56632249728"
+                target="_blank"
+                rel="noreferrer"
+                className="contact-btn contact-btn-wa"
+              >
+                <i className="ph ph-whatsapp-logo" aria-hidden="true"></i>
+                <span className="contact-btn-text">
+                  <strong>Escríbenos por WhatsApp</strong>
+                  <span>+56 63 224 9728</span>
+                </span>
+                <i className="ph ph-arrow-right contact-btn-arrow" aria-hidden="true"></i>
+              </WhatsAppLink>
+              <a
+                href="https://instagram.com/attar_housecl"
+                target="_blank"
+                rel="noreferrer"
+                className="contact-btn contact-btn-ig"
+              >
+                <i className="ph ph-instagram-logo" aria-hidden="true"></i>
+                <span className="contact-btn-text">
+                  <strong>Síguenos en Instagram</strong>
+                  <span>@attar_housecl</span>
+                </span>
+                <i className="ph ph-arrow-right contact-btn-arrow" aria-hidden="true"></i>
+              </a>
+            </div>
           </div>
         </div>
       </section>

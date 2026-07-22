@@ -86,18 +86,18 @@ export default function CartDrawer() {
         </div>
 
         {cart.length > 0 && (
-          <div style={{ background: "rgba(212,175,55,0.04)", padding: "14px 18px", borderBottom: "1px solid rgba(212,175,55,0.15)", fontSize: "0.8rem" }}>
+          <div style={{ background: "rgba(var(--accent-rgb), 0.04)", padding: "14px 18px", borderBottom: "1px solid rgba(var(--accent-rgb), 0.15)", fontSize: "0.8rem" }}>
             {/* Barra envío gratis */}
             <div style={{ marginBottom: "10px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "var(--text-muted)" }}>
                 <span>🚚 Envío gratis</span>
                 {freeShippingEligible
-                  ? <span style={{ color: "#25D366", fontWeight: 700 }}>¡Alcanzado!</span>
-                  : <span>Faltan <strong style={{ color: "#d4af37" }}>${(SHIPPING_THRESHOLD - total).toLocaleString("es-CL")}</strong></span>
+                  ? <span style={{ color: "var(--whatsapp)", fontWeight: 700 }}>¡Alcanzado!</span>
+                  : <span>Faltan <strong style={{ color: "var(--accent)" }}>${(SHIPPING_THRESHOLD - total).toLocaleString("es-CL")}</strong></span>
                 }
               </div>
-              <div style={{ height: "5px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (total / SHIPPING_THRESHOLD) * 100)}%`, background: freeShippingEligible ? "#25D366" : "#d4af37", borderRadius: "3px", transition: "width 0.4s ease" }} />
+              <div style={{ height: "5px", background: "rgba(var(--ink-rgb), 0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (total / SHIPPING_THRESHOLD) * 100)}%`, background: freeShippingEligible ? "var(--whatsapp)" : "var(--accent)", borderRadius: "3px", transition: "width 0.4s ease" }} />
               </div>
             </div>
             {/* Barra regalo */}
@@ -105,12 +105,12 @@ export default function CartDrawer() {
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "var(--text-muted)" }}>
                 <span>🎁 Decant de regalo</span>
                 {freeGiftEligible
-                  ? <span style={{ color: "#d4af37", fontWeight: 700 }}>¡Ganaste!</span>
-                  : <span>Faltan <strong style={{ color: "#d4af37" }}>${(GIFT_THRESHOLD - decantTotal).toLocaleString("es-CL")}</strong></span>
+                  ? <span style={{ color: "var(--accent)", fontWeight: 700 }}>¡Ganaste!</span>
+                  : <span>Faltan <strong style={{ color: "var(--accent)" }}>${(GIFT_THRESHOLD - decantTotal).toLocaleString("es-CL")}</strong></span>
                 }
               </div>
-              <div style={{ height: "5px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (decantTotal / GIFT_THRESHOLD) * 100)}%`, background: freeGiftEligible ? "#d4af37" : "rgba(212,175,55,0.5)", borderRadius: "3px", transition: "width 0.4s ease" }} />
+              <div style={{ height: "5px", background: "rgba(var(--ink-rgb), 0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (decantTotal / GIFT_THRESHOLD) * 100)}%`, background: freeGiftEligible ? "var(--accent)" : "rgba(var(--accent-rgb), 0.5)", borderRadius: "3px", transition: "width 0.4s ease" }} />
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function CartDrawer() {
 
         <div className="cart-items">
           {cart.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#666", marginTop: "40px", padding: "0 20px" }}>
+            <div style={{ textAlign: "center", color: "var(--text-soft)", marginTop: "40px", padding: "0 20px" }}>
               <i className="ph ph-shopping-bag" style={{ fontSize: "2.4rem", color: "var(--gold-dark)" }} aria-hidden="true"></i>
               <p style={{ marginTop: "12px", marginBottom: "18px" }}>Tu carrito está vacío</p>
               <a
@@ -190,7 +190,7 @@ export default function CartDrawer() {
                   <span>Subtotal</span>
                   <span>${subtotal.toLocaleString("es-CL")}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#25D366" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--whatsapp)" }}>
                   <span>🎁 Descuento pack (10%)</span>
                   <span>-${packDiscount.toLocaleString("es-CL")}</span>
                 </div>

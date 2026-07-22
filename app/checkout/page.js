@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { COMUNAS_POR_REGION, isValidComuna } from "@/lib/chileComunas";
 import { isValidPhoneCL, isAllowedEmail, isValidDireccion } from "@/lib/checkoutValidation";
 
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const { cart, subtotal, packDiscount, total, freeGiftEligible, freeGift, setFreeGift } = useCart();
   const { arabDB } = useCatalog();
   const { showToast } = useToast();
+  const { user, loading: authLoading, displayName, phone } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -24,6 +26,18 @@ export default function CheckoutPage() {
     direccion: "",
   });
   const [loading, setLoading] = useState(false);
+
+  // Con sesión iniciada, precarga nombre, correo y celular del perfil (el
+  // correo del pedido queda ligado a la cuenta y aparece en su historial).
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      name: f.name || displayName || "",
+      email: f.email || user.email || "",
+      phone: f.phone || phone || "",
+    }));
+  }, [user, displayName, phone]);
 
   // Comunas disponibles según la región elegida (desplegable dependiente).
   const comunasDisponibles = COMUNAS_POR_REGION[form.region] || [];
@@ -99,6 +113,29 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  // Comprar requiere cuenta: así el pedido queda ligado al historial del cliente.
+  if (!authLoading && !user) {
+    return (
+      <section id="checkout" className="page-section active">
+        <div className="container" style={{ textAlign: "center", maxWidth: "560px" }}>
+          <h1 className="section-title serif">Finalizar Compra</h1>
+          <p className="section-subtitle" style={{ marginBottom: "26px" }}>
+            Para comprar necesitas iniciar sesión: tu pedido quedará guardado en tu
+            cuenta y podrás seguir su estado en cualquier momento.
+          </p>
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/cuenta?next=/checkout" className="btn-gold-solid">
+              Iniciar sesión o crear cuenta
+            </Link>
+            <Link href="/catalogo" className="quiz-btn-ghost">
+              Seguir mirando
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (cart.length === 0) {
     return (
