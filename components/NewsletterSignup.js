@@ -40,7 +40,7 @@ export default function NewsletterSignup() {
 
   return (
     <div className="footer-nav">
-      <h5 className="footer-nav-title">Newsletter</h5>
+      <h2 className="footer-nav-title">Newsletter</h2>
       <p style={{ color: "var(--text-soft)", fontSize: "0.8rem", lineHeight: 1.5, marginBottom: "12px" }}>
         Nuevos ingresos y promos exclusivas. Sin spam.
       </p>

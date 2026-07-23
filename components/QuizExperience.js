@@ -301,7 +301,7 @@ export default function QuizExperience({ embed = false }) {
   return (
     <div className="quiz-wrap">
       {/* Progreso: pasos navegables (solo hacia atrás o ya respondidos) */}
-      <div className="quiz-progress" role="list" aria-label="Progreso del quiz">
+      <div className="quiz-progress" role="group" aria-label="Progreso del quiz">
         {PREGUNTAS.map((p, i) => {
           const respondida = respuestas[p.id] !== undefined;
           const activa = i === paso;
@@ -310,7 +310,6 @@ export default function QuizExperience({ embed = false }) {
             <button
               key={p.id}
               type="button"
-              role="listitem"
               className={`quiz-step ${activa ? "active" : ""} ${respondida ? "done" : ""}`}
               disabled={!alcanzable || activa}
               onClick={() => alcanzable && setPaso(i)}

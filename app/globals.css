@@ -966,7 +966,7 @@ main { flex: 1; margin-top: var(--header-h, 94px); }
 .remove-btn { color: var(--danger); background: transparent; border: none; cursor: pointer; font-size: 1.3rem; margin-left: 5px;}
 .cart-footer { padding: 20px; background: var(--bg-surface); border-top: 1px solid var(--border-gold); }
 .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
-.btn-whatsapp-final { width: 100%; padding: 18px; background: var(--whatsapp); color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
+.btn-whatsapp-final { width: 100%; padding: 18px; background: #0c7a3b; color: white; border: none; border-radius: 8px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem; cursor: pointer;}
 
 /* --- BARRA DE COMPRA FIJA (mobile, ficha de producto) --- */
 .mobile-buy-bar { display: none; }
@@ -1062,9 +1062,12 @@ main { flex: 1; margin-top: var(--header-h, 94px); }
 .contact-btn-text span { font-size: 0.78rem; opacity: 0.85; }
 .contact-btn-arrow { flex: none; font-size: 1.1rem; transition: transform 0.25s var(--transition-smooth); }
 .contact-btn:hover .contact-btn-arrow { transform: translateX(4px); }
-/* WhatsApp: sólido verde, texto claro en ambos temas */
-.contact-btn-wa { background: var(--whatsapp); border-color: var(--whatsapp); color: #fff; }
-.contact-btn-wa:hover { box-shadow: 0 10px 26px rgba(29, 168, 81, 0.35); }
+/* WhatsApp: solido verde, texto claro en ambos temas. Se usa un verde mas
+   oscuro (#0c7a3b) que el --whatsapp de marca (#25D366) para que el texto
+   blanco cumpla contraste AA (el verde claro con texto blanco reprobaba). */
+.contact-btn-wa { background: #0c7a3b; border-color: #0c7a3b; color: #fff; }
+.contact-btn-wa .contact-btn-text span { opacity: 1; }
+.contact-btn-wa:hover { box-shadow: 0 10px 26px rgba(12, 122, 59, 0.35); }
 /* Instagram: borde con acento copihue */
 .contact-btn-ig:hover { border-color: var(--copihue); }
 .contact-btn-ig > i:first-child { color: var(--copihue); }
@@ -1241,7 +1244,7 @@ footer { background-color: var(--bg-surface); border-top: 1px solid rgba(var(--i
 .footer-monogram span { color: var(--gold-light); }
 .footer-tagline { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
 .footer-nav { display: flex; flex-direction: column; gap: 10px; }
-.footer-nav-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold-primary); margin-bottom: 4px; font-family: var(--font-montserrat), sans-serif; }
+.footer-nav-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold-primary); margin: 0 0 4px; font-weight: 600; font-family: var(--font-montserrat), sans-serif; }
 .footer-nav a { font-size: 0.85rem; color: var(--text-muted); transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
 .footer-nav a:hover { color: var(--gold-light); }
 .footer-bottom { border-top: 1px solid rgba(var(--ink-rgb), 0.05); padding: 16px 20px; text-align: center; font-size: 0.75rem; color: var(--text-soft); }
