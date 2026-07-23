@@ -183,7 +183,6 @@ button { cursor: pointer; font-family: var(--font-montserrat), sans-serif; }
    SPLASH INTRO — spray de perfume (3s)
    Att → ar → house, un pulso de bruma por segmento.
    ========================================== */
-html.splash-lock { overflow: hidden; }
 .splash {
     position: fixed; inset: 0; z-index: 10001;
     display: flex; align-items: center; justify-content: center;
@@ -287,10 +286,17 @@ html.splash-lock { overflow: hidden; }
    Transparente sobre el hero, sólido con blur al hacer scroll.
    La cinta se integra al header y colapsa al hacer scroll.
    ========================================== */
-:root { --announce-h: 30px; --nav-h: 64px; --header-h: calc(var(--announce-h) + var(--nav-h)); }
+:root {
+    --announce-h: 30px; --nav-h: 64px; --header-h: calc(var(--announce-h) + var(--nav-h));
+    /* Escala de capas (stacking). El drawer móvil va SOBRE el header y los
+       botones flotantes (WhatsApp 998 / social 997 / carrito FAB). */
+    --z-header: 1000;
+    --z-nav-scrim: 1290;
+    --z-nav-drawer: 1300;
+}
 
 .site-header {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    position: fixed; top: 0; left: 0; right: 0; z-index: var(--z-header);
     background: var(--nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -383,29 +389,76 @@ html.splash-lock { overflow: hidden; }
 
 .mobile-menu-btn { display: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; background: none; border: none; padding: 8px; line-height: 1; }
 
-/* Menú móvil: panel a pantalla completa bajo el header */
-.nav-links {
-    display: none;
-    position: fixed; inset: 0;
+/* ==========================================
+   MENÚ MÓVIL — scrim + drawer lateral (dialog)
+   El scrim cubre TODA la pantalla (cierra al tocar fuera) y el drawer entra
+   desde la derecha. Ambos por encima del header y de cualquier flotante.
+   El bloqueo de scroll lo maneja JS (lib/useScrollLock), no CSS.
+   ========================================== */
+.nav-scrim {
+    position: fixed; inset: 0; z-index: var(--z-nav-scrim);
+    background: rgba(15, 22, 19, 0.55);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.nav-scrim.show { opacity: 1; pointer-events: auto; }
+
+.nav-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: var(--z-nav-drawer);
+    width: min(86vw, 360px);
+    display: flex; flex-direction: column;
     background: var(--bg-surface);
-    flex-direction: column; align-items: flex-start;
-    gap: 4px;
-    padding: calc(var(--header-h, 94px) + 18px) 24px 32px;
-    z-index: 999;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    border-left: 1px solid var(--border-gold);
+    box-shadow: -14px 0 44px rgba(var(--shadow-rgb), 0.28);
+    padding: max(10px, env(safe-area-inset-top)) 0 max(20px, env(safe-area-inset-bottom));
+    overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    transform: translateX(100%);
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
-.nav-links.show { display: flex; animation: fadeIn 0.25s ease-out; }
-html.menu-lock, html.menu-lock body { overflow: hidden; }
-.nav-links .nav-btn {
-    background: none; border: none;
-    font-size: 1.3rem; font-weight: 600; letter-spacing: 0.02em;
-    color: var(--text-main); text-decoration: none; cursor: pointer;
-    padding: 13px 4px; width: 100%; text-align: left;
+.nav-drawer.show { transform: translateX(0); }
+
+.nav-drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px 14px 24px;
     border-bottom: 1px solid var(--border-gold);
-    transition: color 0.25s, padding-left 0.25s;
 }
-.nav-links .nav-btn:hover, .nav-links .nav-btn.active { color: var(--accent); padding-left: 10px; }
+.nav-drawer-brand {
+    font-family: var(--font-archivo), sans-serif;
+    font-size: 0.9rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-main);
+}
+.nav-drawer-close {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex: none;
+    background: transparent; border: none; border-radius: 10px;
+    color: var(--text-main); font-size: 1.4rem;
+    transition: background 0.2s, color 0.2s;
+}
+.nav-drawer-close:hover, .nav-drawer-close:focus-visible {
+    background: rgba(var(--accent-rgb), 0.09); color: var(--accent);
+}
+
+.nav-drawer-links { display: flex; flex-direction: column; padding: 8px 14px; }
+.nav-drawer-links .nav-btn {
+    display: flex; align-items: center;
+    font-size: 1.1rem; font-weight: 600; letter-spacing: 0.01em;
+    color: var(--text-main); text-decoration: none; cursor: pointer;
+    padding: 15px 12px; border-radius: 10px;
+    border-bottom: 1px solid var(--border-gold);
+    transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+.nav-drawer-links .nav-btn:last-child { border-bottom: none; }
+.nav-drawer-links .nav-btn:hover,
+.nav-drawer-links .nav-btn:focus-visible,
+.nav-drawer-links .nav-btn.active {
+    background: rgba(var(--accent-rgb), 0.09); color: var(--accent); padding-left: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-scrim, .nav-drawer { transition: none; }
+}
 
 /* Breakpoint del menú: links horizontales solo desde 1024px */
 @media (max-width: 1023px) {

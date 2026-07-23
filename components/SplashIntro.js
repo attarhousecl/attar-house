@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useScrollLock } from "@/lib/useScrollLock";
 
 // Intro de marca (~3s): tres pulsos de spray revelan "Att" → "ar" → "house"
 // y luego la cortina se disuelve hacia el inicio. Se muestra una vez por
@@ -25,29 +26,21 @@ export default function SplashIntro() {
     setShow(true);
   }, []);
 
+  // Bloqueo de scroll compartido (iOS-safe) mientras la intro está visible.
+  useScrollLock(show === true);
+
   useEffect(() => {
-    if (!show) return;
-    document.documentElement.classList.add("splash-lock");
+    if (!show) return undefined;
     const t1 = setTimeout(() => setLeaving(true), TOTAL_MS);
-    const t2 = setTimeout(() => {
-      setShow(false);
-      document.documentElement.classList.remove("splash-lock");
-    }, TOTAL_MS + LEAVE_MS);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      document.documentElement.classList.remove("splash-lock");
-    };
+    const t2 = setTimeout(() => setShow(false), TOTAL_MS + LEAVE_MS);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [show]);
 
   if (!show) return null;
 
   const skip = () => {
     setLeaving(true);
-    setTimeout(() => {
-      setShow(false);
-      document.documentElement.classList.remove("splash-lock");
-    }, 300);
+    setTimeout(() => setShow(false), 300);
   };
 
   return (
