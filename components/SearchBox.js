@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCatalog } from "@/context/CatalogContext";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { IconSearch, IconDrop } from "@/components/NavIcons";
 
 export default function SearchBox() {
@@ -14,15 +15,13 @@ export default function SearchBox() {
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
 
+  // Bloqueo de scroll compartido (iOS-safe) mientras el buscador está abierto.
+  useScrollLock(open);
+
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      setTimeout(() => inputRef.current?.focus(), 40);
-    } else {
-      document.body.style.overflow = "";
-      setQ("");
-    }
-    return () => { document.body.style.overflow = ""; };
+    if (!open) { setQ(""); return undefined; }
+    const t = setTimeout(() => inputRef.current?.focus(), 40);
+    return () => clearTimeout(t);
   }, [open]);
 
   useEffect(() => {

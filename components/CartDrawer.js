@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { useCart } from "@/context/CartContext";
 import { useCatalog, labelsFormatos } from "@/context/CatalogContext";
+import { useScrollLock } from "@/lib/useScrollLock";
 
 export default function CartDrawer() {
   const [open, setOpen] = useState(false);
@@ -18,10 +19,8 @@ export default function CartDrawer() {
     }
   }, [arabDB, freeGift, setFreeGift]);
 
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+  // Bloqueo de scroll compartido (iOS-safe) mientras el carrito está abierto.
+  useScrollLock(open);
 
   // Cerrar el carrito con la tecla Escape + mover el foco al cajón al abrir (a11y).
   useEffect(() => {
