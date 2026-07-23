@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#030303"/>
-  <text x="50" y="78" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-size="68" font-weight="400" fill="#D4AF37" letter-spacing="-5">A<tspan font-style="italic">H</tspan></text>
+  <rect width="100" height="100" rx="22" fill="#0F1613"/>
+  <g transform="translate(18 18) scale(0.64)" fill="none" stroke="#FDFCFA" stroke-width="13" stroke-linejoin="miter">
+    <path d="M16 92 V48 L50 14 L84 48 V92"/>
+    <path d="M16 64 H84"/>
+  </g>
 </svg>
