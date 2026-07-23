@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import SearchBox from "@/components/SearchBox";
+import { IconHeart, IconUser, IconMoon, IconSun, IconList, IconClose } from "@/components/NavIcons";
 
 const LINKS = [
   { href: "/", label: "Inicio" },
@@ -45,7 +46,7 @@ function ThemeToggle() {
       aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
       title={theme === "dark" ? "Tema claro" : "Tema oscuro"}
     >
-      <i className={`ph ${theme === "dark" ? "ph-sun" : "ph-moon"}`} aria-hidden="true"></i>
+      {theme === "dark" ? <IconSun /> : <IconMoon />}
     </button>
   );
 }
@@ -153,7 +154,7 @@ export default function Nav() {
               aria-label={`Favoritos${favCount > 0 ? ` (${favCount})` : ""}`}
               onClick={() => setOpen(false)}
             >
-              <i className="ph ph-heart" aria-hidden="true"></i>
+              <IconHeart />
               {favCount > 0 && <span className="nav-fav-badge">{favCount}</span>}
             </Link>
             <Link
@@ -162,7 +163,7 @@ export default function Nav() {
               aria-label="Mi cuenta"
               onClick={() => setOpen(false)}
             >
-              <i className="ph ph-user" aria-hidden="true"></i>
+              <IconUser />
             </Link>
             <ThemeToggle />
             <button
@@ -172,7 +173,7 @@ export default function Nav() {
               aria-expanded={open}
               onClick={() => setOpen((o) => !o)}
             >
-              <i className={`ph ${open ? "ph-x" : "ph-list"}`} aria-hidden="true"></i>
+              {open ? <IconClose /> : <IconList />}
             </button>
           </div>
         </div>

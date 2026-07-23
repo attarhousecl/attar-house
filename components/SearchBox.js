@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCatalog } from "@/context/CatalogContext";
+import { IconSearch, IconDrop } from "@/components/NavIcons";
 
 export default function SearchBox() {
   const { perfumes } = useCatalog();
@@ -76,7 +77,7 @@ export default function SearchBox() {
         onClick={() => setOpen(true)}
         aria-label="Buscar perfumes"
       >
-        <i className="ph ph-magnifying-glass"></i>
+        <IconSearch />
       </button>
 
       {open && (
@@ -102,7 +103,7 @@ export default function SearchBox() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", borderBottom: "1px solid rgba(var(--ink-rgb), 0.06)" }}>
-              <i className="ph ph-magnifying-glass" style={{ color: "var(--gold-primary)", fontSize: "1.3rem" }}></i>
+              <IconSearch style={{ color: "var(--gold-primary)", fontSize: "1.3rem" }} />
               <input
                 ref={inputRef}
                 value={q}
@@ -151,7 +152,7 @@ export default function SearchBox() {
                       {p.imageUrl ? (
                         <Image src={p.imageUrl} alt={p.name} width={44} height={44} style={{ width: "44px", height: "44px", objectFit: "cover" }} />
                       ) : (
-                        <i className="ph ph-drop" style={{ color: "var(--gold-primary)" }}></i>
+                        <IconDrop style={{ color: "var(--gold-primary)", fontSize: "1.3rem" }} />
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>

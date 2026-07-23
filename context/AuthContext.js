@@ -3,6 +3,11 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+// A dónde vuelve el cliente al confirmar su correo. Sin esto, Supabase usa el
+// "Site URL" del panel — que por defecto es http://localhost:3000 y mandaba a
+// los clientes a localhost desde el sitio en producción. Siempre al dominio real.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://attarhouse.cl";
+
 // Sesión de CLIENTE (Supabase Auth) — independiente del panel admin, que usa
 // su propia autenticación en lib/adminAuth. Con esta sesión el cliente puede
 // dejar reseñas, comprar y revisar su historial de pedidos.
@@ -43,7 +48,10 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name, phone } },
+      options: {
+        data: { full_name: name, phone },
+        emailRedirectTo: `${SITE_URL}/cuenta`,
+      },
     });
     // Si el proyecto exige confirmación por correo, no hay session todavía.
     return { user: data?.user || null, session: data?.session || null, error };
