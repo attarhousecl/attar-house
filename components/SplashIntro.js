@@ -59,7 +59,7 @@ export default function SplashIntro() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         tabIndex={-1}
       >
         <source src="/videos/perfume.mp4" type="video/mp4" />

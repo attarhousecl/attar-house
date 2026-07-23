@@ -3,8 +3,8 @@
 const isDev = process.env.NODE_ENV !== "production";
 
 // Content-Security-Policy. Permite los recursos externos que el sitio usa de
-// verdad (Google Fonts + Phosphor Icons desde unpkg), el REST/Realtime de
-// Supabase, y lo que necesita @imgly/background-removal (Estudio Fotografico
+// verdad (los iconos Phosphor ahora son self-hosted, ya NO desde unpkg/jsdelivr),
+// el REST/Realtime de Supabase, y lo que necesita @imgly/background-removal (Estudio Fotografico
 // recorta fondos en el navegador): fetch del modelo IA desde staticimgly.com,
 // import() dinámico de un módulo empaquetado como blob: (así carga su backend
 // wasm/onnxruntime), 'wasm-unsafe-eval' para instanciar ese WASM bajo una CSP
@@ -20,9 +20,9 @@ const csp = [
   "default-src 'self'",
   // En dev, @vercel/analytics carga script.debug.js desde va.vercel-scripts.com
   // (en producción usa /_vercel/insights, cubierto por 'self').
-  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://staticimgly.com${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
-  "font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:",
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://staticimgly.com${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://staticimgly.com blob: data:",
   "worker-src 'self' blob:",

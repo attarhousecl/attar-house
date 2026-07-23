@@ -1,6 +1,11 @@
 import "./globals.css";
+// Phosphor Icons self-hosted (solo peso "regular"). Antes se cargaba por
+// <Script> desde unpkg, que a su vez traia 6 stylesheets de jsdelivr (los 6
+// pesos, ~46KB de CSS sin usar) + la fuente desde CDN externo: render-blocking,
+// dependiente de red ajena y causa de los iconos en blanco. Ahora la fuente y
+// el CSS del peso regular viajan en el bundle, servidos desde el propio dominio.
+import "@phosphor-icons/web/regular";
 import { Archivo, IBM_Plex_Mono } from "next/font/google";
-import Script from "next/script";
 import Nav from "@/components/Nav";
 import SplashIntro from "@/components/SplashIntro";
 import StoreChrome from "@/components/StoreChrome";
@@ -80,13 +85,9 @@ export default function RootLayout({ children }) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
-        {/* Preconnect al CDN de iconos (Phosphor) para adelantar su handshake.
-            Las fuentes ya no son render-blocking: se sirven self-hosted vía next/font. */}
-        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
       </head>
       <body>
         <a href="#main-content" className="skip-link">Saltar al contenido</a>
-        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="afterInteractive" />
         <SplashIntro />
         <ToastProvider>
           <AuthProvider>

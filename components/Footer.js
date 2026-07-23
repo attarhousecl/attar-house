@@ -25,21 +25,21 @@ export default function Footer() {
           </div>
 
           <div className="footer-nav">
-            <h5 className="footer-nav-title">Tienda</h5>
+            <h2 className="footer-nav-title">Tienda</h2>
             <Link href="/catalogo">Catálogo</Link>
             <Link href="/disenador">Diseñador</Link>
             <Link href="/accesorios">Accesorios</Link>
           </div>
 
           <div className="footer-nav">
-            <h5 className="footer-nav-title">Información</h5>
+            <h2 className="footer-nav-title">Información</h2>
             <Link href="/#decants">¿Qué es un Decant?</Link>
             <Link href="/faq">Preguntas Frecuentes</Link>
             <Link href="/#contacto">Contacto</Link>
           </div>
 
           <div className="footer-nav">
-            <h5 className="footer-nav-title">Síguenos</h5>
+            <h2 className="footer-nav-title">Síguenos</h2>
             <a href="https://instagram.com/attar_housecl" target="_blank" rel="noreferrer">
               <i className="ph ph-instagram-logo"></i> Instagram
             </a>
