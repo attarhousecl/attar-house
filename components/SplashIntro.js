@@ -45,18 +45,10 @@ export default function SplashIntro() {
 
   return (
     <div className={`splash ${leaving ? "splash-leave" : ""}`} aria-hidden="true">
-      {/* El video de marca también vive detrás del spray (solo adorno). */}
-      <video
-        className="splash-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        tabIndex={-1}
-      >
-        <source src="/videos/perfume.mp4" type="video/mp4" />
-      </video>
+      {/* El video (perfume.mp4, ~3.4MB) se quito de aqui: apenas se veia tras el
+          velo y el spray, pero se descargaba en el primer render — el mayor costo
+          de payload del arranque. La intro queda con la animacion de spray sobre
+          el degradado de marca (igual de premium, sin descargar el video). */}
       <div className="splash-veil" aria-hidden="true"></div>
       <div className="splash-inner">
         <svg viewBox="0 0 100 100" className="splash-monogram" aria-hidden="true">
