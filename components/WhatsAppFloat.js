@@ -2,6 +2,9 @@
 
 import WhatsAppLink from "@/components/WhatsAppLink";
 
+// Botón flotante de WhatsApp. Todo el estilo (medida, posición, sombra, hover)
+// vive en .whatsapp-float (app/globals.css), con los mismos tokens --fab-* que
+// el botón del carrito para que sean un par consistente y alineado.
 export default function WhatsAppFloat() {
   return (
     <WhatsAppLink
@@ -10,26 +13,8 @@ export default function WhatsAppFloat() {
       rel="noreferrer"
       aria-label="Contactar por WhatsApp"
       className="whatsapp-float"
-      style={{
-        position: "fixed",
-        bottom: "108px",
-        right: "30px",
-        width: "56px",
-        height: "56px",
-        background: "#25D366",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: "0 4px 16px rgba(37,211,102,0.4)",
-        zIndex: 998,
-        transition: "transform 0.2s, box-shadow 0.2s",
-        textDecoration: "none",
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(37,211,102,0.5)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(37,211,102,0.4)"; }}
     >
-      <i className="ph ph-whatsapp-logo" style={{ fontSize: "1.6rem", color: "#fff" }}></i>
+      <i className="ph ph-whatsapp-logo" aria-hidden="true"></i>
     </WhatsAppLink>
   );
 }
