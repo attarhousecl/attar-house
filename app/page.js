@@ -2,7 +2,7 @@ import Link from "next/link";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import HeroVideo from "@/components/HeroVideo";
 import DecantExplorer from "@/components/DecantExplorer";
-import QuizExperience from "@/components/QuizExperience";
+import LazyQuiz from "@/components/LazyQuiz";
 import Reveal from "@/components/Reveal";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
@@ -91,7 +91,7 @@ export default function Home() {
             más van contigo.
           </p>
           <div className="home-quiz-shell">
-            <QuizExperience embed />
+            <LazyQuiz embed />
           </div>
 
           <Link href="/pack" className="pack-banner">
