@@ -83,7 +83,7 @@ export default function NewsletterSignup() {
             disabled={status === "loading"}
             style={{
               background: "var(--accent)",
-              color: "#000",
+              color: "var(--accent-contrast)",
               border: "none",
               borderRadius: "6px",
               padding: "10px 12px",
