@@ -17,7 +17,11 @@
     --bg-card: #FFFFFF;
     --text-main: #0D1411;        /* tinta */
     --text-muted: #5C665F;
-    --text-soft: #7A8985;        /* piedra */
+    /* piedra — oscurecido de #7A8985 a #626B66 para que los textos pequenos
+       (kicker, hints, labels .mono) cumplan contraste AA (>=4.5:1) sobre los
+       fondos claros #F5F5F5/#FDFCFA/#FFFFFF, incluido el chip de formato
+       seleccionado con tinte de acento. Ningun uso cae sobre fondo oscuro. */
+    --text-soft: #626B66;
 
     /* Marca / acción */
     --accent: #2D6745;           /* acción */
