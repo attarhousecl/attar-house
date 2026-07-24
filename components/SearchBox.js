@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCatalog } from "@/context/CatalogContext";
@@ -13,7 +14,13 @@ export default function SearchBox() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef(null);
+
+  // El modal se renderiza vía portal al <body>: si quedara dentro del <header>
+  // (que tiene backdrop-filter), su position:fixed quedaria atrapado dentro del
+  // header en vez de cubrir el viewport.
+  useEffect(() => setMounted(true), []);
 
   // Bloqueo de scroll compartido (iOS-safe) mientras el buscador está abierto.
   useScrollLock(open);
@@ -79,7 +86,7 @@ export default function SearchBox() {
         <IconSearch />
       </button>
 
-      {open && (
+      {mounted && open && createPortal(
         <div
           style={{
             position: "fixed", inset: 0, zIndex: 1100,
@@ -171,7 +178,8 @@ export default function SearchBox() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

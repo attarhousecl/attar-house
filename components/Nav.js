@@ -170,6 +170,7 @@ export default function Nav() {
   }, [open]);
 
   return (
+    <>
     <header
       className={`site-header ${scrolled ? "scrolled" : ""} ${overHero ? "over-hero" : ""} ${open ? "menu-open" : ""}`}
     >
@@ -230,9 +231,13 @@ export default function Nav() {
           </div>
         </div>
       </nav>
+    </header>
 
-      {/* Overlay móvil: scrim (cubre toda la pantalla, cierra al tocar) + drawer.
-          El drawer va por encima del header y de los botones flotantes. */}
+      {/* Overlay móvil FUERA del <header>: el header tiene backdrop-filter, que
+          crea un containing block y atraparia el position:fixed del drawer y del
+          scrim DENTRO del header (por eso el menu salia como una barrita arriba
+          y el scrim no cubria la pantalla). Como hermanos del header, su fixed
+          vuelve a ser relativo al viewport. */}
       <div
         className={`nav-scrim ${open ? "show" : ""}`}
         onClick={closeMenu}
@@ -281,6 +286,6 @@ export default function Nav() {
           ))}
         </nav>
       </aside>
-    </header>
+    </>
   );
 }
